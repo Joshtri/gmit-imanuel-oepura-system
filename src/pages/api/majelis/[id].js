@@ -1,0 +1,176 @@
+import prisma from "@/lib/prisma";
+import { apiResponse } from "@/lib/apiHelper";
+import { createApiHandler } from "@/lib/apiHandler";
+
+async function handleGet(req, res) {
+  try {
+    const { id } = req.query;
+
+    const majelis = await prisma.majelis.findUnique({
+      where: { id: id },
+      include: {
+        jenisJabatan: {
+          select: {
+            id: true,
+            namaJabatan: true,
+          },
+        },
+        rayon: {
+          select: {
+            id: true,
+            namaRayon: true,
+          },
+        },
+        User: {
+          select: {
+            id: true,
+            username: true,
+            email: true,
+            noWhatsapp: true,
+            role: true,
+            createdAt: true,
+          },
+        },
+      },
+    });
+
+    if (!majelis) {
+      return res
+        .status(404)
+        .json(apiResponse(false, null, "Majelis tidak ditemukan"));
+    }
+
+    return res
+      .status(200)
+      .json(apiResponse(true, majelis, "Data berhasil diambil"));
+  } catch (error) {
+    console.error("Error fetching majelis:", error);
+    return res
+      .status(500)
+      .json(
+        apiResponse(
+          false,
+          null,
+          "Gagal mengambil data majelis",
+          error.message
+        )
+      );
+  }
+}
+
+async function handlePatch(req, res) {
+  try {
+    const { id } = req.query;
+    const { namaLengkap, mulai, selesai, idRayon, jenisJabatanId } = req.body;
+
+    if (!namaLengkap || !mulai || !jenisJabatanId) {
+      return res
+        .status(400)
+        .json(apiResponse(false, null, "Nama lengkap, tanggal mulai, dan jenis jabatan wajib diisi"));
+    }
+
+    const updatedMajelis = await prisma.majelis.update({
+      where: { id: id },
+      data: {
+        namaLengkap,
+        mulai: new Date(mulai),
+        selesai: selesai ? new Date(selesai) : null,
+        idRayon: idRayon || null,
+        jenisJabatanId: jenisJabatanId || null,
+      },
+      include: {
+        jenisJabatan: {
+          select: {
+            namaJabatan: true,
+          },
+        },
+        rayon: {
+          select: {
+            namaRayon: true,
+          },
+        },
+      },
+    });
+
+    return res
+      .status(200)
+      .json(
+        apiResponse(
+          true,
+          updatedMajelis,
+          "Majelis berhasil diperbarui"
+        )
+      );
+  } catch (error) {
+    console.error("Error updating majelis:", error);
+    return res
+      .status(500)
+      .json(
+        apiResponse(
+          false,
+          null,
+          "Gagal memperbarui majelis",
+          error.message
+        )
+      );
+  }
+}
+
+async function handleDelete(req, res) {
+  try {
+    const { id } = req.query;
+
+    // Start transaction to delete both majelis and associated user
+    const result = await prisma.$transaction(async (tx) => {
+      // First, delete the associated user account
+      const userToDelete = await tx.user.findUnique({
+        where: { idMajelis: id },
+      });
+
+      if (userToDelete) {
+        await tx.user.delete({
+          where: { id: userToDelete.id },
+        });
+      }
+
+      // Then delete the majelis
+      const deletedMajelis = await tx.majelis.delete({
+        where: { id: id },
+        select: {
+          id: true,
+          namaLengkap: true,
+        },
+      });
+
+      return {
+        majelis: deletedMajelis,
+        userDeleted: !!userToDelete,
+      };
+    });
+
+    return res
+      .status(200)
+      .json(
+        apiResponse(
+          true, 
+          result, 
+          result.userDeleted 
+            ? "Majelis dan akun pengguna berhasil dihapus"
+            : "Majelis berhasil dihapus"
+        )
+      );
+  } catch (error) {
+    console.error("Error deleting majelis:", error);
+    return res
+      .status(500)
+      .json(
+        apiResponse(false, null, "Gagal menghapus majelis", error.message)
+      );
+  }
+}
+
+export default createApiHandler({
+  GET: handleGet,
+  PATCH: handlePatch,
+  DELETE: handleDelete,
+});

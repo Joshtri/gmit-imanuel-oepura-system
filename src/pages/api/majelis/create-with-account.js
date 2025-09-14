@@ -1,0 +1,183 @@
+import prisma from "@/lib/prisma";
+import { apiResponse } from "@/lib/apiHelper";
+import { createApiHandler } from "@/lib/apiHandler";
+import bcrypt from "bcryptjs";
+
+async function handlePost(req, res) {
+  try {
+    const {
+      // Majelis data
+      namaLengkap,
+      mulai,
+      selesai,
+      idRayon,
+      jenisJabatanId,
+      // User account data
+      username,
+      email,
+      password,
+      noWhatsapp,
+    } = req.body;
+
+    // Validate required fields
+    if (!namaLengkap || !mulai || !jenisJabatanId || !username || !email || !password) {
+      return res
+        .status(400)
+        .json(
+          apiResponse(
+            false,
+            null,
+            "Data yang wajib diisi: Nama Lengkap, Tanggal Mulai, Jenis Jabatan, Username, Email, dan Password"
+          )
+        );
+    }
+
+    // Start transaction
+    const result = await prisma.$transaction(async (tx) => {
+      // 1. Check if email already exists
+      const existingEmail = await tx.user.findUnique({
+        where: { email },
+      });
+
+      if (existingEmail) {
+        throw new Error("EMAIL_EXISTS");
+      }
+
+      // 2. Check if username already exists
+      const existingUsername = await tx.user.findUnique({
+        where: { username },
+      });
+
+      if (existingUsername) {
+        throw new Error("USERNAME_EXISTS");
+      }
+
+      // 3. Validate jenis jabatan
+      if (jenisJabatanId) {
+        const jenisJabatan = await tx.jenisJabatan.findUnique({
+          where: { id: jenisJabatanId },
+        });
+
+        if (!jenisJabatan) {
+          throw new Error("JENIS_JABATAN_NOT_FOUND");
+        }
+      }
+
+      // 4. Validate rayon if provided
+      if (idRayon) {
+        const rayon = await tx.rayon.findUnique({
+          where: { id: idRayon },
+        });
+
+        if (!rayon) {
+          throw new Error("RAYON_NOT_FOUND");
+        }
+      }
+
+
+      // 6. Create Majelis
+      const newMajelis = await tx.majelis.create({
+        data: {
+          namaLengkap,
+          mulai: new Date(mulai),
+          selesai: selesai ? new Date(selesai) : null,
+          idRayon: idRayon || null,
+          jenisJabatanId: jenisJabatanId || null,
+        },
+        include: {
+          jenisJabatan: {
+            select: {
+              namaJabatan: true,
+            },
+          },
+          rayon: {
+            select: {
+              namaRayon: true,
+            },
+          },
+        },
+      });
+
+      // 7. Hash password
+      const hashedPassword = await bcrypt.hash(password, 12);
+
+      // 8. Create User account linked to Majelis
+      const newUser = await tx.user.create({
+        data: {
+          username,
+          email,
+          password: hashedPassword,
+          noWhatsapp: noWhatsapp || null,
+          role: "MAJELIS",
+          idMajelis: newMajelis.id,
+        },
+        select: {
+          id: true,
+          username: true,
+          email: true,
+          noWhatsapp: true,
+          role: true,
+          createdAt: true,
+        },
+      });
+
+      return {
+        majelis: newMajelis,
+        user: newUser,
+      };
+    });
+
+    return res
+      .status(201)
+      .json(
+        apiResponse(
+          true,
+          result,
+          "Majelis dan akun berhasil dibuat"
+        )
+      );
+  } catch (error) {
+    console.error("Error creating majelis with account:", error);
+
+    // Handle specific transaction errors
+    if (error.message === "EMAIL_EXISTS") {
+      return res
+        .status(409)
+        .json(apiResponse(false, null, "Email sudah terdaftar"));
+    }
+
+    if (error.message === "USERNAME_EXISTS") {
+      return res
+        .status(409)
+        .json(apiResponse(false, null, "Username sudah terdaftar"));
+    }
+
+    if (error.message === "JENIS_JABATAN_NOT_FOUND") {
+      return res
+        .status(404)
+        .json(apiResponse(false, null, "Jenis jabatan tidak ditemukan"));
+    }
+
+    if (error.message === "RAYON_NOT_FOUND") {
+      return res
+        .status(404)
+        .json(apiResponse(false, null, "Rayon tidak ditemukan"));
+    }
+
+
+    return res
+      .status(500)
+      .json(
+        apiResponse(
+          false,
+          null,
+          "Gagal membuat majelis dan akun",
+          error.message
+        )
+      );
+  }
+}
+
+export default createApiHandler({
+  POST: handlePost,
+});

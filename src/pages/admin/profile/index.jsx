@@ -1,0 +1,24 @@
+import ProfileGrid from "@/components/profile/ProfileGrid";
+import PageHeader from "@/components/ui/PageHeader";
+import { useUser } from "@/hooks/useUser";
+import React from "react";
+
+export default function ProfilePage() {
+  const { user: authUser } = useUser();
+
+  console.log(authUser);
+  return (
+    <>
+      <PageHeader
+        breadcrumb={[
+          { label: "Admin", href: "/admin" },
+          { label: "Profile", href: "/admin/profile" },
+          { label: "Detail", href: "/admin/profile" },
+        ]}
+        description={"Detail informasi profile"}
+        title={"Profile"}
+      />
+      <ProfileGrid user={authUser} />
+    </>
+  );
+}

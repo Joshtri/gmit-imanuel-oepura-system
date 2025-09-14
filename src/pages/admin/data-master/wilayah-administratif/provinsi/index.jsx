@@ -1,0 +1,286 @@
+import { useState } from "react";
+import { useQuery } from "@tanstack/react-query";
+import { Eye, PlusIcon, Trash } from "lucide-react";
+
+import masterService from "@/services/masterService";
+import {
+  provinsiSchema,
+  kotaKabupatenSchema,
+} from "@/validations/masterSchema";
+import useModalForm from "@/hooks/useModalForm";
+import CreateOrEditModal from "@/components/common/CreateOrEditModal";
+import ListGrid from "@/components/ui/ListGrid";
+import useDrawer from "@/hooks/useDrawer";
+import Drawer from "@/components/ui/Drawer";
+import KotaKabupatenDrawerContent from "@/components/geografis/KotaKabupatenDrawerContent";
+import ConfirmDialog from "@/components/ui/ConfirmDialog";
+import useConfirm from "@/hooks/useConfirm";
+
+// Konfigurasi field input di modal provinsi
+const provinsiFields = [
+  {
+    type: "text",
+    name: "nama",
+    label: "Nama Provinsi",
+    placeholder: "Masukkan nama provinsi",
+  },
+];
+
+// Konfigurasi field input di modal kota/kabupaten
+const kotaKabupatenFields = [
+  {
+    type: "text",
+    name: "nama",
+    label: "Nama Kota / Kabupaten",
+    placeholder: "Masukkan nama kota / kabupaten",
+  },
+];
+
+export default function ProvinsiPage() {
+  const kotaKabupatenModal = useModalForm(); // untuk Kota/Kabupaten
+  const modal = useModalForm(); // For provinsi modal
+  const drawer = useDrawer(); // Untuk drawer kota/kab
+  const confirm = useConfirm();
+  const [viewData, setViewData] = useState(null);
+  const [isViewModalOpen, setIsViewModalOpen] = useState(false);
+
+  const { data, isLoading, refetch } = useQuery({
+    queryKey: ["provinsi"],
+    queryFn: () => masterService.getProvinsi(),
+  });
+
+  const { data: kotaKabupatenData, isLoading: isLoadingKotaKabupaten } =
+    useQuery({
+      enabled: !!drawer.data?.id && drawer.isOpen,
+      queryKey: ["kota-kabupaten", drawer.data?.id],
+      queryFn: () => masterService.getKotaKabupatenByProvinsi(drawer.data.id),
+    });
+
+  const columns = [
+    {
+      key: "id",
+      label: "ID",
+      type: "text",
+    },
+    {
+      key: "nama",
+      label: "Nama Provinsi",
+      type: "text",
+    },
+    {
+      key: "isActive",
+      label: "Status",
+      type: "boolean",
+      badgeVariant: (value) => (value === true ? "success" : "danger"),
+    },
+  ];
+
+  const handleProvinsiSuccess = () => {
+    refetch();
+    modal.close();
+  };
+
+  const handleProvinsiSubmit = async (formData, isEdit) => {
+    if (isEdit) {
+      return await masterService.updateProvinsi(modal.editData.id, formData);
+    }
+    return await masterService.createProvinsi(formData);
+  };
+
+  const handleDelete = (item) => {
+    confirm.showConfirm({
+      title: "Hapus Provinsi",
+      message: `Apakah Anda yakin ingin menghapus "${item.nama}"? Data yang sudah dihapus tidak dapat dikembalikan.`,
+      confirmText: "Ya, Hapus",
+      cancelText: "Batal",
+      variant: "danger",
+      onConfirm: async () => {
+        try {
+          await masterService.deleteProvinsi(item.id);
+          refetch();
+        } catch (error) {
+          console.error("Error deleting provinsi:", error);
+        }
+      },
+    });
+  };
+
+  const handleView = (item) => {
+    setViewData(item);
+    setIsViewModalOpen(true);
+  };
+
+  // Handle kota/kabupaten form submission
+  const handleKotaKabupatenSubmit = async (formData, isEdit) => {
+    return await masterService.createKotaKabupaten(formData);
+  };
+
+  // Handle kota/kabupaten success
+  const handleKotaKabupatenSuccess = () => {
+    kotaKabupatenModal.close();
+    // Refetch drawer data if needed
+    if (drawer.isOpen) {
+      // Trigger refetch of kota/kabupaten data
+    }
+  };
+
+  return (
+    <>
+      <ListGrid
+        breadcrumb={[
+          {
+            label: "Wilayah Administratif",
+            href: "/admin/data-master/wilayah-administratif",
+          },
+          {
+            label: "Provinsi",
+            href: "/admin/data-master/wilayah-administratif/provinsi",
+          },
+        ]}
+        columns={columns}
+        data={data?.data.items || []}
+        description={"Kelola data provinsi"}
+        isLoading={isLoading}
+        rowActionType="horizontal"
+        rowActions={[
+          {
+            label: "Edit",
+            icon: Eye,
+            onClick: (item) => modal.open(item),
+            variant: "outline",
+          },
+          {
+            label: "View",
+            icon: Eye,
+            onClick: handleView,
+            variant: "outline",
+            tooltip: "Lihat detail lengkap provinsi",
+          },
+          {
+            label: "Delete",
+            icon: Trash,
+            onClick: handleDelete,
+            variant: "outline",
+            tooltip: "Hapus provinsi",
+          },
+          {
+            label: "Tambah Kota / Kabupaten",
+            icon: PlusIcon,
+            onClick: (item) => kotaKabupatenModal.open(item),
+            variant: "outline",
+            tooltip: "Tambah kota / kabupaten baru",
+          },
+          {
+            label: "Lihat kota / Kabupaten",
+            icon: Eye,
+            onClick: (item) => drawer.open(item),
+            variant: "outline",
+            tooltip: "Lihat kota / kabupaten yang ada",
+          },
+        ]}
+        searchPlaceholder="Cari provinsi..."
+        title={"Daftar Provinsi"}
+        onAdd={() => modal.open()}
+      />
+
+      {/* Provinsi Modal */}
+      <CreateOrEditModal
+        defaultValues={{ nama: "" }}
+        editData={modal.editData}
+        fields={provinsiFields}
+        isOpen={modal.isOpen}
+        schema={provinsiSchema}
+        title="Provinsi"
+        onClose={modal.close}
+        onSubmit={handleProvinsiSubmit}
+        onSuccess={handleProvinsiSuccess}
+      />
+
+      {/* Kota/Kabupaten Modal */}
+      <CreateOrEditModal
+        defaultValues={{
+          nama: "",
+          idProvinsi: kotaKabupatenModal.editData?.id || "",
+        }}
+        editData={null}
+        fields={kotaKabupatenFields}
+        isOpen={kotaKabupatenModal.isOpen}
+        schema={kotaKabupatenSchema}
+        title={`Tambah Kota / Kabupaten untuk ${kotaKabupatenModal.editData?.nama || ""}`}
+        onClose={kotaKabupatenModal.close}
+        onSubmit={handleKotaKabupatenSubmit}
+        onSuccess={handleKotaKabupatenSuccess}
+      />
+
+      {/* Drawer untuk melihat kota/kabupaten - Sekarang menggunakan komponen reusable */}
+      <Drawer
+        isOpen={drawer.isOpen}
+        onClose={drawer.close}
+        title={`Kota / Kabupaten - ${drawer.data?.nama || ""}`}
+        width="w-96"
+        position="right"
+      >
+        <KotaKabupatenDrawerContent
+          data={kotaKabupatenData?.data}
+          isLoading={isLoadingKotaKabupaten}
+          provinsiName={drawer.data?.nama}
+        />
+      </Drawer>
+
+      <ConfirmDialog
+        isOpen={confirm.isOpen}
+        onClose={confirm.hideConfirm}
+        onConfirm={confirm.handleConfirm}
+        title={confirm.config.title}
+        message={confirm.config.message}
+        confirmText={confirm.config.confirmText}
+        cancelText={confirm.config.cancelText}
+        variant={confirm.config.variant}
+      />
+
+      {/* View Modal */}
+      {isViewModalOpen && viewData && (
+        <div className="fixed inset-0 z-50 overflow-y-auto">
+          <div className="fixed inset-0 bg-black/10 backdrop-blur-sm transition-opacity"></div>
+          
+          <div className="flex min-h-full items-end justify-center p-4 text-center sm:items-center sm:p-0">
+            <div className="relative transform overflow-hidden rounded-lg bg-white text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-lg">
+              <div className="bg-white px-4 pb-4 pt-5 sm:p-6 sm:pb-4">
+                <h3 className="text-lg font-medium leading-6 text-gray-900 mb-4">
+                  Detail Provinsi
+                </h3>
+                <div className="space-y-3">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-500">ID</label>
+                    <p className="text-sm text-gray-900">{viewData.id}</p>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-500">Nama</label>
+                    <p className="text-sm text-gray-900">{viewData.nama}</p>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-500">Status</label>
+                    <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
+                      viewData.isActive ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
+                    }`}>
+                      {viewData.isActive ? 'Aktif' : 'Tidak Aktif'}
+                    </span>
+                  </div>
+                </div>
+              </div>
+              <div className="bg-gray-50 px-4 py-3 sm:flex sm:flex-row-reverse sm:px-6">
+                <button
+                  type="button"
+                  className="inline-flex w-full justify-center rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 sm:w-auto"
+                  onClick={() => setIsViewModalOpen(false)}
+                >
+                  Tutup
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+    </>
+  );
+}

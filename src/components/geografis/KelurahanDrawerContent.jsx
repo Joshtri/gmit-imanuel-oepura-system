@@ -1,0 +1,35 @@
+import useModalForm from "@/hooks/useModalForm";
+import { useRouter } from "next/navigation";
+import React from "react";
+import LoadingSpinner from "../ui/loading/LoadingSpinner";
+
+export default function KelurahanDrawerContent({
+  data,
+  isLoading,
+  kecamatanName,
+}) {
+  const modal = useModalForm();
+  const router = useRouter();
+
+  if (isLoading) {
+    return <LoadingSpinner />;
+  }
+
+  if (!data?.length) {
+    return (
+      <div className="text-center py-12">
+        <div className="text-gray-400 text-4xl mb-4">📍</div>
+        <p className="text-sm text-gray-500 mb-2">Belum ada kelurahan</p>
+        <p className="text-xs text-gray-400">untuk provinsi {kecamatanName}</p>
+      </div>
+    );
+  }
+  return (
+    <div className="space-y-3">
+      <div className="text-sm text-gray-600 mb-4">
+        Ditemukan {data.length} kelurahan
+      </div>
+      <div>KelurahanDrawerContent</div>
+    </div>
+  );
+}

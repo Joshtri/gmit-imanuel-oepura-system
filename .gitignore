@@ -41,3 +41,7 @@ yarn-error.log*
 next-env.d.ts
 
 /src/generated/prisma
+
+seed-master-data.js
+test-db-connection.js
+jwt.js

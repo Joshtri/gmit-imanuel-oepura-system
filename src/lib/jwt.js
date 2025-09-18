@@ -28,5 +28,6 @@ export const getTokenFromHeader = (authHeader) => {
   if (!authHeader || !authHeader.startsWith("Bearer ")) {
     return null;
   }
+
   return authHeader.substring(7);
 };

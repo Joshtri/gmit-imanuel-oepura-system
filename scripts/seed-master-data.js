@@ -1,4 +1,5 @@
 const { PrismaClient } = require('@prisma/client');
+const bcrypt = require('bcrypt');
 const prisma = new PrismaClient();
 
 async function main() {
@@ -244,6 +245,60 @@ async function main() {
     }
     console.log('✅ Pekerjaan seeded');
 
+    // 10. USERS DEFAULT
+    console.log('👥 Seeding Default Users...');
+
+    // Hash password untuk semua user
+    const defaultPassword = await bcrypt.hash("password123", 10);
+
+    const usersData = [
+      {
+        username: "admin",
+        email: "admin@gmit.com",
+        password: defaultPassword,
+        role: "ADMIN",
+        noWhatsapp: "081234567890",
+      },
+      {
+        username: "employee",
+        email: "employee@gmit.com",
+        password: defaultPassword,
+        role: "EMPLOYEE",
+        noWhatsapp: "081234567891",
+      },
+      {
+        username: "pendeta",
+        email: "pendeta@gmit.com",
+        password: defaultPassword,
+        role: "PENDETA",
+        noWhatsapp: "081234567892",
+      },
+      {
+        username: "majelis",
+        email: "majelis@gmit.com",
+        password: defaultPassword,
+        role: "MAJELIS",
+        noWhatsapp: "081234567893",
+      },
+      {
+        username: "jemaat",
+        email: "jemaat@gmit.com",
+        password: defaultPassword,
+        role: "JEMAAT",
+        noWhatsapp: "081234567894",
+      },
+    ];
+
+    for (const userData of usersData) {
+      const exists = await prisma.user.findFirst({
+        where: { email: userData.email }
+      });
+      if (!exists) {
+        await prisma.user.create({ data: userData });
+      }
+    }
+    console.log('✅ Default Users seeded');
+    console.log('📋 Default Users created with password: password123');
 
     console.log('🎉 All master data seeded successfully!');
     
@@ -258,6 +313,7 @@ async function main() {
       prisma.keadaanRumah.count(),
       prisma.statusKeluarga.count(),
       prisma.pekerjaan.count(),
+      prisma.user.count(),
     ]);
 
     console.log('\n📊 Summary:');
@@ -270,6 +326,7 @@ async function main() {
     console.log(`• Keadaan Rumah: ${counts[6]} records`);
     console.log(`• Status Keluarga: ${counts[7]} records`);
     console.log(`• Pekerjaan: ${counts[8]} records`);
+    console.log(`• Users: ${counts[9]} records`);
     console.log(`\n🎯 Total: ${counts.reduce((a, b) => a + b, 0)} records created`);
 
   } catch (error) {

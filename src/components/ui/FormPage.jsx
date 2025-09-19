@@ -33,8 +33,8 @@ export default function FormPage({
           onInputChange({
             target: {
               name: field.name,
-              value: typeof e === 'object' && e.target ? e.target.value : e
-            }
+              value: typeof e === "object" && e.target ? e.target.value : e,
+            },
           });
         }
       },
@@ -44,19 +44,9 @@ export default function FormPage({
 
     switch (field.type) {
       case "select":
-        return (
-          <SelectInput
-            {...commonProps}
-            options={field.options || []}
-          />
-        );
+        return <SelectInput {...commonProps} options={field.options || []} />;
       case "textarea":
-        return (
-          <TextAreaInput
-            {...commonProps}
-            rows={field.rows || 4}
-          />
-        );
+        return <TextAreaInput {...commonProps} rows={field.rows || 4} />;
       case "number":
         return (
           <NumberInput
@@ -67,17 +57,9 @@ export default function FormPage({
           />
         );
       case "date":
-        return (
-          <DatePicker
-            {...commonProps}
-          />
-        );
+        return <DatePicker {...commonProps} />;
       case "time":
-        return (
-          <TimeInput
-            {...commonProps}
-          />
-        );
+        return <TimeInput {...commonProps} />;
       case "toggle":
         return (
           <ToggleInput
@@ -94,12 +76,7 @@ export default function FormPage({
           />
         );
       default:
-        return (
-          <TextInput
-            {...commonProps}
-            type={field.type || "text"}
-          />
-        );
+        return <TextInput {...commonProps} type={field.type || "text"} />;
     }
   };
 
@@ -154,9 +131,7 @@ export default function FormPage({
                     onClick={action.onClick}
                     className="flex items-center gap-2"
                   >
-                    {ActionIcon && (
-                      <ActionIcon className="w-4 h-4" />
-                    )}
+                    {ActionIcon && <ActionIcon className="w-4 h-4" />}
                     {action.loading ? "Memproses..." : action.label}
                   </Button>
                 );

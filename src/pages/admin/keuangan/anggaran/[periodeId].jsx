@@ -20,7 +20,7 @@ import PageHeader from "@/components/ui/PageHeader";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { Badge } from "@/components/ui/Badge";
-import LoadingSpinner from "@/components/ui/LoadingSpinner";
+import LoadingSpinner from "@/components/ui/loading/LoadingSpinner";
 import ConfirmDialog from "@/components/ui/ConfirmDialog";
 
 export default function AnggaranPeriodePage() {

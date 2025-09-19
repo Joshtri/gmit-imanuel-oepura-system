@@ -58,7 +58,8 @@
       "Bash(npx eslint:*)",
       "Bash(git checkout:*)",
       "Bash(npm uninstall:*)",
-      "Bash(cd:*)"
+      "Bash(cd:*)",
+      "Bash(npm run build:*)"
     ],
     "deny": [],
     "ask": []

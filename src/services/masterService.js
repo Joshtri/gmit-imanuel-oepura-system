@@ -107,21 +107,15 @@ const masterService = {
   },
 
   createJaminanKesehatan: async (data) => {
-    const res = await axios.post("/jaminan-kesehatan", data);
-
-    return res.data;
+    return handleApiCall(() => axios.post("/jaminan-kesehatan", data));
   },
 
   updateJaminanKesehatan: async (id, data) => {
-    const res = await axios.patch(`/jaminan-kesehatan/${id}`, data);
-
-    return res.data;
+    return handleApiCall(() => axios.patch(`/jaminan-kesehatan/${id}`, data));
   },
 
   deleteJaminanKesehatan: async (id) => {
-    const res = await axios.delete(`/jaminan-kesehatan/${id}`);
-
-    return res.data;
+    return handleApiCall(() => axios.delete(`/jaminan-kesehatan/${id}`));
   },
 
   // =================== STATUS DALAM KELUARGA ===================

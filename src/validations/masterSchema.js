@@ -167,3 +167,9 @@ export const jenisPengumumanSchema = z.object({
   deskripsi: z.string().optional(),
   isActive: z.boolean().default(true),
 });
+
+
+
+function testForking(){
+  console.log("test forking");
+}

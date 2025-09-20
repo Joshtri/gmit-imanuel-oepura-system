@@ -11,7 +11,7 @@ async function handleGet(req, res) {
       include: {
         _count: {
           select: {
-            ibadahKeluargaJemaats: true,
+            jadwalIbadahs: true,
           },
         },
       },
@@ -60,7 +60,7 @@ async function handlePatch(req, res) {
       include: {
         _count: {
           select: {
-            ibadahKeluargaJemaats: true,
+            jadwalIbadahs: true,
           },
         },
       },
@@ -117,13 +117,13 @@ async function handleDelete(req, res) {
       select: {
         _count: {
           select: {
-            ibadahKeluargaJemaats: true,
+            jadwalIbadahs: true,
           },
         },
       },
     });
 
-    if (count && count._count.ibadahKeluargaJemaats > 0) {
+    if (count && count._count.jadwalIbadahs > 0) {
       return res
         .status(400)
         .json(

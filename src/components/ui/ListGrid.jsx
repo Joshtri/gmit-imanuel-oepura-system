@@ -178,6 +178,7 @@ export default function ListGrid({
   // Export Props
   exportable = false,
   exportFilename,
+  exportColumns = null,
 
   // Legacy action handlers (for backward compatibility)
   onAdd,
@@ -667,6 +668,7 @@ export default function ListGrid({
         onClose={() => setShowExportModal(false)}
         data={sortedData}
         columns={columns}
+        exportColumns={exportColumns}
         filename={exportFilename || title?.toLowerCase().replace(/\s+/g, '-') || 'export'}
         title={title || 'Data Export'}
       />

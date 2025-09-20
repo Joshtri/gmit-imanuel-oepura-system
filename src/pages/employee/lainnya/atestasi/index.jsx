@@ -389,6 +389,8 @@ export default function AtestasiPage() {
         title="Manajemen Atestasi Jemaat"
         stats={stats}
         onAdd={()=> router.push('/employee/lainnya/atestasi/create')}
+        exportable={true}
+        exportFilename="atestasi"
         // onAdd={() => modal.open()}
         filters={[
           {

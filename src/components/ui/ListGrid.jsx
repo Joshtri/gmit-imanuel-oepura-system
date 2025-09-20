@@ -7,6 +7,8 @@ import {
   Trash2,
   Edit,
   Eye,
+  ChevronUp,
+  ChevronDown,
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/Badge";
@@ -192,6 +194,7 @@ export default function ListGrid({
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedFilters, setSelectedFilters] = useState({});
   const [viewMode, setViewMode] = useState("table"); // table or grid
+  const [sortConfig, setSortConfig] = useState({ key: null, direction: "asc" });
 
   // Merge legacy actions with new rowActions array for backward compatibility
   const allRowActions = [
@@ -230,6 +233,56 @@ export default function ListGrid({
     ...(onAdd ? [{ label: "Tambah", icon: Plus, onClick: onAdd }] : []),
   ];
 
+  // Sorting function
+  const sortData = (data, sortConfig) => {
+    if (!sortConfig.key) {
+      // Default sorting: find the first text column and sort A-Z
+      const firstTextColumn = columns.find(col =>
+        col.type !== "boolean" && col.type !== "date" && col.type !== "currency"
+      );
+      if (firstTextColumn) {
+        return [...data].sort((a, b) => {
+          const aVal = String(a[firstTextColumn.key] || "").toLowerCase();
+          const bVal = String(b[firstTextColumn.key] || "").toLowerCase();
+          return aVal.localeCompare(bVal);
+        });
+      }
+      return data;
+    }
+
+    return [...data].sort((a, b) => {
+      const aVal = a[sortConfig.key];
+      const bVal = b[sortConfig.key];
+
+      if (aVal === null || aVal === undefined) return 1;
+      if (bVal === null || bVal === undefined) return -1;
+
+      let comparison = 0;
+
+      if (typeof aVal === "string" && typeof bVal === "string") {
+        comparison = aVal.toLowerCase().localeCompare(bVal.toLowerCase());
+      } else if (typeof aVal === "number" && typeof bVal === "number") {
+        comparison = aVal - bVal;
+      } else if (aVal instanceof Date && bVal instanceof Date) {
+        comparison = aVal.getTime() - bVal.getTime();
+      } else {
+        comparison = String(aVal).toLowerCase().localeCompare(String(bVal).toLowerCase());
+      }
+
+      return sortConfig.direction === "desc" ? -comparison : comparison;
+    });
+  };
+
+  // Handle sort
+  const handleSort = (key) => {
+    let direction = "asc";
+    if (sortConfig.key === key && sortConfig.direction === "asc") {
+      direction = "desc";
+    }
+    setSortConfig({ key, direction });
+    setCurrentPage(1);
+  };
+
   // Filter and search data
   const filteredData = data.filter((item) => {
     // Search filter
@@ -253,10 +306,13 @@ export default function ListGrid({
     return matchesSearch && matchesFilters;
   });
 
+  // Sort the filtered data
+  const sortedData = sortData(filteredData, sortConfig);
+
   // Pagination
-  const totalPages = Math.ceil(filteredData.length / itemsPerPage);
+  const totalPages = Math.ceil(sortedData.length / itemsPerPage);
   const startIndex = (currentPage - 1) * itemsPerPage;
-  const paginatedData = filteredData.slice(
+  const paginatedData = sortedData.slice(
     startIndex,
     startIndex + itemsPerPage
   );
@@ -392,7 +448,7 @@ export default function ListGrid({
       <Card>
         <CardHeader>
           <CardTitle>
-            {title} {!isLoading && `(${filteredData.length})`}
+            {title} {!isLoading && `(${sortedData.length})`}
           </CardTitle>
         </CardHeader>
         <CardContent>
@@ -440,9 +496,28 @@ export default function ListGrid({
                     {columns.map((column, index) => (
                       <th
                         key={index}
-                        className="text-left p-4 font-medium text-gray-600"
+                        className="text-left p-4 font-medium text-gray-600 cursor-pointer hover:bg-gray-50 select-none"
+                        onClick={() => handleSort(column.key)}
                       >
-                        {column.label}
+                        <div className="flex items-center gap-2">
+                          {column.label}
+                          <div className="flex flex-col">
+                            <ChevronUp
+                              className={`h-3 w-3 ${
+                                sortConfig.key === column.key && sortConfig.direction === "asc"
+                                  ? "text-blue-600"
+                                  : "text-gray-300"
+                              }`}
+                            />
+                            <ChevronDown
+                              className={`h-3 w-3 -mt-1 ${
+                                sortConfig.key === column.key && sortConfig.direction === "desc"
+                                  ? "text-blue-600"
+                                  : "text-gray-300"
+                              }`}
+                            />
+                          </div>
+                        </div>
                       </th>
                     ))}
                     {allRowActions.length > 0 && (
@@ -518,8 +593,8 @@ export default function ListGrid({
             <div className="flex items-center justify-between mt-6">
               <div className="text-sm text-gray-700">
                 Menampilkan {startIndex + 1} hingga{" "}
-                {Math.min(startIndex + itemsPerPage, filteredData.length)} dari{" "}
-                {filteredData.length} data
+                {Math.min(startIndex + itemsPerPage, sortedData.length)} dari{" "}
+                {sortedData.length} data
               </div>
               <div className="flex gap-2">
                 <Button

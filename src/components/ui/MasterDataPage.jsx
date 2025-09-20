@@ -35,38 +35,56 @@ export default function MasterDataPage({
   });
 
   const deleteMutation = useMutation({
-    mutationFn: (id) => service.delete(id),
-    onSuccess: () => {
+    mutationFn: async (id) => {
+      const result = await service.delete(id);
+      if (!result.success) {
+        throw new Error(result.message);
+      }
+      return result;
+    },
+    onSuccess: (result) => {
       queryClient.invalidateQueries({ queryKey: [queryKey] });
-      toast.success(`${title} berhasil dihapus`);
+      toast.success(result.message || `${title} berhasil dihapus`);
       setDeleteItem(null);
     },
     onError: (error) => {
-      toast.error(error?.response?.data?.message || "Gagal menghapus data");
+      toast.error(error?.message || "Gagal menghapus data");
     },
   });
 
   const updateMutation = useMutation({
-    mutationFn: ({ id, data }) => service.update(id, data),
-    onSuccess: () => {
+    mutationFn: async ({ id, data }) => {
+      const result = await service.update(id, data);
+      if (!result.success) {
+        throw new Error(result.message);
+      }
+      return result;
+    },
+    onSuccess: (result) => {
       queryClient.invalidateQueries({ queryKey: [queryKey] });
-      toast.success(`${title} berhasil diperbarui`);
+      toast.success(result.message || `${title} berhasil diperbarui`);
       setEditItem(null);
     },
     onError: (error) => {
-      toast.error(error?.response?.data?.message || "Gagal memperbarui data");
+      toast.error(error?.message || "Gagal memperbarui data");
     },
   });
 
   const createMutation = useMutation({
-    mutationFn: (data) => service.create(data),
-    onSuccess: () => {
+    mutationFn: async (data) => {
+      const result = await service.create(data);
+      if (!result.success) {
+        throw new Error(result.message);
+      }
+      return result;
+    },
+    onSuccess: (result) => {
       queryClient.invalidateQueries({ queryKey: [queryKey] });
-      toast.success(`${title} berhasil ditambahkan`);
+      toast.success(result.message || `${title} berhasil ditambahkan`);
       setShowCreate(false);
     },
     onError: (error) => {
-      toast.error(error?.response?.data?.message || "Gagal menambahkan data");
+      toast.error(error?.message || "Gagal menambahkan data");
     },
   });
 

@@ -273,31 +273,31 @@ export default function CreateMajelisPage() {
       case 3:
         return (
           <StepContent>
-            <div className="bg-gray-50 rounded-lg p-6">
-              <h3 className="text-lg font-semibold mb-4 text-gray-900">
+            <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-6 transition-colors duration-300">
+              <h3 className="text-lg font-semibold mb-4 text-gray-900 dark:text-white">
                 Konfirmasi Data Majelis
               </h3>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
-                  <h4 className="font-medium text-gray-700 mb-3">
+                  <h4 className="font-medium text-gray-700 dark:text-gray-200 mb-3">
                     Data Majelis
                   </h4>
                   <div className="space-y-2">
                     <div className="flex justify-between">
-                      <span className="text-gray-600">Nama Lengkap:</span>
-                      <span className="font-medium">
+                      <span className="text-gray-600 dark:text-gray-400">Nama Lengkap:</span>
+                      <span className="font-medium text-gray-900 dark:text-white">
                         {watchedValues.namaLengkap}
                       </span>
                     </div>
                     <div className="flex justify-between">
-                      <span className="text-gray-600">Tanggal Mulai:</span>
-                      <span className="font-medium">{watchedValues.mulai}</span>
+                      <span className="text-gray-600 dark:text-gray-400">Tanggal Mulai:</span>
+                      <span className="font-medium text-gray-900 dark:text-white">{watchedValues.mulai}</span>
                     </div>
                     {watchedValues.selesai && (
                       <div className="flex justify-between">
-                        <span className="text-gray-600">Tanggal Selesai:</span>
-                        <span className="font-medium">
+                        <span className="text-gray-600 dark:text-gray-400">Tanggal Selesai:</span>
+                        <span className="font-medium text-gray-900 dark:text-white">
                           {watchedValues.selesai}
                         </span>
                       </div>
@@ -306,22 +306,22 @@ export default function CreateMajelisPage() {
                 </div>
 
                 <div>
-                  <h4 className="font-medium text-gray-700 mb-3">Data Akun</h4>
+                  <h4 className="font-medium text-gray-700 dark:text-gray-200 mb-3">Data Akun</h4>
                   <div className="space-y-2">
                     <div className="flex justify-between">
-                      <span className="text-gray-600">Username:</span>
-                      <span className="font-medium">
+                      <span className="text-gray-600 dark:text-gray-400">Username:</span>
+                      <span className="font-medium text-gray-900 dark:text-white">
                         {watchedValues.username}
                       </span>
                     </div>
                     <div className="flex justify-between">
-                      <span className="text-gray-600">Email:</span>
-                      <span className="font-medium">{watchedValues.email}</span>
+                      <span className="text-gray-600 dark:text-gray-400">Email:</span>
+                      <span className="font-medium text-gray-900 dark:text-white">{watchedValues.email}</span>
                     </div>
                     {watchedValues.noWhatsapp && (
                       <div className="flex justify-between">
-                        <span className="text-gray-600">WhatsApp:</span>
-                        <span className="font-medium">
+                        <span className="text-gray-600 dark:text-gray-400">WhatsApp:</span>
+                        <span className="font-medium text-gray-900 dark:text-white">
                           {watchedValues.noWhatsapp}
                         </span>
                       </div>
@@ -330,8 +330,8 @@ export default function CreateMajelisPage() {
                 </div>
               </div>
 
-              <div className="mt-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
-                <p className="text-sm text-blue-800">
+              <div className="mt-6 p-4 bg-blue-50 dark:bg-blue-900/30 border border-blue-200 dark:border-blue-700 rounded-lg transition-colors duration-300">
+                <p className="text-sm text-blue-800 dark:text-blue-200">
                   <strong>Catatan:</strong> Setelah data disimpan, akun majelis
                   akan otomatis dibuat dan dapat digunakan untuk login dengan
                   username dan password yang telah ditentukan.
@@ -350,10 +350,10 @@ export default function CreateMajelisPage() {
     <div className="max-w-4xl mx-auto p-6">
       {/* Header */}
       <div className="mb-8">
-        <h1 className="text-2xl font-bold text-gray-900">
+        <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
           Tambah Majelis Baru
         </h1>
-        <p className="text-gray-600 mt-2">
+        <p className="text-gray-600 dark:text-gray-400 mt-2">
           Buat data majelis baru beserta akun login dalam satu proses
         </p>
       </div>
@@ -367,7 +367,7 @@ export default function CreateMajelisPage() {
 
       {/* Form */}
       <HookForm methods={methods} onSubmit={handleSubmit(onSubmit)}>
-        <div className="bg-white border border-gray-200 rounded-lg p-6">
+        <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-6 transition-colors duration-300">
           {renderStepContent()}
 
           <StepperNavigation

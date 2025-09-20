@@ -1,6 +1,6 @@
 export default function Footer() {
   return (
-    <footer className="footer sm:footer-horizontal bg-base-300 text-base-content p-10">
+    <footer className="footer sm:footer-horizontal bg-base-300 dark:bg-gray-800 text-base-content dark:text-gray-200 p-10 transition-colors duration-200">
       <nav className="flex flex-col items-start">
         <img src="/logo.png" alt="Logo" className="mb-4" />
         <p>Sungguh, alangkah baiknya dan indahnya, apabila saudara-saudara diam bersama dengan rukun!</p>

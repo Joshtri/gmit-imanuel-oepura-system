@@ -11,21 +11,36 @@ export default function Navbar({ menuItems }) {
       <ul className="menu menu-horizontal items-center">
         {menuItems.map((item) => (
           <li key={item.name} className="flex items-center">
-            <a href={item.path} className="flex items-center">{item.name}</a>
+            <a
+              href={item.path}
+              className="flex items-center text-white hover:text-blue-200 dark:hover:text-blue-300 transition-colors duration-200"
+            >
+              {item.name}
+            </a>
           </li>
         ))}
         {/* UPP Dropdown */}
         <li className="flex items-center">
           <details className="flex items-center">
-            <summary className="btn btn-ghost flex items-center px-4 py-2">
+            <summary className="btn btn-ghost flex items-center px-4 py-2 text-white hover:text-blue-200 dark:hover:text-blue-300 hover:bg-white/10 dark:hover:bg-white/20 transition-all duration-200">
               UPP
             </summary>
-            <ul className="bg-base-100 rounded-t-none p-2 dropdown-content right-0 mt-3 w-40 shadow">
+            <ul className="bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 rounded-t-none p-2 dropdown-content right-0 mt-3 w-40 shadow-lg border border-gray-200 dark:border-gray-700 transition-colors duration-300">
               <li>
-                <Link href="/upp/anak">Anak</Link>
+                <Link
+                  href="/upp/anak"
+                  className="hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-blue-600 dark:hover:text-blue-400 transition-colors duration-200"
+                >
+                  Anak
+                </Link>
               </li>
               <li>
-                <Link href="/upp/pemuda">Pemuda</Link>
+                <Link
+                  href="/upp/pemuda"
+                  className="hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-blue-600 dark:hover:text-blue-400 transition-colors duration-200"
+                >
+                  Pemuda
+                </Link>
               </li>
             </ul>
           </details>
@@ -34,7 +49,7 @@ export default function Navbar({ menuItems }) {
         <li className="flex items-center">
           {user ? (
             <details className="flex items-center">
-              <summary className="btn btn-ghost btn-circle avatar flex items-center">
+              <summary className="btn btn-ghost btn-circle avatar flex items-center hover:bg-white/10 dark:hover:bg-white/20 transition-colors duration-200">
                 <div className="w-10 rounded-full">
                   <img
                     alt="Profile"
@@ -42,13 +57,18 @@ export default function Navbar({ menuItems }) {
                   />
                 </div>
               </summary>
-              <ul className="bg-base-100 rounded-t-none p-2 dropdown-content right-0 mt-3 w-52 shadow">
+              <ul className="bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 rounded-t-none p-2 dropdown-content right-0 mt-3 w-52 shadow-lg border border-gray-200 dark:border-gray-700 transition-colors duration-300">
                 <li>
-                  <Link className="justify-between" href="/user">Profile
+                  <Link
+                    className="justify-between hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-blue-600 dark:hover:text-blue-400 transition-colors duration-200"
+                    href="/user"
+                  >
+                    Profile
                   </Link>
                 </li>
                 <li>
                   <a
+                    className="hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-red-600 dark:hover:text-red-400 transition-colors duration-200"
                     onClick={async () => {
                       if (logout) {
                         await logout();
@@ -64,7 +84,7 @@ export default function Navbar({ menuItems }) {
             </details>
           ) : (
             <Link
-              className="border border-success rounded-full text-success px-4 py-1 font-bold flex items-center"
+              className="border border-green-500 dark:border-green-400 rounded-full text-green-500 dark:text-green-400 hover:bg-green-500 dark:hover:bg-green-400 hover:text-white dark:hover:text-gray-900 px-4 py-1 font-bold flex items-center transition-all duration-200"
               href="/login"
             >
               Login

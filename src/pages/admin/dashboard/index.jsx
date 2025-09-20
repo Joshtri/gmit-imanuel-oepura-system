@@ -226,11 +226,11 @@ export default function DashboardPageAdmin() {
                   </div>
                 ))}
               </div>
-              <div className="mt-4">
+              {/* <div className="mt-4">
                 <Button className="w-full" variant="outline">
                   Lihat Semua Aktivitas
                 </Button>
-              </div>
+              </div> */}
             </CardContent>
           </Card>
 
@@ -303,14 +303,14 @@ export default function DashboardPageAdmin() {
                   </div>
                 )}
               </div>
-              <div className="mt-4 flex gap-2">
+              {/* <div className="mt-4 flex gap-2">
                 <Button className="flex-1" variant="outline">
                   Kelola Jadwal
                 </Button>
                 <Button size="sm" variant="outline">
                   Lihat Semua
                 </Button>
-              </div>
+              </div> */}
             </CardContent>
           </Card>
         </div>

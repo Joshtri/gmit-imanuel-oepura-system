@@ -1,14 +1,14 @@
-import { useState } from "react";
-import { useRouter } from "next/navigation";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Edit, Eye, Trash2 } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
 import { toast } from "sonner";
 
-import ListGrid from "@/components/ui/ListGrid";
 import ConfirmDialog from "@/components/ui/ConfirmDialog";
-import ViewModal from "@/components/ui/ViewModal";
-import EditModal from "@/components/ui/EditModal";
 import CreateModal from "@/components/ui/CreateModal";
+import EditModal from "@/components/ui/EditModal";
+import ListGrid from "@/components/ui/ListGrid";
+import ViewModal from "@/components/ui/ViewModal";
 
 export default function MasterDataPage({
   title,
@@ -105,19 +105,16 @@ export default function MasterDataPage({
       />
 
       <ConfirmDialog
+        isLoading={deleteMutation.isPending}
         isOpen={!!deleteItem}
+        message={`Apakah Anda yakin ingin menghapus "${deleteItem?.[itemNameField]}"? Data yang sudah dihapus tidak dapat dikembalikan.`}
+        title={`Hapus ${title}`}
+        variant="danger"
         onClose={() => setDeleteItem(null)}
         onConfirm={() => deleteMutation.mutate(deleteItem.id)}
-        title={`Hapus ${title}`}
-        message={`Apakah Anda yakin ingin menghapus "${deleteItem?.[itemNameField]}"? Data yang sudah dihapus tidak dapat dikembalikan.`}
-        variant="danger"
-        isLoading={deleteMutation.isPending}
       />
 
       <ViewModal
-        isOpen={!!viewItem}
-        onClose={() => setViewItem(null)}
-        title={`Detail ${title}`}
         data={
           viewItem && Array.isArray(viewFields)
             ? viewFields.map((field) => ({
@@ -128,27 +125,30 @@ export default function MasterDataPage({
               }))
             : []
         }
+        isOpen={!!viewItem}
+        title={`Detail ${title}`}
+        onClose={() => setViewItem(null)}
       />
 
       <EditModal
+        fields={formFields}
+        initialData={editItem}
+        isLoading={updateMutation.isPending}
         isOpen={!!editItem}
+        title={`Edit ${title}`}
         onClose={() => setEditItem(null)}
         onSubmit={(formData) =>
           updateMutation.mutate({ id: editItem.id, data: formData })
         }
-        title={`Edit ${title}`}
-        fields={formFields}
-        initialData={editItem}
-        isLoading={updateMutation.isPending}
       />
 
       <CreateModal
-        isOpen={showCreate}
-        onClose={() => setShowCreate(false)}
-        onSubmit={(formData) => createMutation.mutate(formData)}
-        title={`Tambah ${title}`}
         fields={formFields}
         isLoading={createMutation.isPending}
+        isOpen={showCreate}
+        title={`Tambah ${title}`}
+        onClose={() => setShowCreate(false)}
+        onSubmit={(formData) => createMutation.mutate(formData)}
       />
     </>
   );

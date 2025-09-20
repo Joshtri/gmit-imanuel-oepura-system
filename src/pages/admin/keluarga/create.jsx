@@ -1,19 +1,20 @@
-import { useState } from "react";
-import { useRouter } from "next/router";
-import { useForm, FormProvider } from "react-hook-form";
 import { useMutation, useQuery } from "@tanstack/react-query";
+import { useRouter } from "next/router";
+import { useState } from "react";
+import { FormProvider, useForm } from "react-hook-form";
 
-import keluargaService from "@/services/keluargaService";
-import masterService from "@/services/masterService";
-import { showToast } from "@/utils/showToast";
+import { Card } from "@/components/ui/Card";
+import PageHeader from "@/components/ui/PageHeader";
 import Stepper, {
   StepContent,
   StepperNavigation,
 } from "@/components/ui/Stepper";
-import { Card } from "@/components/ui/Card";
-import PageHeader from "@/components/ui/PageHeader";
 import AutoCompleteInput from "@/components/ui/inputs/AutoCompleteInput";
+import NumberInput from "@/components/ui/inputs/NumberInput";
 import SkeletonInput from "@/components/ui/skeletons/SkeletonInput";
+import keluargaService from "@/services/keluargaService";
+import masterService from "@/services/masterService";
+import { showToast } from "@/utils/showToast";
 
 const steps = [
   {
@@ -146,11 +147,13 @@ export default function CreateKeluarga() {
           description: "Data masih dimuat, mohon tunggu sebentar",
           color: "warning",
         });
+
         return;
       }
 
       // Validate keluarga data
       const values = form.getValues();
+
       if (
         !values.idStatusKeluarga ||
         !values.idStatusKepemilikanRumah ||
@@ -163,6 +166,7 @@ export default function CreateKeluarga() {
           description: "Semua field wajib harus diisi",
           color: "error",
         });
+
         return;
       }
     }
@@ -212,6 +216,7 @@ export default function CreateKeluarga() {
         values.noBagungan &&
         values.noBagungan.toString().trim() !== ""
       );
+
       return canProceed;
     }
 
@@ -228,6 +233,7 @@ export default function CreateKeluarga() {
         values.rw.toString().trim() !== "" &&
         values.jalan.trim() !== ""
       );
+
       return canProceed;
     }
 
@@ -254,6 +260,7 @@ export default function CreateKeluarga() {
         description: "Semua field wajib harus diisi",
         color: "error",
       });
+
       return;
     }
 
@@ -281,13 +288,13 @@ export default function CreateKeluarga() {
   return (
     <div className="max-w-7xl mx-auto p-6">
       <PageHeader
-        title="Tambah Keluarga Baru"
         breadcrumb={[
           { label: "Dashboard", href: "/admin/dashboard" },
           { label: "Keluarga", href: "/admin/keluarga" },
           { label: "Tambah Keluarga" },
         ]}
         description="Lengkapi data keluarga dengan mengikuti langkah-langkah berikut"
+        title="Tambah Keluarga Baru"
       />
 
       <Card className="p-6 mt-4">
@@ -304,11 +311,11 @@ export default function CreateKeluarga() {
                       <SkeletonInput />
                     ) : (
                       <AutoCompleteInput
-                        name="idStatusKeluarga"
+                        required
                         label="Status Keluarga"
+                        name="idStatusKeluarga"
                         options={statusKeluargaOptions}
                         placeholder="Pilih status keluarga"
-                        required
                       />
                     )}
                   </div>
@@ -318,11 +325,11 @@ export default function CreateKeluarga() {
                       <SkeletonInput />
                     ) : (
                       <AutoCompleteInput
-                        name="idStatusKepemilikanRumah"
+                        required
                         label="Status Kepemilikan Rumah"
+                        name="idStatusKepemilikanRumah"
                         options={statusKepemilikanRumahOptions}
                         placeholder="Pilih status kepemilikan"
-                        required
                       />
                     )}
                   </div>
@@ -330,16 +337,16 @@ export default function CreateKeluarga() {
                   <div>
                     {isLoadingKeadaanRumah ? (
                       <div className="animate-pulse">
-                        <div className="h-4 bg-gray-200 rounded w-28 mb-2"></div>
-                        <div className="h-10 bg-gray-200 rounded"></div>
+                        <div className="h-4 bg-gray-200 rounded w-28 mb-2" />
+                        <div className="h-10 bg-gray-200 rounded" />
                       </div>
                     ) : (
                       <AutoCompleteInput
-                        name="idKeadaanRumah"
+                        required
                         label="Keadaan Rumah"
+                        name="idKeadaanRumah"
                         options={keadaanRumahOptions}
                         placeholder="Pilih keadaan rumah"
-                        required
                       />
                     )}
                   </div>
@@ -347,42 +354,34 @@ export default function CreateKeluarga() {
                   <div>
                     {isLoadingRayon ? (
                       <div className="animate-pulse">
-                        <div className="h-4 bg-gray-200 rounded w-16 mb-2"></div>
-                        <div className="h-10 bg-gray-200 rounded"></div>
+                        <div className="h-4 bg-gray-200 rounded w-16 mb-2" />
+                        <div className="h-10 bg-gray-200 rounded" />
                       </div>
                     ) : (
                       <AutoCompleteInput
-                        name="idRayon"
+                        required
                         label="Rayon"
+                        name="idRayon"
                         options={rayonOptions}
                         placeholder="Pilih rayon"
-                        required
                       />
                     )}
                   </div>
 
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      No. Bagungan *
-                    </label>
-                    <input
-                      type="number"
-                      {...form.register("noBagungan", {
-                        required: "No. Bagungan wajib diisi",
-                        min: {
-                          value: 1,
-                          message: "No. Bagungan harus lebih dari 0",
-                        },
-                      })}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                      placeholder="Masukkan nomor bagungan"
-                    />
-                    {form.formState.errors.noBagungan && (
-                      <p className="text-red-500 text-sm mt-1">
-                        {form.formState.errors.noBagungan.message}
-                      </p>
-                    )}
-                  </div>
+                  <NumberInput
+                    required
+                    label="No. Bagungan"
+                    min={1}
+                    name="noBagungan"
+                    placeholder="Masukkan nomor bagungan"
+                    rules={{
+                      required: "No. Bagungan wajib diisi",
+                      min: {
+                        value: 1,
+                        message: "No. Bagungan harus lebih dari 0",
+                      },
+                    }}
+                  />
                 </div>
               </StepContent>
             )}
@@ -406,11 +405,11 @@ export default function CreateKeluarga() {
                       </>
                     ) : (
                       <AutoCompleteInput
-                        name="idKelurahan"
+                        required
                         label="Kelurahan"
+                        name="idKelurahan"
                         options={kelurahanOptions}
                         placeholder="Pilih kelurahan"
-                        required
                       />
                     )}
                   </div>

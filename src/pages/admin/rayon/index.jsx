@@ -1,6 +1,5 @@
-import masterService from "@/services/masterService";
 import MasterDataPage from "@/components/ui/MasterDataPage";
-import rayonService from "@/services/rayonService";
+import masterService from "@/services/masterService";
 
 export default function RayonPage() {
   const columns = [
@@ -60,23 +59,23 @@ export default function RayonPage() {
 
   return (
     <MasterDataPage
-      title="Kelola Rayon"
+      breadcrumb={[
+        { label: "Admin", href: "/admin/dashboard" },
+        { label: "Rayon" },
+      ]}
+      columns={columns}
       description="Kelola data rayon untuk pembagian wilayah jemaat"
+      formFields={formFields}
+      itemNameField="namaRayon"
+      queryKey="rayon"
       service={{
         get: () => masterService.getRayon(),
         create: (data) => masterService.createRayon(data),
         update: (id, data) => masterService.updateRayon(id, data),
         delete: (id) => masterService.deleteRayon(id),
       }}
-      queryKey="rayon"
-      columns={columns}
+      title="Kelola Rayon"
       viewFields={viewFields}
-      formFields={formFields}
-      itemNameField="namaRayon"
-      breadcrumb={[
-        { label: "Admin", href: "/admin/dashboard" },
-        { label: "Rayon" },
-      ]}
     />
   );
 }

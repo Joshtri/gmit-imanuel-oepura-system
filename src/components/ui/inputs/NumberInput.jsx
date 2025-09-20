@@ -12,12 +12,14 @@ export default function NumberInput({
   value,
   onChange,
   error: externalError,
+  rules = {},
+  required = false,
 }) {
   const inputId = useId();
-  
+
   // Try to get form context, but handle case where it doesn't exist
   const formContext = useFormContext();
-  
+
   // If we have form context, use react-hook-form
   if (formContext) {
     const { control } = formContext;
@@ -29,67 +31,56 @@ export default function NumberInput({
       control,
       rules: {
         valueAsNumber: true, // This ensures the value is converted to a number
+        ...rules,
       },
     });
 
     return (
-      <div style={{ marginBottom: "1rem" }}>
+      <div>
         <label
+          className="block text-sm font-medium text-gray-700 mb-2"
           htmlFor={inputId}
-          style={{ display: "block", fontWeight: "bold", marginBottom: "0.5rem" }}
         >
-          {label}
+          {label} {required && <span className="text-red-500">*</span>}
         </label>
         <input
           id={inputId}
           type="number"
           {...field}
-          placeholder={placeholder}
-          min={min}
+          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
           max={max}
+          min={min}
+          placeholder={placeholder}
           step={step}
-          style={{
-            width: "100%",
-            padding: "0.5rem",
-            borderRadius: "4px",
-            border: "1px solid #ccc",
-          }}
         />
-        {error && (
-          <p style={{ color: "red", marginTop: "0.5rem" }}>{error.message}</p>
-        )}
+        {error && <p className="text-red-500 text-sm mt-1">{error.message}</p>}
       </div>
     );
   }
 
   // Fallback to regular input when no form context
   return (
-    <div style={{ marginBottom: "1rem" }}>
+    <div>
       <label
+        className="block text-sm font-medium text-gray-700 mb-2"
         htmlFor={inputId}
-        style={{ display: "block", fontWeight: "bold", marginBottom: "0.5rem" }}
       >
-        {label}
+        {label} {required && "*"}
       </label>
       <input
+        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
         id={inputId}
-        type="number"
+        max={max}
+        min={min}
         name={name}
+        placeholder={placeholder}
+        step={step}
+        type="number"
         value={value || ""}
         onChange={(e) => onChange?.(Number(e.target.value))}
-        placeholder={placeholder}
-        min={min}
-        max={max}
-        step={step}
-        style={{
-          width: "100%",
-          padding: "0.5rem",
-          borderRadius: "4px",
-          border: "1px solid #ccc",
-        }}
       />
       {externalError && (
-        <p style={{ color: "red", marginTop: "0.5rem" }}>{externalError}</p>
+        <p className="text-red-500 text-sm mt-1">{externalError}</p>
       )}
     </div>
   );

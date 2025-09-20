@@ -1,9 +1,9 @@
 import { useController, useFormContext } from "react-hook-form";
 
-export default function ToggleInput({ name, label, value, onChange }) {
+export default function ToggleInput({ name, label, value, onChange, required = false }) {
   // Try to get form context, but handle case where it doesn't exist
   const formContext = useFormContext();
-  
+
   // If we have form context, use react-hook-form
   if (formContext) {
     const { control } = formContext;
@@ -12,30 +12,26 @@ export default function ToggleInput({ name, label, value, onChange }) {
     } = useController({ name, control });
 
     return (
-      <div style={{ marginBottom: "1rem" }}>
-        <label
-          style={{ display: "block", marginBottom: "0.5rem", fontWeight: 600 }}
-        >
-          {label}
+      <div>
+        <label className="block text-sm font-medium text-gray-700 mb-2">
+          {label} {required && <span className="text-red-500">*</span>}
         </label>
-        <label style={styles.switch}>
+        <label className="relative inline-block w-12 h-7 cursor-pointer">
           <input
             type="checkbox"
             checked={fieldValue}
             onChange={(e) => fieldOnChange(e.target.checked)}
-            style={styles.input}
+            className="sr-only"
           />
           <span
-            style={{
-              ...styles.slider,
-              backgroundColor: fieldValue ? "#4caf50" : "#ccc",
-            }}
+            className={`absolute inset-0 rounded-full transition-colors duration-300 ${
+              fieldValue ? "bg-green-500" : "bg-gray-300"
+            }`}
           >
             <span
-              style={{
-                ...styles.circle,
-                transform: fieldValue ? "translateX(22px)" : "translateX(0)",
-              }}
+              className={`absolute top-1 left-1 w-5 h-5 bg-white rounded-full transition-transform duration-300 ${
+                fieldValue ? "translate-x-5" : "translate-x-0"
+              }`}
             />
           </span>
         </label>
@@ -45,70 +41,30 @@ export default function ToggleInput({ name, label, value, onChange }) {
 
   // Fallback to regular input when no form context
   return (
-    <div style={{ marginBottom: "1rem" }}>
-      <label
-        style={{ display: "block", marginBottom: "0.5rem", fontWeight: 600 }}
-      >
-        {label}
+    <div>
+      <label className="block text-sm font-medium text-gray-700 mb-2">
+        {label} {required && <span className="text-red-500">*</span>}
       </label>
-      <label style={styles.switch}>
+      <label className="relative inline-block w-12 h-7 cursor-pointer">
         <input
           type="checkbox"
           name={name}
           checked={value || false}
           onChange={(e) => onChange?.(e.target.checked)}
-          style={styles.input}
+          className="sr-only"
         />
         <span
-          style={{
-            ...styles.slider,
-            backgroundColor: value ? "#4caf50" : "#ccc",
-          }}
+          className={`absolute inset-0 rounded-full transition-colors duration-300 ${
+            value ? "bg-green-500" : "bg-gray-300"
+          }`}
         >
           <span
-            style={{
-              ...styles.circle,
-              transform: value ? "translateX(22px)" : "translateX(0)",
-            }}
+            className={`absolute top-1 left-1 w-5 h-5 bg-white rounded-full transition-transform duration-300 ${
+              value ? "translate-x-5" : "translate-x-0"
+            }`}
           />
         </span>
       </label>
     </div>
   );
 }
-
-const styles = {
-  switch: {
-    position: "relative",
-    display: "inline-block",
-    width: "50px",
-    height: "28px",
-  },
-  input: {
-    opacity: 0,
-    width: 0,
-    height: 0,
-    position: "absolute",
-  },
-  slider: {
-    position: "absolute",
-    cursor: "pointer",
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    transition: "0.4s",
-    borderRadius: "34px",
-  },
-  circle: {
-    position: "absolute",
-    content: '""',
-    height: "20px",
-    width: "20px",
-    left: "4px",
-    bottom: "4px",
-    backgroundColor: "white",
-    transition: "0.4s",
-    borderRadius: "50%",
-  },
-};

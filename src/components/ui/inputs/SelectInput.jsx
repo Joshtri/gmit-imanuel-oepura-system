@@ -2,36 +2,48 @@
 import { useId } from "react";
 import { useController, useFormContext } from "react-hook-form";
 
-export default function SelectInput({ name, label, options, placeholder, value, onChange, error: externalError, ...props }) {
+export default function SelectInput({
+  name,
+  label,
+  options,
+  placeholder,
+  value,
+  onChange,
+  error: externalError,
+  required = false,
+  rules = {},
+  ...props
+}) {
   const inputId = useId();
-  
+
   // Try to get form context, but handle case where it doesn't exist
   const formContext = useFormContext();
-  
+
   // If we have form context, use react-hook-form
   if (formContext) {
     const { control } = formContext;
     const {
       field,
       fieldState: { error },
-    } = useController({ name, control });
+    } = useController({
+      name,
+      control,
+      rules: rules
+    });
 
     return (
-      <div className="form-control w-full mb-4">
+      <div>
         {label && (
-          <label className="label" htmlFor={inputId}>
-            <span className="label-text font-semibold">{label}</span>
+          <label htmlFor={inputId} className="block text-sm font-medium text-gray-700 mb-2">
+            {label} {required && <span className="text-red-500">*</span>}
           </label>
         )}
 
         <select
           id={inputId}
           {...field}
-          style={{
-            border: "1px solid #ccc",
-          }}
-          className={`select select-bordered w-full bg-white text-gray-900 ${
-            error ? "select-error" : ""
+          className={`w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
+            error ? "border-red-500 focus:ring-red-500" : ""
           }`}
           {...props}
         >
@@ -44,9 +56,7 @@ export default function SelectInput({ name, label, options, placeholder, value, 
         </select>
 
         {error && (
-          <label className="label">
-            <span className="label-text-alt text-error">{error.message}</span>
-          </label>
+          <p className="text-red-500 text-sm mt-1">{error.message}</p>
         )}
       </div>
     );
@@ -54,10 +64,10 @@ export default function SelectInput({ name, label, options, placeholder, value, 
 
   // Fallback to regular select when no form context
   return (
-    <div className="form-control w-full mb-4">
+    <div>
       {label && (
-        <label className="label" htmlFor={inputId}>
-          <span className="label-text font-semibold">{label}</span>
+        <label htmlFor={inputId} className="block text-sm font-medium text-gray-700 mb-2">
+          {label} {required && <span className="text-red-500">*</span>}
         </label>
       )}
 
@@ -66,11 +76,8 @@ export default function SelectInput({ name, label, options, placeholder, value, 
         name={name}
         value={value || ""}
         onChange={(e) => onChange?.(e.target.value)}
-        style={{
-          border: "1px solid #ccc",
-        }}
-        className={`select select-bordered w-full bg-white text-gray-900 ${
-          externalError ? "select-error" : ""
+        className={`w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
+          externalError ? "border-red-500 focus:ring-red-500" : ""
         }`}
         {...props}
       >
@@ -83,9 +90,7 @@ export default function SelectInput({ name, label, options, placeholder, value, 
       </select>
 
       {externalError && (
-        <label className="label">
-          <span className="label-text-alt text-error">{externalError}</span>
-        </label>
+        <p className="text-red-500 text-sm mt-1">{externalError}</p>
       )}
     </div>
   );

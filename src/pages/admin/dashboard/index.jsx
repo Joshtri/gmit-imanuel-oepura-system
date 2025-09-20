@@ -1,14 +1,18 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
 import {
-  Users,
-  Calendar,
+  AlertCircle,
   BookOpen,
+  Calendar,
   DollarSign,
   UserCheck,
-  AlertCircle,
+  Users,
 } from "lucide-react";
+import { useEffect, useState } from "react";
+
+import AdminLayout from "@/components/layout/AdminLayout";
+import { Badge } from "@/components/ui/Badge";
+import { Button } from "@/components/ui/Button";
 import {
   Card,
   CardContent,
@@ -16,15 +20,8 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/Card";
-import { Badge } from "@/components/ui/Badge";
-import { Button } from "@/components/ui/Button";
 import PageHeader from "@/components/ui/PageHeader";
-import AdminLayout from "@/components/layout/AdminLayout";
-import {
-  formatNumber,
-  formatCurrency,
-  formatPercentage,
-} from "@/lib/formatUtils";
+import { formatNumber } from "@/lib/formatUtils";
 import dashboardService from "@/services/dashboardService";
 
 export default function DashboardPageAdmin() {
@@ -35,9 +32,9 @@ export default function DashboardPageAdmin() {
     sacraments: {
       baptis: { total: 0, thisYear: 0 },
       sidi: { total: 0, thisYear: 0 },
-      pernikahan: { total: 0, thisYear: 0 }
+      pernikahan: { total: 0, thisYear: 0 },
     },
-    ageGroups: { children: 0, youth: 0, adults: 0, elderly: 0 }
+    ageGroups: { children: 0, youth: 0, adults: 0, elderly: 0 },
   });
   const [recentActivities, setRecentActivities] = useState([]);
   const [upcomingEvents, setUpcomingEvents] = useState([]);
@@ -51,15 +48,15 @@ export default function DashboardPageAdmin() {
         const [dashboardStats, activities, events] = await Promise.all([
           dashboardService.getDashboardStats(),
           dashboardService.getRecentActivities(),
-          dashboardService.getUpcomingEvents()
+          dashboardService.getUpcomingEvents(),
         ]);
 
         setStats(dashboardStats);
         setRecentActivities(activities);
         setUpcomingEvents(events);
       } catch (err) {
-        console.error('Failed to load dashboard data:', err);
-        setError('Gagal memuat data dashboard');
+        console.error("Failed to load dashboard data:", err);
+        setError("Gagal memuat data dashboard");
       } finally {
         setLoading(false);
       }
@@ -137,7 +134,7 @@ export default function DashboardPageAdmin() {
     return (
       <div className="flex items-center justify-center min-h-screen">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-2"></div>
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-2" />
           <p className="text-gray-600">Memuat dashboard...</p>
         </div>
       </div>
@@ -149,9 +146,7 @@ export default function DashboardPageAdmin() {
       <div className="flex items-center justify-center min-h-screen">
         <div className="text-center">
           <p className="text-red-600 mb-2">{error}</p>
-          <Button onClick={() => window.location.reload()}>
-            Muat Ulang
-          </Button>
+          <Button onClick={() => window.location.reload()}>Muat Ulang</Button>
         </div>
       </div>
     );
@@ -160,13 +155,13 @@ export default function DashboardPageAdmin() {
   return (
     <>
       <PageHeader
-        title="Dashboard"
-        description="Ringkasan sistem administrasi GMIT Imanuel Oepura"
         breadcrumb={[
           { label: "Admin", href: "/admin" },
           { label: "Dashboard" },
         ]}
+        description="Ringkasan sistem administrasi GMIT Imanuel Oepura"
         stats={headerStats}
+        title="Dashboard"
       />
 
       <div className="max-w-7xl mx-auto p-6">
@@ -232,7 +227,7 @@ export default function DashboardPageAdmin() {
                 ))}
               </div>
               <div className="mt-4">
-                <Button variant="outline" className="w-full">
+                <Button className="w-full" variant="outline">
                   Lihat Semua Aktivitas
                 </Button>
               </div>
@@ -249,65 +244,70 @@ export default function DashboardPageAdmin() {
             </CardHeader>
             <CardContent>
               <div className="max-h-96 overflow-y-auto space-y-3">
-                {upcomingEvents.length > 0 ? upcomingEvents.map((event) => (
-                  <div
-                    key={event.id}
-                    className="p-4 border rounded-lg hover:bg-gray-50 transition-colors"
-                  >
-                    <div className="flex items-start justify-between mb-2">
-                      <div className="flex-1">
-                        <h4 className="font-medium text-sm">{event.title}</h4>
-                        <p className="text-xs text-gray-500 mt-1">
-                          {event.date} • {event.time}
-                        </p>
-                        {event.location && (
-                          <p className="text-xs text-gray-600 mt-1">
-                            📍 {event.location}
+                {upcomingEvents.length > 0 ? (
+                  upcomingEvents.map((event) => (
+                    <div
+                      key={event.id}
+                      className="p-4 border rounded-lg hover:bg-gray-50 transition-colors"
+                    >
+                      <div className="flex items-start justify-between mb-2">
+                        <div className="flex-1">
+                          <h4 className="font-medium text-sm">{event.title}</h4>
+                          <p className="text-xs text-gray-500 mt-1">
+                            {event.date} • {event.time}
                           </p>
-                        )}
-                        {event.speaker && event.speaker !== 'Belum ditentukan' && (
-                          <p className="text-xs text-gray-600">
-                            👤 {event.speaker}
-                          </p>
-                        )}
-                        {event.tema && (
-                          <p className="text-xs text-blue-600 font-medium mt-1">
-                            {event.tema}
-                          </p>
-                        )}
-                        {event.firman && (
-                          <p className="text-xs text-green-600">
-                            📖 {event.firman}
-                          </p>
-                        )}
-                        {event.rayon && (
-                          <p className="text-xs text-purple-600">
-                            🏘️ Rayon {event.rayon}
-                          </p>
-                        )}
-                      </div>
-                      <div className="flex flex-col gap-1">
-                        {getEventTypeBadge(event.type)}
-                        {event.kategori && (
-                          <Badge variant="outline" className="text-xs">
-                            {event.kategori}
-                          </Badge>
-                        )}
+                          {event.location && (
+                            <p className="text-xs text-gray-600 mt-1">
+                              📍 {event.location}
+                            </p>
+                          )}
+                          {event.speaker &&
+                            event.speaker !== "Belum ditentukan" && (
+                              <p className="text-xs text-gray-600">
+                                👤 {event.speaker}
+                              </p>
+                            )}
+                          {event.tema && (
+                            <p className="text-xs text-blue-600 font-medium mt-1">
+                              {event.tema}
+                            </p>
+                          )}
+                          {event.firman && (
+                            <p className="text-xs text-green-600">
+                              📖 {event.firman}
+                            </p>
+                          )}
+                          {event.rayon && (
+                            <p className="text-xs text-purple-600">
+                              🏘️ Rayon {event.rayon}
+                            </p>
+                          )}
+                        </div>
+                        <div className="flex flex-col gap-1">
+                          {getEventTypeBadge(event.type)}
+                          {event.kategori && (
+                            <Badge className="text-xs" variant="outline">
+                              {event.kategori}
+                            </Badge>
+                          )}
+                        </div>
                       </div>
                     </div>
-                  </div>
-                )) : (
+                  ))
+                ) : (
                   <div className="text-center py-8 text-gray-500">
                     <p className="text-sm">Tidak ada jadwal ibadah mendatang</p>
-                    <p className="text-xs mt-1">Hubungi administrator untuk menambah jadwal</p>
+                    <p className="text-xs mt-1">
+                      Hubungi administrator untuk menambah jadwal
+                    </p>
                   </div>
                 )}
               </div>
               <div className="mt-4 flex gap-2">
-                <Button variant="outline" className="flex-1">
+                <Button className="flex-1" variant="outline">
                   Kelola Jadwal
                 </Button>
-                <Button variant="outline" size="sm">
+                <Button size="sm" variant="outline">
                   Lihat Semua
                 </Button>
               </div>
@@ -324,65 +324,67 @@ export default function DashboardPageAdmin() {
           </CardHeader>
           <CardContent>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-              <Button 
+              <Button
                 className="flex flex-col items-center p-6 h-auto"
-                onClick={() => window.location.href = '/admin/jemaat'}
+                onClick={() => (window.location.href = "/admin/jemaat")}
               >
                 <Users className="h-6 w-6 mb-2" />
                 <span>Kelola Jemaat</span>
               </Button>
               <Button
-                variant="outline"
                 className="flex flex-col items-center p-6 h-auto"
-                onClick={() => window.location.href = '/admin/keluarga'}
+                variant="outline"
+                onClick={() => (window.location.href = "/admin/keluarga")}
               >
                 <Calendar className="h-6 w-6 mb-2" />
                 <span>Kelola Keluarga</span>
               </Button>
               <Button
-                variant="outline"
                 className="flex flex-col items-center p-6 h-auto"
-                onClick={() => window.location.href = '/admin/baptis'}
+                variant="outline"
+                onClick={() => (window.location.href = "/admin/baptis")}
               >
                 <BookOpen className="h-6 w-6 mb-2" />
                 <span>Data Baptis</span>
               </Button>
               <Button
-                variant="outline"
                 className="flex flex-col items-center p-6 h-auto"
-                onClick={() => window.location.href = '/admin/sidi'}
+                variant="outline"
+                onClick={() => (window.location.href = "/admin/sidi")}
               >
                 <DollarSign className="h-6 w-6 mb-2" />
                 <span>Data Sidi</span>
               </Button>
               <Button
-                variant="outline"
                 className="flex flex-col items-center p-6 h-auto"
-                onClick={() => window.location.href = '/admin/rayon'}
+                variant="outline"
+                onClick={() => (window.location.href = "/admin/rayon")}
               >
                 <Users className="h-6 w-6 mb-2" />
                 <span>Kelola Rayon</span>
               </Button>
               <Button
-                variant="outline"
                 className="flex flex-col items-center p-6 h-auto"
-                onClick={() => window.location.href = '/admin/data-master/klasis'}
+                variant="outline"
+                onClick={() =>
+                  (window.location.href = "/admin/data-master/klasis")
+                }
               >
                 <Calendar className="h-6 w-6 mb-2" />
                 <span>Data Klasis</span>
               </Button>
               <Button
-                variant="outline"
                 className="flex flex-col items-center p-6 h-auto"
-                onClick={() => window.location.href = '/admin/users'}
+                variant="outline"
+                onClick={() => (window.location.href = "/admin/users")}
               >
                 <BookOpen className="h-6 w-6 mb-2" />
                 <span>Kelola User</span>
               </Button>
               <Button
-                variant="outline"
                 className="flex flex-col items-center p-6 h-auto"
-                onClick={() => window.location.href = '/admin/laporan'}
+                variant="outline"
+                onClick={() => (window.location.href = "/admin/laporan")}
               >
                 <DollarSign className="h-6 w-6 mb-2" />
                 <span>Laporan</span>

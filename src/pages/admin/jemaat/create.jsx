@@ -135,7 +135,7 @@ export default function CreateJemaat() {
       queryKey: ["status-keluarga"],
       queryFn: () => masterService.getStatusKeluarga(),
       enabled: createKeluarga,
-    }
+    },
   );
 
   const {
@@ -250,7 +250,7 @@ export default function CreateJemaat() {
       // Auto-set kepala keluarga status
       if (statusDalamKeluarga?.data?.items) {
         const kepalaKeluargaStatus = statusDalamKeluarga.data.items.find(
-          (status) => status.status.toLowerCase().includes("kepala")
+          (status) => status.status.toLowerCase().includes("kepala"),
         );
 
         if (kepalaKeluargaStatus) {
@@ -264,7 +264,7 @@ export default function CreateJemaat() {
   useEffect(() => {
     if (statusDalamKeluarga?.data?.items) {
       const kepalaKeluargaStatus = statusDalamKeluarga.data.items.find(
-        (status) => status.status.toLowerCase().includes("kepala")
+        (status) => status.status.toLowerCase().includes("kepala"),
       );
 
       if (

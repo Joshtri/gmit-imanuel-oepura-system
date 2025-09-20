@@ -1,23 +1,16 @@
-import React, { useState } from "react";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { Calendar, CheckCircle, Clock, User, Users, X } from "lucide-react";
+import { useState } from "react";
+import { useForm } from "react-hook-form";
 import * as z from "zod";
+
 import { Button } from "@/components/ui/Button";
-import TextInput from "@/components/ui/inputs/TextInput";
-import SelectInput from "@/components/ui/inputs/SelectInput";
 import DatePicker from "@/components/ui/inputs/DatePicker";
-import { showToast } from "@/utils/showToast";
+import SelectInput from "@/components/ui/inputs/SelectInput";
+import TextInput from "@/components/ui/inputs/TextInput";
 import axios from "@/lib/axios";
-import { 
-  User, 
-  Calendar, 
-  Users, 
-  Clock,
-  CheckCircle,
-  AlertCircle,
-  X
-} from "lucide-react";
+import { showToast } from "@/utils/showToast";
 
 const validationSchema = z.object({
   nama: z.string().min(1, "Nama lengkap harus diisi"),
@@ -28,12 +21,12 @@ const validationSchema = z.object({
   keluargaId: z.string().min(1, "Keluarga harus dipilih"),
   noTelepon: z.string().optional(),
   pekerjaan: z.string().optional(),
-  alamat: z.string().optional()
+  alamat: z.string().optional(),
 });
 
 const jenisKelaminOptions = [
   { value: "LAKI_LAKI", label: "Laki-laki" },
-  { value: "PEREMPUAN", label: "Perempuan" }
+  { value: "PEREMPUAN", label: "Perempuan" },
 ];
 
 const statusDalamKeluargaOptions = [
@@ -43,14 +36,14 @@ const statusDalamKeluargaOptions = [
   { value: "CUCU", label: "Cucu" },
   { value: "ORANGTUA", label: "Orang Tua" },
   { value: "SAUDARA", label: "Saudara" },
-  { value: "LAINNYA", label: "Lainnya" }
+  { value: "LAINNYA", label: "Lainnya" },
 ];
 
-export default function OnboardingDialog({ 
-  isOpen, 
-  onClose, 
-  user, 
-  keluargaOptions = [] 
+export default function OnboardingDialog({
+  isOpen,
+  onClose,
+  user,
+  keluargaOptions = [],
 }) {
   const queryClient = useQueryClient();
   const [currentStep, setCurrentStep] = useState(1);
@@ -62,10 +55,10 @@ export default function OnboardingDialog({
     formState: { errors, isValid },
     watch,
     trigger,
-    reset
+    reset,
   } = useForm({
     resolver: zodResolver(validationSchema),
-    mode: "onChange"
+    mode: "onChange",
   });
 
   const onboardingMutation = useMutation({
@@ -73,20 +66,21 @@ export default function OnboardingDialog({
       const response = await axios.post("/api/jemaat", {
         ...data,
         tanggalBergabung: new Date(),
-        statusAktif: true
+        statusAktif: true,
       });
+
       return response.data;
     },
     onSuccess: async () => {
       showToast({
         title: "Berhasil",
         description: "Profil berhasil dilengkapi! Halaman akan dimuat ulang",
-        color: "success"
+        color: "success",
       });
-      
+
       // Invalidate user data and refresh
       queryClient.invalidateQueries(["current-user"]);
-      
+
       setTimeout(() => {
         window.location.reload();
       }, 1500);
@@ -96,9 +90,9 @@ export default function OnboardingDialog({
       showToast({
         title: "Gagal",
         description: error.response?.data?.message || "Gagal melengkapi profil",
-        color: "danger"
+        color: "danger",
       });
-    }
+    },
   });
 
   const onSubmit = (data) => {
@@ -107,22 +101,22 @@ export default function OnboardingDialog({
 
   const handleNext = async () => {
     let fieldsToValidate = [];
-    
+
     if (currentStep === 1) {
       fieldsToValidate = ["nama", "jenisKelamin"];
     } else if (currentStep === 2) {
       fieldsToValidate = ["tempatLahir", "tanggalLahir", "statusDalamKeluarga"];
     }
-    
+
     const isStepValid = await trigger(fieldsToValidate);
-    
+
     if (isStepValid) {
-      setCurrentStep(prev => Math.min(prev + 1, totalSteps));
+      setCurrentStep((prev) => Math.min(prev + 1, totalSteps));
     }
   };
 
   const handlePrevious = () => {
-    setCurrentStep(prev => Math.max(prev - 1, 1));
+    setCurrentStep((prev) => Math.max(prev - 1, 1));
   };
 
   const handleClose = () => {
@@ -147,22 +141,22 @@ export default function OnboardingDialog({
             </div>
 
             <TextInput
-              name="nama"
-              label="Nama Lengkap"
+              required
               control={control}
               error={errors.nama}
+              label="Nama Lengkap"
+              name="nama"
               placeholder="Masukkan nama lengkap"
-              required
             />
 
             <SelectInput
-              name="jenisKelamin"
-              label="Jenis Kelamin"
+              required
               control={control}
               error={errors.jenisKelamin}
+              label="Jenis Kelamin"
+              name="jenisKelamin"
               options={jenisKelaminOptions}
               placeholder="Pilih jenis kelamin"
-              required
             />
           </div>
         );
@@ -181,31 +175,31 @@ export default function OnboardingDialog({
             </div>
 
             <TextInput
-              name="tempatLahir"
-              label="Tempat Lahir"
+              required
               control={control}
               error={errors.tempatLahir}
+              label="Tempat Lahir"
+              name="tempatLahir"
               placeholder="Masukkan tempat lahir"
-              required
             />
 
             <DatePicker
-              name="tanggalLahir"
-              label="Tanggal Lahir"
+              required
               control={control}
               error={errors.tanggalLahir}
+              label="Tanggal Lahir"
+              name="tanggalLahir"
               placeholder="Pilih tanggal lahir"
-              required
             />
 
             <SelectInput
-              name="statusDalamKeluarga"
-              label="Status dalam Keluarga"
+              required
               control={control}
               error={errors.statusDalamKeluarga}
+              label="Status dalam Keluarga"
+              name="statusDalamKeluarga"
               options={statusDalamKeluargaOptions}
               placeholder="Pilih status dalam keluarga"
-              required
             />
           </div>
         );
@@ -224,13 +218,13 @@ export default function OnboardingDialog({
             </div>
 
             <SelectInput
-              name="keluargaId"
-              label="Pilih Keluarga"
+              required
               control={control}
               error={errors.keluargaId}
+              label="Pilih Keluarga"
+              name="keluargaId"
               options={keluargaOptions}
               placeholder="Pilih keluarga"
-              required
             />
 
             {/* Optional Fields */}
@@ -238,26 +232,26 @@ export default function OnboardingDialog({
               <h4 className="text-sm font-medium text-gray-900 mb-3">
                 Informasi Tambahan (Opsional)
               </h4>
-              
+
               <div className="space-y-4">
                 <TextInput
-                  name="noTelepon"
-                  label="No. Telepon"
                   control={control}
+                  label="No. Telepon"
+                  name="noTelepon"
                   placeholder="Masukkan nomor telepon"
                 />
 
                 <TextInput
-                  name="pekerjaan"
-                  label="Pekerjaan"
                   control={control}
+                  label="Pekerjaan"
+                  name="pekerjaan"
                   placeholder="Masukkan pekerjaan"
                 />
 
                 <TextInput
-                  name="alamat"
-                  label="Alamat"
                   control={control}
+                  label="Alamat"
+                  name="alamat"
                   placeholder="Masukkan alamat"
                 />
               </div>
@@ -276,11 +270,11 @@ export default function OnboardingDialog({
     <div className="fixed inset-0 z-50 overflow-y-auto">
       <div className="flex min-h-screen items-center justify-center p-4">
         {/* Backdrop */}
-        <div 
+        <div
           className="fixed inset-0 bg-black bg-opacity-25 transition-opacity"
           onClick={handleClose}
         />
-        
+
         {/* Modal */}
         <div className="relative bg-white rounded-lg shadow-xl max-w-lg w-full max-h-screen overflow-y-auto">
           {/* Header */}
@@ -293,14 +287,15 @@ export default function OnboardingDialog({
                     Lengkapi Profil Jemaat
                   </h3>
                   <p className="text-sm text-gray-500">
-                    Selamat datang! Silakan lengkapi profil Anda untuk melanjutkan
+                    Selamat datang! Silakan lengkapi profil Anda untuk
+                    melanjutkan
                   </p>
                 </div>
               </div>
               <button
-                onClick={handleClose}
-                disabled={onboardingMutation.isLoading}
                 className="text-gray-400 hover:text-gray-600 disabled:opacity-50"
+                disabled={onboardingMutation.isLoading}
+                onClick={handleClose}
               >
                 <X className="h-6 w-6" />
               </button>
@@ -320,13 +315,13 @@ export default function OnboardingDialog({
                 <div
                   className="bg-blue-600 h-2 rounded-full transition-all duration-300"
                   style={{ width: `${(currentStep / totalSteps) * 100}%` }}
-                ></div>
+                />
               </div>
             </div>
           </div>
 
           {/* Content */}
-          <form onSubmit={handleSubmit(onSubmit)} className="p-6">
+          <form className="p-6" onSubmit={handleSubmit(onSubmit)}>
             {renderStepContent()}
 
             {/* Footer */}
@@ -334,10 +329,10 @@ export default function OnboardingDialog({
               <div className="flex gap-2">
                 {currentStep > 1 && (
                   <Button
+                    disabled={onboardingMutation.isLoading}
                     type="button"
                     variant="outline"
                     onClick={handlePrevious}
-                    disabled={onboardingMutation.isLoading}
                   >
                     Sebelumnya
                   </Button>
@@ -346,28 +341,28 @@ export default function OnboardingDialog({
 
               <div className="flex gap-2">
                 <Button
+                  className="text-gray-500 hover:text-gray-700"
+                  disabled={onboardingMutation.isLoading}
                   type="button"
                   variant="ghost"
                   onClick={handleClose}
-                  disabled={onboardingMutation.isLoading}
-                  className="text-gray-500 hover:text-gray-700"
                 >
                   Tutup
                 </Button>
 
                 {currentStep < totalSteps ? (
                   <Button
+                    disabled={onboardingMutation.isLoading}
                     type="button"
                     onClick={handleNext}
-                    disabled={onboardingMutation.isLoading}
                   >
                     Selanjutnya
                   </Button>
                 ) : (
                   <Button
-                    type="submit"
-                    disabled={!isValid || onboardingMutation.isLoading}
                     className="min-w-[120px]"
+                    disabled={!isValid || onboardingMutation.isLoading}
+                    type="submit"
                   >
                     {onboardingMutation.isLoading ? (
                       <>

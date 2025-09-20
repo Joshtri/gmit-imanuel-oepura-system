@@ -1,7 +1,8 @@
 // components/ui/inputs/AutoCompleteInput.jsx
-import { useId, useState, useEffect, useRef } from "react";
-import { useController, useFormContext } from "react-hook-form";
 import { ChevronDown, X } from "lucide-react";
+import { useEffect, useId, useRef, useState } from "react";
+import { useController, useFormContext } from "react-hook-form";
+
 import axios from "@/lib/axios";
 
 export default function AutoCompleteInput({
@@ -35,6 +36,7 @@ export default function AutoCompleteInput({
   if (formContext) {
     const { control } = formContext;
     const controllerResult = useController({ name, control });
+
     field = controllerResult.field;
     error = controllerResult.fieldState.error;
   }
@@ -47,6 +49,7 @@ export default function AutoCompleteInput({
         .get(apiEndpoint)
         .then((response) => {
           const data = response.data;
+
           if (data.success && Array.isArray(data.data)) {
             setApiOptions(data.data);
           }
@@ -66,10 +69,12 @@ export default function AutoCompleteInput({
   // Update input value when field value changes
   useEffect(() => {
     const currentValue = field ? field.value : value;
+
     if (currentValue) {
       const selectedOption = finalOptions.find(
         (option) => option.value === currentValue
       );
+
       setInputValue(
         selectedOption
           ? selectedOption.label || selectedOption.value
@@ -88,6 +93,7 @@ export default function AutoCompleteInput({
           .toLowerCase()
           .includes(inputValue.toLowerCase())
       );
+
       setFilteredOptions(filtered);
     } else {
       setFilteredOptions(finalOptions);
@@ -97,6 +103,7 @@ export default function AutoCompleteInput({
   // Handle input change
   const handleInputChange = (e) => {
     const newValue = e.target.value;
+
     setInputValue(newValue);
     setShowDropdown(true);
 
@@ -148,6 +155,7 @@ export default function AutoCompleteInput({
     };
 
     document.addEventListener("mousedown", handleClickOutside);
+
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
     };
@@ -171,8 +179,8 @@ export default function AutoCompleteInput({
     <div className="form-control w-full mb-4">
       {label && (
         <label
-          htmlFor={inputId}
           className="block text-sm font-medium text-gray-700 mb-2"
+          htmlFor={inputId}
         >
           {label} {required && <span className="text-red-500">*</span>}
         </label>
@@ -181,27 +189,27 @@ export default function AutoCompleteInput({
       <div className="relative">
         <input
           ref={inputRef}
-          id={inputId}
-          type="text"
-          value={inputValue}
-          onChange={handleInputChange}
-          onFocus={handleFocus}
-          placeholder={placeholder}
+          autoComplete="off"
           className={`
             w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500
             ${error ? "border-red-300 focus:ring-red-500 focus:border-red-500" : "border-gray-300"}
             ${isLoading ? "bg-gray-50" : "bg-white"}
           `}
           disabled={isLoading}
-          autoComplete="off"
+          id={inputId}
+          placeholder={placeholder}
+          type="text"
+          value={inputValue}
+          onChange={handleInputChange}
+          onFocus={handleFocus}
         />
 
         {/* Clear button */}
         {inputValue && !isLoading && (
           <button
+            className="absolute right-8 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
             type="button"
             onClick={handleClear}
-            className="absolute right-8 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
           >
             <X className="w-4 h-4" />
           </button>
@@ -209,10 +217,10 @@ export default function AutoCompleteInput({
 
         {/* Dropdown arrow */}
         <button
-          type="button"
-          onClick={() => setShowDropdown(!showDropdown)}
           className="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
           disabled={isLoading}
+          type="button"
+          onClick={() => setShowDropdown(!showDropdown)}
         >
           <ChevronDown
             className={`w-4 h-4 transition-transform ${showDropdown ? "rotate-180" : ""}`}
@@ -228,8 +236,8 @@ export default function AutoCompleteInput({
             {filteredOptions.map((option, index) => (
               <div
                 key={option.value || index}
-                onClick={() => handleOptionSelect(option)}
                 className="px-3 py-2 cursor-pointer hover:bg-blue-50 hover:text-blue-700 text-sm"
+                onClick={() => handleOptionSelect(option)}
               >
                 {option.label || option.value}
               </div>

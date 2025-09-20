@@ -17,21 +17,15 @@ const masterService = {
   },
 
   createPendidikan: async (data) => {
-    const res = await axios.post("/pendidikan", data);
-
-    return res.data;
+    return handleApiCall(() => axios.post("/pendidikan", data));
   },
 
   updatePendidikan: async (id, data) => {
-    const res = await axios.patch(`/pendidikan/${id}`, data);
-
-    return res.data;
+    return handleApiCall(() => axios.patch(`/pendidikan/${id}`, data));
   },
 
   deletePendidikan: async (id) => {
-    const res = await axios.delete(`/pendidikan/${id}`);
-
-    return res.data;
+    return handleApiCall(() => axios.delete(`/pendidikan/${id}`));
   },
 
   // =================== PEKERJAAN ===================

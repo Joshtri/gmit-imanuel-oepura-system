@@ -289,6 +289,9 @@ export default function MembersManagement() {
         filters={filters}
         searchable={true}
         searchPlaceholder="Cari nama, email, atau ID jemaat..."
+        // Export Props
+        exportable={true}
+        exportFilename="jemaat"
         // Pagination Props
         itemsPerPage={10}
       />

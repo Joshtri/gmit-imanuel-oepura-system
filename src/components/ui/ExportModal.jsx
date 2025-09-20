@@ -8,16 +8,18 @@ export default function ExportModal({
   onClose,
   data = [],
   columns = [],
+  exportColumns = null,
   filename = 'export',
   title = 'Export Data',
 }) {
   const [selectedFormat, setSelectedFormat] = useState('xlsx');
-  const [selectedColumns, setSelectedColumns] = useState(columns.map(col => col.key));
+  const [selectedColumns, setSelectedColumns] = useState((exportColumns || columns).map(col => col.key));
   const [isExporting, setIsExporting] = useState(false);
   const [includeTitle, setIncludeTitle] = useState(true);
   const [customTitle, setCustomTitle] = useState(title);
 
   const formats = getAvailableFormats();
+  const columnsToUse = exportColumns || columns;
 
   // Toggle column selection
   const toggleColumn = (columnKey) => {
@@ -31,7 +33,7 @@ export default function ExportModal({
   // Select/deselect all columns
   const toggleAllColumns = () => {
     setSelectedColumns(prev =>
-      prev.length === columns.length ? [] : columns.map(col => col.key)
+      prev.length === columnsToUse.length ? [] : columnsToUse.map(col => col.key)
     );
   };
 
@@ -50,7 +52,7 @@ export default function ExportModal({
         orientation: selectedColumns.length > 6 ? 'landscape' : 'portrait',
       };
 
-      const result = await exportData(selectedFormat, data, columns, filename, options);
+      const result = await exportData(selectedFormat, data, columnsToUse, filename, options);
 
       if (result.success) {
         onClose();
@@ -68,17 +70,17 @@ export default function ExportModal({
   // Reset modal state when closed
   React.useEffect(() => {
     if (!isOpen) {
-      setSelectedColumns(columns.map(col => col.key));
+      setSelectedColumns(columnsToUse.map(col => col.key));
       setSelectedFormat('xlsx');
       setIncludeTitle(true);
       setCustomTitle(title);
     }
-  }, [isOpen, columns, title]);
+  }, [isOpen, columnsToUse, title]);
 
   if (!isOpen) return null;
 
-  const isAllSelected = selectedColumns.length === columns.length;
-  const isPartialSelected = selectedColumns.length > 0 && selectedColumns.length < columns.length;
+  const isAllSelected = selectedColumns.length === columnsToUse.length;
+  const isPartialSelected = selectedColumns.length > 0 && selectedColumns.length < columnsToUse.length;
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center">
@@ -163,7 +165,7 @@ export default function ExportModal({
           <div className="mb-6">
             <div className="flex items-center justify-between mb-3">
               <label className="text-sm font-medium text-gray-700">
-                Pilih Kolom ({selectedColumns.length}/{columns.length})
+                Pilih Kolom ({selectedColumns.length}/{columnsToUse.length})
               </label>
               <button
                 onClick={toggleAllColumns}
@@ -175,7 +177,7 @@ export default function ExportModal({
 
             <div className="border border-gray-200 rounded-lg p-4 max-h-60 overflow-y-auto">
               <div className="space-y-2">
-                {columns.map((column) => (
+                {columnsToUse.map((column) => (
                   <label
                     key={column.key}
                     className="flex items-center gap-3 p-2 rounded hover:bg-gray-50 cursor-pointer"

@@ -16,39 +16,148 @@ import * as XLSX from "xlsx";
 
 // Utility to get nested value from object using dot notation
 const getNestedValue = (obj, path) => {
+  if (!obj || !path) return undefined;
+
+  // Handle dot notation paths like "keluarga.noBagungan"
   return path.split(".").reduce((current, key) => {
-    if (current && typeof current === "object") {
-      return current[key];
+    if (current === null || current === undefined) {
+      return undefined;
     }
 
-    return undefined;
+    // Handle array indices like "items[0].name"
+    if (key.includes('[') && key.includes(']')) {
+      const [arrayKey, indexPart] = key.split('[');
+      const index = parseInt(indexPart.replace(']', ''));
+      const array = current[arrayKey];
+      return Array.isArray(array) ? array[index] : undefined;
+    }
+
+    return current[key];
   }, obj);
 };
 
 // Format value based on column type
 const formatValue = (value, column, item) => {
-  if (value === null || value === undefined) return "";
-
+  // Always try render function first if it exists
   if (column.render && typeof column.render === "function") {
-    return column.render(item);
+    try {
+      const rendered = column.render(value, item);
+
+      // Handle React elements/JSX by extracting text content
+      if (rendered && typeof rendered === "object") {
+        // If it's a React element with props.children
+        if (rendered.props && rendered.props.children) {
+          const extractText = (children) => {
+            if (typeof children === "string") return children;
+            if (typeof children === "number") return String(children);
+            if (Array.isArray(children)) {
+              return children.map(extractText).join("");
+            }
+            if (children && typeof children === "object" && children.props) {
+              return extractText(children.props.children);
+            }
+            return "";
+          };
+          return extractText(rendered.props.children);
+        }
+
+        // For JSX that just wraps text
+        if (rendered.props && typeof rendered.props.children === "string") {
+          return rendered.props.children;
+        }
+
+        // If render returns an object but not JSX, try toString
+        if (rendered.toString && rendered.toString !== Object.prototype.toString) {
+          return rendered.toString();
+        }
+
+        return "[Complex Element]";
+      }
+
+      return String(rendered || "");
+    } catch (error) {
+      console.warn(`Error in render function for column ${column.key}:`, error);
+      // Fall through to default handling
+    }
   }
 
+  // Handle null/undefined
+  if (value === null || value === undefined) return "";
+
+  // Handle objects that aren't dates
+  if (typeof value === "object" && value !== null && !(value instanceof Date)) {
+    // If it's an array, join with comma
+    if (Array.isArray(value)) {
+      return value.map(v =>
+        typeof v === "object" && v !== null
+          ? (v.nama || v.name || v.label || JSON.stringify(v))
+          : String(v)
+      ).join(", ");
+    }
+
+    // For objects, try common name fields first
+    if (value.nama) return String(value.nama);
+    if (value.name) return String(value.name);
+    if (value.label) return String(value.label);
+    if (value.status) return String(value.status);
+    if (value.noBagungan) return String(value.noBagungan);
+    if (value.email) return String(value.email);
+    if (value.username) return String(value.username);
+
+    // If object has a display property or toString method
+    if (value.toString && value.toString !== Object.prototype.toString) {
+      return String(value.toString());
+    }
+
+    // Last resort: JSON stringify but clean it up
+    try {
+      const json = JSON.stringify(value);
+      if (json.length < 50) return json;
+      return "[Complex Object]";
+    } catch {
+      return "[Object]";
+    }
+  }
+
+  // Handle primitives based on column type
   switch (column.type) {
     case "boolean":
       return value ? "Ya" : "Tidak";
     case "date":
-      return value ? format(new Date(value), "dd/MM/yyyy") : "";
+      try {
+        return value ? format(new Date(value), "dd/MM/yyyy") : "";
+      } catch {
+        return String(value);
+      }
     case "datetime":
-      return value ? format(new Date(value), "dd/MM/yyyy HH:mm") : "";
+      try {
+        return value ? format(new Date(value), "dd/MM/yyyy HH:mm") : "";
+      } catch {
+        return String(value);
+      }
     case "currency":
-      return new Intl.NumberFormat("id-ID", {
-        style: "currency",
-        currency: "IDR",
-      }).format(value);
+      try {
+        const num = parseFloat(value);
+        if (isNaN(num)) return String(value);
+        return new Intl.NumberFormat("id-ID", {
+          style: "currency",
+          currency: "IDR",
+        }).format(num);
+      } catch {
+        return String(value);
+      }
     case "number":
-      return new Intl.NumberFormat("id-ID").format(value);
+      try {
+        const num = parseFloat(value);
+        if (isNaN(num)) return String(value);
+        return new Intl.NumberFormat("id-ID").format(num);
+      } catch {
+        return String(value);
+      }
+    case "badge":
     case "custom":
-      return column.render ? column.render(item) : String(value);
+      // These should have been handled by render function above
+      return String(value);
     default:
       return String(value);
   }
@@ -56,17 +165,39 @@ const formatValue = (value, column, item) => {
 
 // Prepare data for export
 const prepareDataForExport = (data, columns, selectedColumns = null) => {
+  if (!Array.isArray(data) || !Array.isArray(columns)) {
+    console.warn('Invalid data or columns provided to prepareDataForExport');
+    return [];
+  }
+
   const columnsToExport = selectedColumns
     ? columns.filter((col) => selectedColumns.includes(col.key))
     : columns;
 
-  return data.map((item) => {
+  return data.map((item, index) => {
     const row = {};
 
     columnsToExport.forEach((column) => {
-      const value = getNestedValue(item, column.key);
+      try {
+        // Get the raw value first
+        let value = getNestedValue(item, column.key);
 
-      row[column.label] = formatValue(value, column, item);
+        // If value is still undefined/null and column has a getValue function
+        if ((value === undefined || value === null) && column.getValue) {
+          value = column.getValue(item);
+        }
+
+        // Format the value for export
+        const formattedValue = formatValue(value, column, item);
+
+        // Clean the label (remove special characters for CSV compatibility)
+        const cleanLabel = column.label.replace(/[^\w\s-]/g, '').trim();
+
+        row[cleanLabel] = formattedValue;
+      } catch (error) {
+        console.warn(`Error processing column ${column.key} for item ${index}:`, error);
+        row[column.label] = '';
+      }
     });
 
     return row;

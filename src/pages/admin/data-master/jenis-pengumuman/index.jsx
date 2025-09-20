@@ -58,9 +58,8 @@ export default function JenisPengumumanPage() {
     {
       key: "isActive",
       label: "Status",
-      type: "badge",
-      render: (item) => item.isActive ? "Aktif" : "Tidak Aktif",
-      variant: (item) => item.isActive ? "success" : "secondary",
+      type: "boolean",
+      badgeVariant: (value) => (value === true ? "success" : "danger"),
     },
   ];
 
@@ -125,7 +124,7 @@ export default function JenisPengumumanPage() {
     {
       key: "isActive",
       label: "Status Aktif",
-      type: "switch",
+      type: "boolean",
       defaultValue: true,
       description: "Jenis aktif dapat digunakan untuk membuat pengumuman",
     },

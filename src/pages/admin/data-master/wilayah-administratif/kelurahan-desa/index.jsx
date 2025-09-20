@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Eye, Pen, Trash } from "lucide-react";
 
 import masterService from "@/services/masterService";
@@ -31,6 +31,7 @@ const kelurahanDesaFields = [
 export default function KelurahanDesaPage() {
   const modal = useModalForm();
   const confirm = useConfirm();
+  const queryClient = useQueryClient();
   const [viewData, setViewData] = useState(null);
   const [isViewModalOpen, setIsViewModalOpen] = useState(false);
 
@@ -42,6 +43,23 @@ export default function KelurahanDesaPage() {
   const { data: kecamatanData } = useQuery({
     queryKey: ["kecamatan-options"],
     queryFn: () => masterService.getKecamatan(),
+  });
+
+  // Kelurahan/Desa mutations
+  const kelurahanDesaCreateMutation = useMutation({
+    mutationFn: (data) => masterService.createKelurahanDesa(data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["kelurahanDesa"] });
+      modal.close();
+    },
+  });
+
+  const kelurahanDesaUpdateMutation = useMutation({
+    mutationFn: ({ id, data }) => masterService.updateKelurahanDesa(id, data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["kelurahanDesa"] });
+      modal.close();
+    },
   });
 
   // Update kecamatan options
@@ -69,16 +87,11 @@ export default function KelurahanDesaPage() {
     },
   ];
 
-  const handleSuccess = () => {
-    refetch();
-    modal.close();
-  };
-
   const handleSubmit = async (formData, isEdit) => {
     if (isEdit) {
-      return await masterService.updateKelurahanDesa(modal.editData.id, formData);
+      return kelurahanDesaUpdateMutation.mutateAsync({ id: modal.editData.id, data: formData });
     }
-    return await masterService.createKelurahanDesa(formData);
+    return kelurahanDesaCreateMutation.mutateAsync(formData);
   };
 
   const handleDelete = (item) => {
@@ -154,11 +167,11 @@ export default function KelurahanDesaPage() {
         editData={modal.editData}
         fields={fieldsWithOptions}
         isOpen={modal.isOpen}
+        isLoading={kelurahanDesaCreateMutation.isPending || kelurahanDesaUpdateMutation.isPending}
         schema={kelurahanDesaSchema}
         title="Kelurahan / Desa"
         onClose={modal.close}
         onSubmit={handleSubmit}
-        onSuccess={handleSuccess}
       />
 
       <ConfirmDialog

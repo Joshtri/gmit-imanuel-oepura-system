@@ -460,9 +460,52 @@ export default function UsersPage() {
             tooltip: "Hapus user",
           },
         ]}
-        onAdd={() => setShowCreate(true)}
         searchable={true}
         searchPlaceholder="Cari berdasarkan username, email, nama..."
+        exportable={true}
+        exportFilename="users"
+        exportColumns={[
+          {
+            key: "username",
+            label: "Username",
+            type: "text"
+          },
+          {
+            key: "email",
+            label: "Email",
+            type: "text"
+          },
+          {
+            key: "noWhatsapp",
+            label: "No WhatsApp",
+            type: "text"
+          },
+          {
+            key: "role",
+            label: "Role",
+            type: "text"
+          },
+          {
+            key: "jemaat",
+            label: "Nama Jemaat",
+            render: (value) => value?.nama || "-"
+          },
+          {
+            key: "jenisKelamin",
+            label: "Jenis Kelamin",
+            render: (value, row) => {
+              const gender = row.jemaat?.jenisKelamin;
+              if (gender === null || gender === undefined) return "-";
+              return gender ? "Laki-laki" : "Perempuan";
+            }
+          },
+          {
+            key: "createdAt",
+            label: "Tgl Dibuat",
+            type: "datetime"
+          }
+        ]}
+        onAdd={() => setShowCreate(true)}
         emptyStateProps={{
           title: "Belum Ada Data User",
           description: "Mulai dengan menambahkan user pertama",

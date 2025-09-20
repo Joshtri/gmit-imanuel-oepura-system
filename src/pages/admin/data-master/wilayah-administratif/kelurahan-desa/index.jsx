@@ -131,6 +131,8 @@ export default function KelurahanDesaPage() {
         data={data?.data?.items || []}
         isLoading={isLoading}
         title={"Daftar Kelurahan / Desa"}
+        exportable={true}
+        exportFilename="kelurahan-desa"
         searchPlaceholder="Cari kelurahan/desa..."
         description={"Kelola data kelurahan/desa"}
         rowActionType="horizontal"

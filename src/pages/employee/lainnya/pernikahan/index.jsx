@@ -149,6 +149,8 @@ export default function PernikahanManagement() {
       error={error}
       searchable={true}
       searchPlaceholder="Cari berdasarkan klasis atau nama jemaat..."
+      exportable={true}
+      exportFilename="pernikahan"
       emptyState={{
         title: "Belum ada data pernikahan",
         description: "Mulai tambahkan data pernikahan jemaat di sini.",

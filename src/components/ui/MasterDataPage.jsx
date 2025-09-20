@@ -20,6 +20,10 @@ export default function MasterDataPage({
   formFields = [],
   itemNameField = "name",
   breadcrumb = [],
+  exportable = false,
+  allowBulkDelete = false,
+  searchFields = [],
+  filterFields = [],
 }) {
   const router = useRouter();
   const queryClient = useQueryClient();
@@ -119,7 +123,10 @@ export default function MasterDataPage({
         ]}
         title={title}
         onAdd={() => setShowCreate(true)}
-        onExport={() => {}}
+        exportable={exportable}
+        exportFilename={title?.toLowerCase().replace(/\s+/g, '-')}
+        filters={filterFields}
+        searchFields={searchFields}
       />
 
       <ConfirmDialog

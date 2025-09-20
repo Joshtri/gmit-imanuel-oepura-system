@@ -16,6 +16,7 @@ import { Button } from "@/components/ui/Button";
 import ButtonActions from "@/components/ui/ButtonActions";
 import { TableSkeleton } from "./skeletons/SkeletonTable";
 import { GridSkeleton } from "./skeletons/SkeletonGrid";
+import ExportModal from "./ExportModal";
 
 // Skeleton Components
 
@@ -174,6 +175,10 @@ export default function ListGrid({
   searchable = true,
   searchPlaceholder = "Cari data...",
 
+  // Export Props
+  exportable = false,
+  exportFilename,
+
   // Legacy action handlers (for backward compatibility)
   onAdd,
   onView,
@@ -195,6 +200,7 @@ export default function ListGrid({
   const [selectedFilters, setSelectedFilters] = useState({});
   const [viewMode, setViewMode] = useState("table"); // table or grid
   const [sortConfig, setSortConfig] = useState({ key: null, direction: "asc" });
+  const [showExportModal, setShowExportModal] = useState(false);
 
   // Merge legacy actions with new rowActions array for backward compatibility
   const allRowActions = [
@@ -217,15 +223,26 @@ export default function ListGrid({
       : []),
   ];
 
+  // Handle export functionality
+  const handleExport = () => {
+    if (onExport) {
+      // Use legacy export if provided
+      onExport();
+    } else {
+      // Use new export modal
+      setShowExportModal(true);
+    }
+  };
+
   // Merge header actions with legacy actions
   const allHeaderActions = [
     ...headerActions,
-    ...(onExport
+    ...(exportable || onExport
       ? [
           {
             label: "Export",
             icon: Download,
-            onClick: onExport,
+            onClick: handleExport,
             variant: "outline",
           },
         ]
@@ -643,6 +660,16 @@ export default function ListGrid({
           )}
         </CardContent>
       </Card>
+
+      {/* Export Modal */}
+      <ExportModal
+        isOpen={showExportModal}
+        onClose={() => setShowExportModal(false)}
+        data={sortedData}
+        columns={columns}
+        filename={exportFilename || title?.toLowerCase().replace(/\s+/g, '-') || 'export'}
+        title={title || 'Data Export'}
+      />
     </div>
   );
 }

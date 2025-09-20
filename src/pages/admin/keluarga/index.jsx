@@ -1,14 +1,15 @@
 import ListGrid from "@/components/ui/ListGrid";
 import keluargaService from "@/services/keluargaService";
 import ConfirmDialog from "@/components/ui/ConfirmDialog";
+
 import { useQuery, useMutation } from "@tanstack/react-query";
-import { Edit, Eye, Trash2, Users } from "lucide-react";
+import { Edit, Eye, Trash2, Users, Plus } from "lucide-react";
 import { showToast } from "@/utils/showToast";
 import useConfirm from "@/hooks/useConfirm";
 
 export default function KeluargaPage() {
   const confirm = useConfirm();
-  
+
   const { data, isLoading, error, refetch } = useQuery({
     queryKey: ["keluarga"],
     queryFn: () => keluargaService.getAll(),
@@ -217,6 +218,14 @@ export default function KeluargaPage() {
             variant: "danger",
           },
         ]}
+        headerActions={[
+          {
+            label: "Tambah Keluarga",
+            icon: Plus,
+            href: "/admin/keluarga/create",
+            variant: "primary",
+          },
+        ]}
         breadcrumb={[
           { label: "Dashboard", href: "/admin/dashboard" },
           { label: "Keluarga", href: "/admin/keluarga" },
@@ -230,7 +239,7 @@ export default function KeluargaPage() {
         searchable={true}
         searchPlaceholder="Cari berdasarkan alamat, kepala keluarga..."
       />
-      
+
       <ConfirmDialog
         isOpen={confirm.isOpen}
         onClose={confirm.hideConfirm}

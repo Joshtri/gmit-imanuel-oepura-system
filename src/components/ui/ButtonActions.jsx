@@ -161,6 +161,49 @@ export default function ButtonActions({
                       ? action.disabled(item)
                       : action.disabled;
 
+                  // Handle href actions
+                  if (action.href && !isDisabled) {
+                    const href = typeof action.href === 'function'
+                      ? action.href(item)
+                      : action.href;
+
+                    return (
+                      <a
+                        key={index}
+                        href={href}
+                        className={`
+                          group flex items-center w-full px-4 py-2 text-sm transition-colors
+                          ${
+                            isDisabled
+                              ? "text-gray-400 cursor-not-allowed"
+                              : action.variant === "destructive"
+                                ? "text-red-700 hover:bg-red-50"
+                                : action.variant === "danger"
+                                  ? "text-red-700 hover:bg-red-50"
+                                  : "text-gray-700 hover:bg-gray-100"
+                          }
+                        `}
+                        onClick={() => setIsDropdownOpen(false)}
+                      >
+                        {action.icon && (
+                          <action.icon
+                            className={`mr-3 h-4 w-4 ${
+                              isDisabled
+                                ? "text-gray-400"
+                                : action.variant === "destructive"
+                                  ? "text-red-500"
+                                  : action.variant === "danger"
+                                    ? "text-red-500"
+                                    : "text-gray-500"
+                            }`}
+                          />
+                        )}
+                        {action.label}
+                      </a>
+                    );
+                  }
+
+                  // Handle onClick actions (buttons)
                   return (
                     <button
                       key={index}
@@ -171,12 +214,14 @@ export default function ButtonActions({
                             ? "text-gray-400 cursor-not-allowed"
                             : action.variant === "destructive"
                               ? "text-red-700 hover:bg-red-50"
-                              : "text-gray-700 hover:bg-gray-100"
+                              : action.variant === "danger"
+                                ? "text-red-700 hover:bg-red-50"
+                                : "text-gray-700 hover:bg-gray-100"
                         }
                       `}
                       disabled={isDisabled}
                       onClick={() => {
-                        if (!isDisabled) {
+                        if (!isDisabled && action.onClick) {
                           action.onClick(item);
                           setIsDropdownOpen(false);
                         }
@@ -189,7 +234,9 @@ export default function ButtonActions({
                               ? "text-gray-400"
                               : action.variant === "destructive"
                                 ? "text-red-500"
-                                : "text-gray-500"
+                                : action.variant === "danger"
+                                  ? "text-red-500"
+                                  : "text-gray-500"
                           }`}
                         />
                       )}

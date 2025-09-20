@@ -113,20 +113,33 @@ async function handleGet(req, res) {
 
 async function handlePost(req, res) {
   try {
-    const data = req.body;
+    const { alamat, ...keluargaData } = req.body;
 
-    const newKeluarga = await prisma.keluarga.create({
-      data,
-      include: {
-        alamat: {
-          include: {
-            kelurahan: {
-              include: {
-                kecamatan: {
-                  include: {
-                    kotaKab: {
-                      include: {
-                        provinsi: true,
+    let newKeluarga;
+
+    if (alamat) {
+      // Create alamat first, then keluarga
+      const newAlamat = await prisma.alamat.create({
+        data: alamat,
+      });
+
+      // Create keluarga with the alamat ID
+      newKeluarga = await prisma.keluarga.create({
+        data: {
+          ...keluargaData,
+          idAlamat: newAlamat.id,
+        },
+        include: {
+          alamat: {
+            include: {
+              kelurahan: {
+                include: {
+                  kecamatan: {
+                    include: {
+                      kotaKab: {
+                        include: {
+                          provinsi: true,
+                        },
                       },
                     },
                   },
@@ -134,13 +147,41 @@ async function handlePost(req, res) {
               },
             },
           },
+          statusKeluarga: true,
+          statusKepemilikanRumah: true,
+          keadaanRumah: true,
+          rayon: true,
         },
-        statusKeluarga: true,
-        statusKepemilikanRumah: true,
-        keadaanRumah: true,
-        rayon: true,
-      },
-    });
+      });
+    } else {
+      // Create keluarga only
+      newKeluarga = await prisma.keluarga.create({
+        data: keluargaData,
+        include: {
+          alamat: {
+            include: {
+              kelurahan: {
+                include: {
+                  kecamatan: {
+                    include: {
+                      kotaKab: {
+                        include: {
+                          provinsi: true,
+                        },
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+          statusKeluarga: true,
+          statusKepemilikanRumah: true,
+          keadaanRumah: true,
+          rayon: true,
+        },
+      });
+    }
 
     return res
       .status(201)

@@ -39,6 +39,7 @@ const steps = [
 
 export default function CreateJemaat() {
   const router = useRouter();
+  const { keluargaId, isKepalaKeluarga: isKepalaKeluargaParam } = router.query;
   const [currentStep, setCurrentStep] = useState(1);
   const [formData, setFormData] = useState({
     jemaat: {},
@@ -50,6 +51,7 @@ export default function CreateJemaat() {
   const [createUserAccount, setCreateUserAccount] = useState(true);
   const [createKeluarga, setCreateKeluarga] = useState(false);
   const [createAlamat, setCreateAlamat] = useState(false);
+  const [preSelectedKeluarga, setPreSelectedKeluarga] = useState(null);
 
   const form = useForm({
     defaultValues: {
@@ -153,6 +155,25 @@ export default function CreateJemaat() {
   // Watch status dalam keluarga to determine if user is kepala keluarga
   const watchStatusDalamKeluarga = form.watch("idStatusDalamKeluarga");
 
+  // Handle URL parameters for pre-filled keluarga
+  useEffect(() => {
+    if (keluargaId && isKepalaKeluargaParam === 'true') {
+      form.setValue("idKeluarga", keluargaId);
+      setPreSelectedKeluarga(keluargaId);
+
+      // Auto-set kepala keluarga status
+      if (statusDalamKeluarga?.data?.items) {
+        const kepalaKeluargaStatus = statusDalamKeluarga.data.items.find(
+          (status) => status.status.toLowerCase().includes("kepala")
+        );
+        if (kepalaKeluargaStatus) {
+          form.setValue("idStatusDalamKeluarga", kepalaKeluargaStatus.id);
+          setIsKepalaKeluarga(true);
+        }
+      }
+    }
+  }, [keluargaId, isKepalaKeluargaParam, statusDalamKeluarga, form]);
+
   useEffect(() => {
     if (statusDalamKeluarga?.data?.items) {
       const kepalaKeluargaStatus = statusDalamKeluarga.data.items.find(
@@ -168,21 +189,27 @@ export default function CreateJemaat() {
         setCreateAlamat(true); // Always create alamat when creating keluarga
       } else {
         setIsKepalaKeluarga(false);
-        setCreateKeluarga(false);
-        setCreateAlamat(false);
+        // Don't set createKeluarga to false if we have pre-selected keluarga
+        if (!preSelectedKeluarga) {
+          setCreateKeluarga(false);
+          setCreateAlamat(false);
+        }
       }
     }
-  }, [watchStatusDalamKeluarga, statusDalamKeluarga]);
+  }, [watchStatusDalamKeluarga, statusDalamKeluarga, preSelectedKeluarga]);
 
   const createJemaatMutation = useMutation({
     mutationFn: jemaatService.createWithUser,
     onSuccess: (data) => {
       showToast({
         title: "Berhasil",
-        description: "Jemaat berhasil dibuat!",
+        description: preSelectedKeluarga
+          ? "Kepala keluarga berhasil dibuat! Keluarga sudah lengkap."
+          : "Jemaat berhasil dibuat!",
         color: "success",
       });
-      router.push("/admin/jemaat");
+      // Redirect to keluarga page if this was a kepala keluarga creation
+      router.push(preSelectedKeluarga ? "/admin/keluarga" : "/admin/jemaat");
     },
     onError: (error) => {
       showToast({
@@ -366,13 +393,21 @@ export default function CreateJemaat() {
       </div> */}
 
       <PageHeader
-        title={"Tambah Jemaat Baru"}
+        title={preSelectedKeluarga ? "Tambah Kepala Keluarga" : "Tambah Jemaat Baru"}
         breadcrumb={[
           { label: "Dashboard", href: "/admin/dashboard" },
-          { label: "Jemaat", href: "/admin/jemaat" },
-          { label: "Tambah Jemaat" },
+          ...(preSelectedKeluarga ? [
+            { label: "Keluarga", href: "/admin/keluarga" },
+            { label: "Tambah Kepala Keluarga" },
+          ] : [
+            { label: "Jemaat", href: "/admin/jemaat" },
+            { label: "Tambah Jemaat" },
+          ]),
         ]}
-        description={'Lengkapi data jemaat dengan mengikuti langkah-langkah berikut'}
+        description={preSelectedKeluarga
+          ? 'Lengkapi data kepala keluarga untuk keluarga yang baru dibuat'
+          : 'Lengkapi data jemaat dengan mengikuti langkah-langkah berikut'
+        }
       />
 
       <Card className="p-6 mt-4">
@@ -456,14 +491,14 @@ export default function CreateJemaat() {
                   </select>
                 </div>
 
-                {!isKepalaKeluarga && (
+                {!isKepalaKeluarga && !preSelectedKeluarga && (
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
                       Keluarga *
                     </label>
                     <select
                       {...form.register("idKeluarga", {
-                        required: !isKepalaKeluarga,
+                        required: !isKepalaKeluarga && !preSelectedKeluarga,
                       })}
                       className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                     >
@@ -474,6 +509,16 @@ export default function CreateJemaat() {
                         </option>
                       ))}
                     </select>
+                  </div>
+                )}
+
+                {preSelectedKeluarga && (
+                  <div>
+                    <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                      <p className="text-sm text-blue-700">
+                        <strong>Kepala Keluarga</strong> - Jemaat ini akan menjadi kepala keluarga yang baru dibuat.
+                      </p>
+                    </div>
                   </div>
                 )}
 

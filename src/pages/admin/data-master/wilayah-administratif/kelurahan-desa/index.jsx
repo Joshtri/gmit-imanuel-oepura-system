@@ -26,6 +26,13 @@ const kelurahanDesaFields = [
     required: true,
     options: [], // Will be populated dynamically
   },
+  {
+    type: "text",
+    name: "kodePos",
+    label: "Kode Pos",
+    placeholder: "Masukkan kode pos (5 digit)",
+    required: true,
+  },
 ];
 
 export default function KelurahanDesaPage() {
@@ -163,7 +170,7 @@ export default function KelurahanDesaPage() {
       />
 
       <CreateOrEditModal
-        defaultValues={{ nama: "", idKecamatan: "" }}
+        defaultValues={{ nama: "", idKecamatan: "", kodePos: "" }}
         editData={modal.editData}
         fields={fieldsWithOptions}
         isOpen={modal.isOpen}

@@ -1,20 +1,20 @@
-import { useState } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Eye, PlusIcon, Trash } from "lucide-react";
+import { useState } from "react";
 
-import masterService from "@/services/masterService";
-import {
-  provinsiSchema,
-  kotaKabupatenSchema,
-} from "@/validations/masterSchema";
-import useModalForm from "@/hooks/useModalForm";
 import CreateOrEditModal from "@/components/common/CreateOrEditModal";
-import ListGrid from "@/components/ui/ListGrid";
-import useDrawer from "@/hooks/useDrawer";
-import Drawer from "@/components/ui/Drawer";
 import KotaKabupatenDrawerContent from "@/components/geografis/KotaKabupatenDrawerContent";
 import ConfirmDialog from "@/components/ui/ConfirmDialog";
+import Drawer from "@/components/ui/Drawer";
+import ListGrid from "@/components/ui/ListGrid";
 import useConfirm from "@/hooks/useConfirm";
+import useDrawer from "@/hooks/useDrawer";
+import useModalForm from "@/hooks/useModalForm";
+import masterService from "@/services/masterService";
+import {
+  kotaKabupatenSchema,
+  provinsiSchema,
+} from "@/validations/masterSchema";
 
 // Konfigurasi field input di modal provinsi
 const provinsiFields = [
@@ -22,6 +22,7 @@ const provinsiFields = [
     type: "text",
     name: "nama",
     label: "Nama Provinsi",
+    required: true,
     placeholder: "Masukkan nama provinsi",
   },
 ];
@@ -31,6 +32,7 @@ const kotaKabupatenFields = [
   {
     type: "text",
     name: "nama",
+    required: true,
     label: "Nama Kota / Kabupaten",
     placeholder: "Masukkan nama kota / kabupaten",
   },
@@ -41,6 +43,7 @@ export default function ProvinsiPage() {
   const modal = useModalForm(); // For provinsi modal
   const drawer = useDrawer(); // Untuk drawer kota/kab
   const confirm = useConfirm();
+  const queryClient = useQueryClient();
   const [viewData, setViewData] = useState(null);
   const [isViewModalOpen, setIsViewModalOpen] = useState(false);
 
@@ -55,6 +58,34 @@ export default function ProvinsiPage() {
       queryKey: ["kota-kabupaten", drawer.data?.id],
       queryFn: () => masterService.getKotaKabupatenByProvinsi(drawer.data.id),
     });
+
+  // Provinsi mutations
+  const provinsiCreateMutation = useMutation({
+    mutationFn: (data) => masterService.createProvinsi(data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["provinsi"] });
+      modal.close();
+    },
+  });
+
+  const provinsiUpdateMutation = useMutation({
+    mutationFn: ({ id, data }) => masterService.updateProvinsi(id, data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["provinsi"] });
+      modal.close();
+    },
+  });
+
+  // Kota/Kabupaten mutations
+  const kotaKabupatenCreateMutation = useMutation({
+    mutationFn: (data) => masterService.createKotaKabupaten(data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: ["kota-kabupaten", kotaKabupatenModal.editData?.id],
+      });
+      kotaKabupatenModal.close();
+    },
+  });
 
   const columns = [
     {
@@ -75,16 +106,15 @@ export default function ProvinsiPage() {
     },
   ];
 
-  const handleProvinsiSuccess = () => {
-    refetch();
-    modal.close();
-  };
-
   const handleProvinsiSubmit = async (formData, isEdit) => {
     if (isEdit) {
-      return await masterService.updateProvinsi(modal.editData.id, formData);
+      return provinsiUpdateMutation.mutateAsync({
+        id: modal.editData.id,
+        data: formData,
+      });
     }
-    return await masterService.createProvinsi(formData);
+
+    return provinsiCreateMutation.mutateAsync(formData);
   };
 
   const handleDelete = (item) => {
@@ -112,16 +142,7 @@ export default function ProvinsiPage() {
 
   // Handle kota/kabupaten form submission
   const handleKotaKabupatenSubmit = async (formData, isEdit) => {
-    return await masterService.createKotaKabupaten(formData);
-  };
-
-  // Handle kota/kabupaten success
-  const handleKotaKabupatenSuccess = () => {
-    kotaKabupatenModal.close();
-    // Refetch drawer data if needed
-    if (drawer.isOpen) {
-      // Trigger refetch of kota/kabupaten data
-    }
+    return kotaKabupatenCreateMutation.mutateAsync(formData);
   };
 
   return (
@@ -188,12 +209,14 @@ export default function ProvinsiPage() {
         defaultValues={{ nama: "" }}
         editData={modal.editData}
         fields={provinsiFields}
+        isLoading={
+          provinsiCreateMutation.isPending || provinsiUpdateMutation.isPending
+        }
         isOpen={modal.isOpen}
         schema={provinsiSchema}
         title="Provinsi"
         onClose={modal.close}
         onSubmit={handleProvinsiSubmit}
-        onSuccess={handleProvinsiSuccess}
       />
 
       {/* Kota/Kabupaten Modal */}
@@ -204,21 +227,21 @@ export default function ProvinsiPage() {
         }}
         editData={null}
         fields={kotaKabupatenFields}
+        isLoading={kotaKabupatenCreateMutation.isPending}
         isOpen={kotaKabupatenModal.isOpen}
         schema={kotaKabupatenSchema}
         title={`Tambah Kota / Kabupaten untuk ${kotaKabupatenModal.editData?.nama || ""}`}
         onClose={kotaKabupatenModal.close}
         onSubmit={handleKotaKabupatenSubmit}
-        onSuccess={handleKotaKabupatenSuccess}
       />
 
       {/* Drawer untuk melihat kota/kabupaten - Sekarang menggunakan komponen reusable */}
       <Drawer
         isOpen={drawer.isOpen}
-        onClose={drawer.close}
+        position="right"
         title={`Kota / Kabupaten - ${drawer.data?.nama || ""}`}
         width="w-96"
-        position="right"
+        onClose={drawer.close}
       >
         <KotaKabupatenDrawerContent
           data={kotaKabupatenData?.data}
@@ -228,21 +251,21 @@ export default function ProvinsiPage() {
       </Drawer>
 
       <ConfirmDialog
+        cancelText={confirm.config.cancelText}
+        confirmText={confirm.config.confirmText}
         isOpen={confirm.isOpen}
+        message={confirm.config.message}
+        title={confirm.config.title}
+        variant={confirm.config.variant}
         onClose={confirm.hideConfirm}
         onConfirm={confirm.handleConfirm}
-        title={confirm.config.title}
-        message={confirm.config.message}
-        confirmText={confirm.config.confirmText}
-        cancelText={confirm.config.cancelText}
-        variant={confirm.config.variant}
       />
 
       {/* View Modal */}
       {isViewModalOpen && viewData && (
         <div className="fixed inset-0 z-50 overflow-y-auto">
-          <div className="fixed inset-0 bg-black/10 backdrop-blur-sm transition-opacity"></div>
-          
+          <div className="fixed inset-0 bg-black/10 backdrop-blur-sm transition-opacity" />
+
           <div className="flex min-h-full items-end justify-center p-4 text-center sm:items-center sm:p-0">
             <div className="relative transform overflow-hidden rounded-lg bg-white text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-lg">
               <div className="bg-white px-4 pb-4 pt-5 sm:p-6 sm:pb-4">
@@ -251,27 +274,37 @@ export default function ProvinsiPage() {
                 </h3>
                 <div className="space-y-3">
                   <div>
-                    <label className="block text-sm font-medium text-gray-500">ID</label>
+                    <label className="block text-sm font-medium text-gray-500">
+                      ID
+                    </label>
                     <p className="text-sm text-gray-900">{viewData.id}</p>
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-500">Nama</label>
+                    <label className="block text-sm font-medium text-gray-500">
+                      Nama
+                    </label>
                     <p className="text-sm text-gray-900">{viewData.nama}</p>
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-500">Status</label>
-                    <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
-                      viewData.isActive ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
-                    }`}>
-                      {viewData.isActive ? 'Aktif' : 'Tidak Aktif'}
+                    <label className="block text-sm font-medium text-gray-500">
+                      Status
+                    </label>
+                    <span
+                      className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
+                        viewData.isActive
+                          ? "bg-green-100 text-green-800"
+                          : "bg-red-100 text-red-800"
+                      }`}
+                    >
+                      {viewData.isActive ? "Aktif" : "Tidak Aktif"}
                     </span>
                   </div>
                 </div>
               </div>
               <div className="bg-gray-50 px-4 py-3 sm:flex sm:flex-row-reverse sm:px-6">
                 <button
-                  type="button"
                   className="inline-flex w-full justify-center rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 sm:w-auto"
+                  type="button"
                   onClick={() => setIsViewModalOpen(false)}
                 >
                   Tutup

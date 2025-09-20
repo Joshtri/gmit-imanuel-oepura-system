@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Eye, Pen, PlusIcon, Trash } from "lucide-react";
 
 import masterService from "@/services/masterService";
@@ -55,6 +55,7 @@ export default function KecamatanPage() {
   const drawer = useDrawer();
   const kelurahanDesaModal = useModalForm();
   const confirm = useConfirm();
+  const queryClient = useQueryClient();
   const [viewData, setViewData] = useState(null);
   const [isViewModalOpen, setIsViewModalOpen] = useState(false);
 
@@ -74,6 +75,32 @@ export default function KecamatanPage() {
       queryKey: ["kelurahan-desa", drawer.data?.id],
       queryFn: () => masterService.getKelurahanDesaByKecamatan(drawer.data.id),
     });
+
+  // Kecamatan mutations
+  const kecamatanCreateMutation = useMutation({
+    mutationFn: (data) => masterService.createKecamatan(data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["kecamatan"] });
+      modal.close();
+    },
+  });
+
+  const kecamatanUpdateMutation = useMutation({
+    mutationFn: ({ id, data }) => masterService.updateKecamatan(id, data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["kecamatan"] });
+      modal.close();
+    },
+  });
+
+  // Kelurahan/Desa mutations
+  const kelurahanDesaCreateMutation = useMutation({
+    mutationFn: (data) => masterService.createKelurahanDesa(data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["kelurahan-desa", kelurahanDesaModal.editData?.id] });
+      kelurahanDesaModal.close();
+    },
+  });
 
   const fieldsWithOptions = kecamatanFields.map((field) => {
     if (field.name === "idKotaKab" && kotaKabupatenData?.data?.items) {
@@ -99,16 +126,11 @@ export default function KecamatanPage() {
     },
   ];
 
-  const handleSuccess = () => {
-    refetch();
-    modal.close();
-  };
-
   const handleSubmit = async (formData, isEdit) => {
     if (isEdit) {
-      return await masterService.updateKecamatan(modal.editData.id, formData);
+      return kecamatanUpdateMutation.mutateAsync({ id: modal.editData.id, data: formData });
     }
-    return await masterService.createKecamatan(formData);
+    return kecamatanCreateMutation.mutateAsync(formData);
   };
 
   const handleDelete = (item) => {
@@ -134,16 +156,12 @@ export default function KecamatanPage() {
     setIsViewModalOpen(true);
   };
 
-  const handleKelurahanDesaSuccess = () => {
-    kelurahanDesaModal.close();
-  };
-
   const handleKelurahanDesaSubmit = async (formData, isEdit) => {
     const dataWithKecamatan = {
       ...formData,
       idKecamatan: kelurahanDesaModal.editData?.id || "",
     };
-    return await masterService.createKelurahanDesa(dataWithKecamatan);
+    return kelurahanDesaCreateMutation.mutateAsync(dataWithKecamatan);
   };
 
   return (
@@ -210,11 +228,11 @@ export default function KecamatanPage() {
         editData={modal.editData}
         fields={fieldsWithOptions}
         isOpen={modal.isOpen}
+        isLoading={kecamatanCreateMutation.isPending || kecamatanUpdateMutation.isPending}
         schema={kecamatanSchema}
         title="Kecamatan"
         onClose={modal.close}
         onSubmit={handleSubmit}
-        onSuccess={handleSuccess}
       />
 
       <CreateOrEditModal
@@ -226,11 +244,11 @@ export default function KecamatanPage() {
         editData={null}
         fields={kelurahanDesaFields}
         isOpen={kelurahanDesaModal.isOpen}
+        isLoading={kelurahanDesaCreateMutation.isPending}
         schema={kelurahanDesaSchema}
         title={`Tambah Kelurahan/Desa untuk ${kelurahanDesaModal.editData?.nama || ""}`}
         onClose={kelurahanDesaModal.close}
         onSubmit={handleKelurahanDesaSubmit}
-        onSuccess={handleKelurahanDesaSuccess}
       />
 
       <Drawer

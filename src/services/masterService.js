@@ -1,5 +1,78 @@
 import axios from "@/lib/axios";
 
+// Helper function for API error handling
+const handleApiCall = async (apiCall) => {
+  try {
+    const response = await apiCall();
+    return {
+      success: true,
+      data: response.data,
+      message: response.data?.message || "Operasi berhasil"
+    };
+  } catch (error) {
+    console.error("API Error:", error);
+
+    // Handle different types of errors
+    if (error.response) {
+      // Server responded with error status
+      const { status, data } = error.response;
+
+      switch (status) {
+        case 409:
+          return {
+            success: false,
+            message: data?.message || "Data sudah ada. Silakan gunakan data yang berbeda.",
+            errors: data?.errors || {}
+          };
+        case 400:
+          return {
+            success: false,
+            message: data?.message || "Data tidak valid. Silakan periksa kembali.",
+            errors: data?.errors || {}
+          };
+        case 404:
+          return {
+            success: false,
+            message: data?.message || "Data tidak ditemukan.",
+            errors: data?.errors || {}
+          };
+        case 422:
+          return {
+            success: false,
+            message: data?.message || "Validasi gagal. Silakan periksa data yang dimasukkan.",
+            errors: data?.errors || {}
+          };
+        case 500:
+          return {
+            success: false,
+            message: "Terjadi kesalahan pada server. Silakan coba lagi nanti.",
+            errors: {}
+          };
+        default:
+          return {
+            success: false,
+            message: data?.message || `Terjadi kesalahan (${status}). Silakan coba lagi.`,
+            errors: data?.errors || {}
+          };
+      }
+    } else if (error.request) {
+      // Network error
+      return {
+        success: false,
+        message: "Tidak dapat terhubung ke server. Periksa koneksi internet Anda.",
+        errors: {}
+      };
+    } else {
+      // Other errors
+      return {
+        success: false,
+        message: "Terjadi kesalahan tak terduga. Silakan coba lagi.",
+        errors: {}
+      };
+    }
+  }
+};
+
 const masterService = {
   // =================== PENDIDIKAN ===================
 
@@ -336,21 +409,15 @@ const masterService = {
   },
 
   createProvinsi: async (data) => {
-    const res = await axios.post("/geografi/provinsi", data);
-
-    return res.data;
+    return handleApiCall(() => axios.post("/geografi/provinsi", data));
   },
 
   updateProvinsi: async (id, data) => {
-    const res = await axios.patch(`/geografi/provinsi/${id}`, data);
-
-    return res.data;
+    return handleApiCall(() => axios.patch(`/geografi/provinsi/${id}`, data));
   },
 
   deleteProvinsi: async (id) => {
-    const res = await axios.delete(`/geografi/provinsi/${id}`);
-
-    return res.data;
+    return handleApiCall(() => axios.delete(`/geografi/provinsi/${id}`));
   },
 
   // =================== Kota Kabupaten =================== //
@@ -367,15 +434,11 @@ const masterService = {
   },
 
   createKotaKabupaten: async (data) => {
-    const res = await axios.post("/geografi/kota-kabupaten", data);
-
-    return res.data;
+    return handleApiCall(() => axios.post("/geografi/kota-kabupaten", data));
   },
 
   updateKotaKabupaten: async (id, data) => {
-    const res = await axios.patch(`/geografi/kota-kabupaten/${id}`, data);
-
-    return res.data;
+    return handleApiCall(() => axios.patch(`/geografi/kota-kabupaten/${id}`, data));
   },
 
   getKotaKabupatenByProvinsi: async (idProvinsi) => {
@@ -387,9 +450,7 @@ const masterService = {
   },
 
   deleteKotaKabupaten: async (id) => {
-    const res = await axios.delete(`/geografi/kota-kabupaten/${id}`);
-
-    return res.data;
+    return handleApiCall(() => axios.delete(`/geografi/kota-kabupaten/${id}`));
   },
 
   // =================== Kecamatan =================== //
@@ -414,21 +475,15 @@ const masterService = {
   },
 
   createKecamatan: async (data) => {
-    const res = await axios.post("/geografi/kecamatan", data);
-
-    return res.data;
+    return handleApiCall(() => axios.post("/geografi/kecamatan", data));
   },
 
   updateKecamatan: async (id, data) => {
-    const res = await axios.patch(`/geografi/kecamatan/${id}`, data);
-
-    return res.data;
+    return handleApiCall(() => axios.patch(`/geografi/kecamatan/${id}`, data));
   },
 
   deleteKecamatan: async (id) => {
-    const res = await axios.delete(`/geografi/kecamatan/${id}`);
-
-    return res.data;
+    return handleApiCall(() => axios.delete(`/geografi/kecamatan/${id}`));
   },
 
   // =================== Kelurahan Desa =================== //
@@ -453,21 +508,15 @@ const masterService = {
   },
 
   createKelurahanDesa: async (data) => {
-    const res = await axios.post("/geografi/kelurahan-desa", data);
-
-    return res.data;
+    return handleApiCall(() => axios.post("/geografi/kelurahan-desa", data));
   },
 
   updateKelurahanDesa: async (id, data) => {
-    const res = await axios.patch(`/geografi/kelurahan-desa/${id}`, data);
-
-    return res.data;
+    return handleApiCall(() => axios.patch(`/geografi/kelurahan-desa/${id}`, data));
   },
 
   deleteKelurahanDesa: async (id) => {
-    const res = await axios.delete(`/geografi/kelurahan-desa/${id}`);
-
-    return res.data;
+    return handleApiCall(() => axios.delete(`/geografi/kelurahan-desa/${id}`));
   },
 
   // =================== KELURAHAN (Alias) ===================

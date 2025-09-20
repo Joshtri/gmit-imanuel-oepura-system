@@ -1,14 +1,15 @@
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm } from "react-hook-form";
+import { X } from "lucide-react";
 import { useEffect } from "react";
+import { useForm } from "react-hook-form";
+
+import HookForm from "../form/HookForm";
+import AutoCompleteInput from "../ui/inputs/AutoCompleteInput";
+import DatePicker from "../ui/inputs/DatePicker";
+import SelectInput from "../ui/inputs/SelectInput";
+import TextInput from "../ui/inputs/TextInput";
 
 import { showToast } from "@/utils/showToast";
-import HookForm from "../form/HookForm";
-import { X } from "lucide-react";
-import TextInput from "../ui/inputs/TextInput";
-import SelectInput from "../ui/inputs/SelectInput";
-import DatePicker from "../ui/inputs/DatePicker";
-import AutoCompleteInput from "../ui/inputs/AutoCompleteInput";
 
 export default function CreateOrEditModal({
   isOpen,
@@ -89,7 +90,16 @@ export default function CreateOrEditModal({
   };
 
   const renderField = (field) => {
-    const { type, name, label, placeholder, options, apiEndpoint, required, ...fieldProps } = field;
+    const {
+      type,
+      name,
+      label,
+      placeholder,
+      options,
+      apiEndpoint,
+      required,
+      ...fieldProps
+    } = field;
 
     switch (type) {
       case "text":
@@ -101,6 +111,7 @@ export default function CreateOrEditModal({
             label={label}
             name={name}
             placeholder={placeholder}
+            required={required}
             type={type}
             {...fieldProps}
           />
@@ -137,15 +148,16 @@ export default function CreateOrEditModal({
           return (
             <AutoCompleteInput
               key={name}
+              apiEndpoint={apiEndpoint}
               label={label}
               name={name}
               placeholder={placeholder}
-              apiEndpoint={apiEndpoint}
               required={required}
               {...fieldProps}
             />
           );
         }
+
         return (
           <SelectInput
             key={name}
@@ -161,11 +173,11 @@ export default function CreateOrEditModal({
         return (
           <AutoCompleteInput
             key={name}
+            apiEndpoint={apiEndpoint}
             label={label}
             name={name}
-            placeholder={placeholder}
-            apiEndpoint={apiEndpoint}
             options={options}
+            placeholder={placeholder}
             required={required}
             {...fieldProps}
           />

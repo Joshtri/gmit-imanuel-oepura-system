@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import {
   Eye,
   Trash,
@@ -30,12 +30,37 @@ const jenisIbadahFields = [
 export default function JenisIbadahPage() {
   const modal = useModalForm();
   const confirm = useConfirm();
+  const queryClient = useQueryClient();
   const [viewData, setViewData] = useState(null);
   const [isViewModalOpen, setIsViewModalOpen] = useState(false);
 
   const { data, isLoading, refetch } = useQuery({
     queryKey: ["jenis-ibadah"],
     queryFn: () => jenisIbadahService.getAll(),
+  });
+
+  // Jenis Ibadah mutations
+  const jenisIbadahCreateMutation = useMutation({
+    mutationFn: (data) => jenisIbadahService.create(data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["jenis-ibadah"] });
+      modal.close();
+    },
+  });
+
+  const jenisIbadahUpdateMutation = useMutation({
+    mutationFn: ({ id, data }) => jenisIbadahService.update(id, data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["jenis-ibadah"] });
+      modal.close();
+    },
+  });
+
+  const jenisIbadahDeleteMutation = useMutation({
+    mutationFn: (id) => jenisIbadahService.delete(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["jenis-ibadah"] });
+    },
   });
 
   const columns = [
@@ -65,26 +90,21 @@ export default function JenisIbadahPage() {
       render: (value) => (
         <span className="flex items-center text-sm">
           <Calendar className="w-4 h-4 mr-2 text-green-500" />
-          {value?.ibadahKeluargaJemaats || 0} kali
+          {value?.jadwalIbadahs || 0} kali
         </span>
       ),
     },
   ];
 
-  const handleJenisIbadahSuccess = () => {
-    refetch();
-    modal.close();
-  };
-
   const handleJenisIbadahSubmit = async (formData, isEdit) => {
     if (isEdit) {
-      return await jenisIbadahService.update(modal.editData.id, formData);
+      return jenisIbadahUpdateMutation.mutateAsync({ id: modal.editData.id, data: formData });
     }
-    return await jenisIbadahService.create(formData);
+    return jenisIbadahCreateMutation.mutateAsync(formData);
   };
 
   const handleDelete = (item) => {
-    if (item._count?.ibadahKeluargaJemaats > 0) {
+    if (item._count?.jadwalIbadahs > 0) {
       alert(
         "Tidak dapat menghapus jenis ibadah ini karena masih digunakan dalam jadwal ibadah"
       );
@@ -98,12 +118,7 @@ export default function JenisIbadahPage() {
       cancelText: "Batal",
       variant: "danger",
       onConfirm: async () => {
-        try {
-          await jenisIbadahService.delete(item.id);
-          refetch();
-        } catch (error) {
-          console.error("Error deleting jenis ibadah:", error);
-        }
+        jenisIbadahDeleteMutation.mutate(item.id);
       },
     });
   };
@@ -159,11 +174,11 @@ export default function JenisIbadahPage() {
         editData={modal.editData}
         fields={jenisIbadahFields}
         isOpen={modal.isOpen}
+        isLoading={jenisIbadahCreateMutation.isPending || jenisIbadahUpdateMutation.isPending}
         schema={jenisIbadahSchema}
         title="Jenis Ibadah"
         onClose={modal.close}
         onSubmit={handleJenisIbadahSubmit}
-        onSuccess={handleJenisIbadahSuccess}
       />
 
       <ConfirmDialog
@@ -205,7 +220,7 @@ export default function JenisIbadahPage() {
                       Jumlah Penggunaan
                     </label>
                     <p className="text-sm text-gray-900">
-                      {viewData._count?.ibadahKeluargaJemaats || 0} kali
+                      {viewData._count?.jadwalIbadahs || 0} kali
                     </p>
                   </div>
                 </div>

@@ -403,6 +403,10 @@ export default function CreateJemaat() {
     "idKeadaanRumah",
     "idRayon",
     "noBagungan",
+    "idKelurahan",
+    "rt",
+    "rw",
+    "jalan",
   ]);
 
   const canGoNext = () => {

@@ -48,7 +48,7 @@ export default function LaporanPage() {
   const demographicsData = demographics?.data;
 
   const StatCard = ({ title, value, subtitle, icon: Icon, color, change }) => (
-    <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6 hover:shadow-md transition-shadow">
+    <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-6 hover:shadow-md dark:hover:shadow-lg transition-all duration-300">
       <div className="flex items-center justify-between">
         <div className="flex-1">
           <div className="flex items-center">
@@ -56,17 +56,17 @@ export default function LaporanPage() {
               <Icon className="w-5 h-5 text-white" />
             </div>
             <div>
-              <p className="text-sm font-medium text-gray-600">{title}</p>
-              <p className="text-2xl font-bold text-gray-900">{value}</p>
+              <p className="text-sm font-medium text-gray-600 dark:text-gray-300">{title}</p>
+              <p className="text-2xl font-bold text-gray-900 dark:text-white">{value}</p>
             </div>
           </div>
           {subtitle && (
-            <p className="text-xs text-gray-500 mt-2">{subtitle}</p>
+            <p className="text-xs text-gray-500 dark:text-gray-400 mt-2">{subtitle}</p>
           )}
           {change && (
             <div className="flex items-center mt-2">
-              <TrendingUp className="w-3 h-3 text-green-500 mr-1" />
-              <span className="text-xs text-green-600">{change}</span>
+              <TrendingUp className="w-3 h-3 text-green-500 dark:text-green-400 mr-1" />
+              <span className="text-xs text-green-600 dark:text-green-400">{change}</span>
             </div>
           )}
         </div>
@@ -85,28 +85,28 @@ export default function LaporanPage() {
   return (
     <div className="space-y-6 p-4">
       {/* Header */}
-      <div className="bg-white border-b border-gray-200">
+      <div className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 transition-colors duration-300">
         <div className="max-w-7xl mx-2 px-6 py-6">
           <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between">
             <div className="flex-1 min-w-0">
-              <h1 className="text-2xl font-bold leading-7 text-gray-900 sm:text-3xl sm:truncate">
+              <h1 className="text-2xl font-bold leading-7 text-gray-900 dark:text-white sm:text-3xl sm:truncate">
                 Laporan & Statistik
               </h1>
-              <p className="mt-1 text-sm text-gray-500">
+              <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
                 Dashboard statistik dan laporan komprehensif GMIT Imanuel Oepura
               </p>
             </div>
             <div className="mt-4 flex space-x-3 lg:mt-0 lg:ml-4">
-              <button 
+              <button
                 onClick={() => {
                   refetchOverview();
                 }}
-                className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 border border-input bg-background shadow hover:bg-accent hover:text-accent-foreground h-9 px-4 py-2"
+                className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-all duration-200 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-200 shadow hover:bg-gray-50 dark:hover:bg-gray-600 h-9 px-4 py-2"
               >
                 <RefreshCw className="w-4 h-4 mr-2" />
                 Perbarui
               </button>
-              <button className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 border border-input bg-background shadow hover:bg-accent hover:text-accent-foreground h-9 px-4 py-2">
+              <button className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-all duration-200 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-200 shadow hover:bg-gray-50 dark:hover:bg-gray-600 h-9 px-4 py-2">
                 <Download className="w-4 h-4 mr-2" />
                 Export
               </button>
@@ -115,17 +115,17 @@ export default function LaporanPage() {
 
           {/* Tabs */}
           <div className="mt-6">
-            <div className="flex space-x-8 border-b border-gray-200">
+            <div className="flex space-x-8 border-b border-gray-200 dark:border-gray-600">
               {tabs.map((tab) => {
                 const Icon = tab.icon;
                 return (
                   <button
                     key={tab.id}
                     onClick={() => setActiveTab(tab.id)}
-                    className={`flex items-center py-2 px-1 border-b-2 font-medium text-sm ${
+                    className={`flex items-center py-2 px-1 border-b-2 font-medium text-sm transition-colors duration-200 ${
                       activeTab === tab.id
-                        ? "border-blue-500 text-blue-600"
-                        : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
+                        ? "border-blue-500 text-blue-600 dark:text-blue-400"
+                        : "border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 hover:border-gray-300 dark:hover:border-gray-500"
                     }`}
                   >
                     <Icon className="w-4 h-4 mr-2" />
@@ -145,10 +145,10 @@ export default function LaporanPage() {
             {overviewLoading ? (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                 {[...Array(8)].map((_, i) => (
-                  <div key={i} className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+                  <div key={i} className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-6">
                     <div className="animate-pulse">
-                      <div className="h-4 bg-gray-200 rounded mb-2"></div>
-                      <div className="h-8 bg-gray-200 rounded"></div>
+                      <div className="h-4 bg-gray-200 dark:bg-gray-600 rounded mb-2"></div>
+                      <div className="h-8 bg-gray-200 dark:bg-gray-600 rounded"></div>
                     </div>
                   </div>
                 ))}
@@ -188,45 +188,45 @@ export default function LaporanPage() {
                 </div>
 
                 {/* Sacraments Statistics */}
-                <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
-                  <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
-                    <GraduationCap className="w-5 h-5 mr-2 text-blue-600" />
+                <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-6 transition-colors duration-300">
+                  <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4 flex items-center">
+                    <GraduationCap className="w-5 h-5 mr-2 text-blue-600 dark:text-blue-400" />
                     Statistik Sakramen
                   </h3>
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                    <div className="text-center p-4 bg-blue-50 rounded-lg">
+                    <div className="text-center p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg transition-colors duration-300">
                       <div className="flex items-center justify-center mb-2">
-                        <Baby className="w-8 h-8 text-blue-600" />
+                        <Baby className="w-8 h-8 text-blue-600 dark:text-blue-400" />
                       </div>
-                      <h4 className="text-xl font-bold text-blue-700">
+                      <h4 className="text-xl font-bold text-blue-700 dark:text-blue-300">
                         {overviewData?.sacraments?.baptis?.total || 0}
                       </h4>
-                      <p className="text-sm text-blue-600">Total Baptis</p>
-                      <p className="text-xs text-gray-500 mt-1">
+                      <p className="text-sm text-blue-600 dark:text-blue-400">Total Baptis</p>
+                      <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
                         {overviewData?.sacraments?.baptis?.thisYear || 0} tahun ini
                       </p>
                     </div>
-                    <div className="text-center p-4 bg-green-50 rounded-lg">
+                    <div className="text-center p-4 bg-green-50 dark:bg-green-900/20 rounded-lg transition-colors duration-300">
                       <div className="flex items-center justify-center mb-2">
-                        <GraduationCap className="w-8 h-8 text-green-600" />
+                        <GraduationCap className="w-8 h-8 text-green-600 dark:text-green-400" />
                       </div>
-                      <h4 className="text-xl font-bold text-green-700">
+                      <h4 className="text-xl font-bold text-green-700 dark:text-green-300">
                         {overviewData?.sacraments?.sidi?.total || 0}
                       </h4>
-                      <p className="text-sm text-green-600">Total Sidi</p>
-                      <p className="text-xs text-gray-500 mt-1">
+                      <p className="text-sm text-green-600 dark:text-green-400">Total Sidi</p>
+                      <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
                         {overviewData?.sacraments?.sidi?.thisYear || 0} tahun ini
                       </p>
                     </div>
-                    <div className="text-center p-4 bg-pink-50 rounded-lg">
+                    <div className="text-center p-4 bg-pink-50 dark:bg-pink-900/20 rounded-lg transition-colors duration-300">
                       <div className="flex items-center justify-center mb-2">
-                        <Heart className="w-8 h-8 text-pink-600" />
+                        <Heart className="w-8 h-8 text-pink-600 dark:text-pink-400" />
                       </div>
-                      <h4 className="text-xl font-bold text-pink-700">
+                      <h4 className="text-xl font-bold text-pink-700 dark:text-pink-300">
                         {overviewData?.sacraments?.pernikahan?.total || 0}
                       </h4>
-                      <p className="text-sm text-pink-600">Total Pernikahan</p>
-                      <p className="text-xs text-gray-500 mt-1">
+                      <p className="text-sm text-pink-600 dark:text-pink-400">Total Pernikahan</p>
+                      <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
                         {overviewData?.sacraments?.pernikahan?.thisYear || 0} tahun ini
                       </p>
                     </div>
@@ -234,60 +234,60 @@ export default function LaporanPage() {
                 </div>
 
                 {/* Age Groups */}
-                <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
-                  <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
-                    <Users className="w-5 h-5 mr-2 text-blue-600" />
+                <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-6 transition-colors duration-300">
+                  <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4 flex items-center">
+                    <Users className="w-5 h-5 mr-2 text-blue-600 dark:text-blue-400" />
                     Distribusi Kelompok Umur
                   </h3>
                   <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-                    <div className="text-center p-4 bg-yellow-50 rounded-lg">
-                      <h4 className="text-2xl font-bold text-yellow-700">
+                    <div className="text-center p-4 bg-yellow-50 dark:bg-yellow-900/20 rounded-lg transition-colors duration-300">
+                      <h4 className="text-2xl font-bold text-yellow-700 dark:text-yellow-300">
                         {overviewData?.ageGroups?.children || 0}
                       </h4>
-                      <p className="text-sm text-yellow-600">Anak-anak (0-12)</p>
+                      <p className="text-sm text-yellow-600 dark:text-yellow-400">Anak-anak (0-12)</p>
                     </div>
-                    <div className="text-center p-4 bg-green-50 rounded-lg">
-                      <h4 className="text-2xl font-bold text-green-700">
+                    <div className="text-center p-4 bg-green-50 dark:bg-green-900/20 rounded-lg transition-colors duration-300">
+                      <h4 className="text-2xl font-bold text-green-700 dark:text-green-300">
                         {overviewData?.ageGroups?.youth || 0}
                       </h4>
-                      <p className="text-sm text-green-600">Remaja (13-25)</p>
+                      <p className="text-sm text-green-600 dark:text-green-400">Remaja (13-25)</p>
                     </div>
-                    <div className="text-center p-4 bg-blue-50 rounded-lg">
-                      <h4 className="text-2xl font-bold text-blue-700">
+                    <div className="text-center p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg transition-colors duration-300">
+                      <h4 className="text-2xl font-bold text-blue-700 dark:text-blue-300">
                         {overviewData?.ageGroups?.adults || 0}
                       </h4>
-                      <p className="text-sm text-blue-600">Dewasa (26-59)</p>
+                      <p className="text-sm text-blue-600 dark:text-blue-400">Dewasa (26-59)</p>
                     </div>
-                    <div className="text-center p-4 bg-purple-50 rounded-lg">
-                      <h4 className="text-2xl font-bold text-purple-700">
+                    <div className="text-center p-4 bg-purple-50 dark:bg-purple-900/20 rounded-lg transition-colors duration-300">
+                      <h4 className="text-2xl font-bold text-purple-700 dark:text-purple-300">
                         {overviewData?.ageGroups?.elderly || 0}
                       </h4>
-                      <p className="text-sm text-purple-600">Lansia (60+)</p>
+                      <p className="text-sm text-purple-600 dark:text-purple-400">Lansia (60+)</p>
                     </div>
                   </div>
                 </div>
 
                 {/* Rayon Distribution */}
-                <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
-                  <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
-                    <MapPin className="w-5 h-5 mr-2 text-blue-600" />
+                <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-6 transition-colors duration-300">
+                  <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4 flex items-center">
+                    <MapPin className="w-5 h-5 mr-2 text-blue-600 dark:text-blue-400" />
                     Distribusi per Rayon
                   </h3>
                   <div className="overflow-x-auto">
                     <table className="w-full">
                       <thead>
-                        <tr className="border-b">
-                          <th className="text-left py-2 text-sm font-medium text-gray-500">Rayon</th>
-                          <th className="text-right py-2 text-sm font-medium text-gray-500">Keluarga</th>
-                          <th className="text-right py-2 text-sm font-medium text-gray-500">Jemaat</th>
+                        <tr className="border-b border-gray-200 dark:border-gray-600">
+                          <th className="text-left py-2 text-sm font-medium text-gray-500 dark:text-gray-400">Rayon</th>
+                          <th className="text-right py-2 text-sm font-medium text-gray-500 dark:text-gray-400">Keluarga</th>
+                          <th className="text-right py-2 text-sm font-medium text-gray-500 dark:text-gray-400">Jemaat</th>
                         </tr>
                       </thead>
                       <tbody>
                         {overviewData?.rayonDistribution?.map((rayon, index) => (
-                          <tr key={index} className="border-b border-gray-100">
-                            <td className="py-3 text-sm font-medium text-gray-900">{rayon.rayon}</td>
-                            <td className="py-3 text-sm text-gray-600 text-right">{rayon.families}</td>
-                            <td className="py-3 text-sm text-gray-600 text-right">{rayon.members}</td>
+                          <tr key={index} className="border-b border-gray-100 dark:border-gray-700">
+                            <td className="py-3 text-sm font-medium text-gray-900 dark:text-white">{rayon.rayon}</td>
+                            <td className="py-3 text-sm text-gray-600 dark:text-gray-300 text-right">{rayon.families}</td>
+                            <td className="py-3 text-sm text-gray-600 dark:text-gray-300 text-right">{rayon.members}</td>
                           </tr>
                         ))}
                       </tbody>
@@ -302,25 +302,25 @@ export default function LaporanPage() {
         {activeTab === "growth" && (
           <div className="space-y-6">
             {/* Controls */}
-            <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-4">
+            <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-4 transition-colors duration-300">
               <div className="flex flex-wrap items-center gap-4">
                 <div className="flex items-center space-x-2">
-                  <label className="text-sm font-medium text-gray-700">Periode:</label>
+                  <label className="text-sm font-medium text-gray-700 dark:text-gray-300">Periode:</label>
                   <select
                     value={selectedPeriod}
                     onChange={(e) => setSelectedPeriod(e.target.value)}
-                    className="px-3 py-1 border border-gray-300 rounded-md text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                    className="px-3 py-1 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-md text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-200"
                   >
                     <option value="monthly">Bulanan</option>
                     <option value="yearly">Tahunan</option>
                   </select>
                 </div>
                 <div className="flex items-center space-x-2">
-                  <label className="text-sm font-medium text-gray-700">Tahun:</label>
+                  <label className="text-sm font-medium text-gray-700 dark:text-gray-300">Tahun:</label>
                   <select
                     value={selectedYear}
                     onChange={(e) => setSelectedYear(parseInt(e.target.value))}
-                    className="px-3 py-1 border border-gray-300 rounded-md text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                    className="px-3 py-1 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-md text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-200"
                   >
                     {years.map(year => (
                       <option key={year} value={year}>{year}</option>
@@ -331,10 +331,10 @@ export default function LaporanPage() {
             </div>
 
             {growthLoading ? (
-              <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+              <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-6 transition-colors duration-300">
                 <div className="animate-pulse">
-                  <div className="h-4 bg-gray-200 rounded mb-4 w-1/3"></div>
-                  <div className="h-64 bg-gray-200 rounded"></div>
+                  <div className="h-4 bg-gray-200 dark:bg-gray-600 rounded mb-4 w-1/3"></div>
+                  <div className="h-64 bg-gray-200 dark:bg-gray-600 rounded"></div>
                 </div>
               </div>
             ) : (
@@ -367,15 +367,15 @@ export default function LaporanPage() {
                 </div>
 
                 {/* Growth Chart Placeholder */}
-                <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
-                  <h3 className="text-lg font-semibold text-gray-900 mb-4">
+                <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-6 transition-colors duration-300">
+                  <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
                     Grafik Pertumbuhan Anggota ({selectedPeriod === 'monthly' ? 'Bulanan' : 'Tahunan'})
                   </h3>
-                  <div className="h-64 bg-gray-50 rounded-lg flex items-center justify-center">
+                  <div className="h-64 bg-gray-50 dark:bg-gray-700 rounded-lg flex items-center justify-center transition-colors duration-300">
                     <div className="text-center">
-                      <BarChart3 className="w-12 h-12 text-gray-400 mx-auto mb-2" />
-                      <p className="text-gray-500">Grafik akan ditampilkan di sini</p>
-                      <p className="text-sm text-gray-400">
+                      <BarChart3 className="w-12 h-12 text-gray-400 dark:text-gray-500 mx-auto mb-2" />
+                      <p className="text-gray-500 dark:text-gray-400">Grafik akan ditampilkan di sini</p>
+                      <p className="text-sm text-gray-400 dark:text-gray-500">
                         Data: {growthData?.memberGrowth?.length || 0} periode
                       </p>
                     </div>
@@ -383,29 +383,29 @@ export default function LaporanPage() {
                 </div>
 
                 {/* Sacrament Trends */}
-                <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
-                  <h3 className="text-lg font-semibold text-gray-900 mb-4">
+                <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-6 transition-colors duration-300">
+                  <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
                     Tren Sakramen ({selectedPeriod === 'monthly' ? 'Bulanan' : 'Tahunan'})
                   </h3>
                   <div className="overflow-x-auto">
                     <table className="w-full">
                       <thead>
-                        <tr className="border-b">
-                          <th className="text-left py-2 text-sm font-medium text-gray-500">Periode</th>
-                          <th className="text-center py-2 text-sm font-medium text-gray-500">Baptis</th>
-                          <th className="text-center py-2 text-sm font-medium text-gray-500">Sidi</th>
-                          <th className="text-center py-2 text-sm font-medium text-gray-500">Pernikahan</th>
-                          <th className="text-center py-2 text-sm font-medium text-gray-500">Total</th>
+                        <tr className="border-b border-gray-200 dark:border-gray-600">
+                          <th className="text-left py-2 text-sm font-medium text-gray-500 dark:text-gray-400">Periode</th>
+                          <th className="text-center py-2 text-sm font-medium text-gray-500 dark:text-gray-400">Baptis</th>
+                          <th className="text-center py-2 text-sm font-medium text-gray-500 dark:text-gray-400">Sidi</th>
+                          <th className="text-center py-2 text-sm font-medium text-gray-500 dark:text-gray-400">Pernikahan</th>
+                          <th className="text-center py-2 text-sm font-medium text-gray-500 dark:text-gray-400">Total</th>
                         </tr>
                       </thead>
                       <tbody>
                         {growthData?.sacramentTrends?.map((trend, index) => (
-                          <tr key={index} className="border-b border-gray-100">
-                            <td className="py-3 text-sm font-medium text-gray-900">{trend.period}</td>
-                            <td className="py-3 text-sm text-center text-blue-600">{trend.baptis}</td>
-                            <td className="py-3 text-sm text-center text-green-600">{trend.sidi}</td>
-                            <td className="py-3 text-sm text-center text-pink-600">{trend.pernikahan}</td>
-                            <td className="py-3 text-sm text-center font-medium text-gray-900">
+                          <tr key={index} className="border-b border-gray-100 dark:border-gray-700">
+                            <td className="py-3 text-sm font-medium text-gray-900 dark:text-white">{trend.period}</td>
+                            <td className="py-3 text-sm text-center text-blue-600 dark:text-blue-400">{trend.baptis}</td>
+                            <td className="py-3 text-sm text-center text-green-600 dark:text-green-400">{trend.sidi}</td>
+                            <td className="py-3 text-sm text-center text-pink-600 dark:text-pink-400">{trend.pernikahan}</td>
+                            <td className="py-3 text-sm text-center font-medium text-gray-900 dark:text-white">
                               {trend.baptis + trend.sidi + trend.pernikahan}
                             </td>
                           </tr>
@@ -422,10 +422,10 @@ export default function LaporanPage() {
         {activeTab === "demographics" && (
           <div className="space-y-6">
             {demographicsLoading ? (
-              <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+              <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-6 transition-colors duration-300">
                 <div className="animate-pulse">
-                  <div className="h-4 bg-gray-200 rounded mb-4 w-1/3"></div>
-                  <div className="h-64 bg-gray-200 rounded"></div>
+                  <div className="h-4 bg-gray-200 dark:bg-gray-600 rounded mb-4 w-1/3"></div>
+                  <div className="h-64 bg-gray-200 dark:bg-gray-600 rounded"></div>
                 </div>
               </div>
             ) : (
@@ -456,27 +456,27 @@ export default function LaporanPage() {
                 </div>
 
                 {/* Age Distribution Detail */}
-                <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
-                  <h3 className="text-lg font-semibold text-gray-900 mb-4">
+                <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-6 transition-colors duration-300">
+                  <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
                     Distribusi Umur Detail
                   </h3>
                   <div className="overflow-x-auto">
                     <table className="w-full">
                       <thead>
-                        <tr className="border-b">
-                          <th className="text-left py-2 text-sm font-medium text-gray-500">Kelompok Umur</th>
-                          <th className="text-center py-2 text-sm font-medium text-gray-500">Laki-laki</th>
-                          <th className="text-center py-2 text-sm font-medium text-gray-500">Perempuan</th>
-                          <th className="text-center py-2 text-sm font-medium text-gray-500">Total</th>
+                        <tr className="border-b border-gray-200 dark:border-gray-600">
+                          <th className="text-left py-2 text-sm font-medium text-gray-500 dark:text-gray-400">Kelompok Umur</th>
+                          <th className="text-center py-2 text-sm font-medium text-gray-500 dark:text-gray-400">Laki-laki</th>
+                          <th className="text-center py-2 text-sm font-medium text-gray-500 dark:text-gray-400">Perempuan</th>
+                          <th className="text-center py-2 text-sm font-medium text-gray-500 dark:text-gray-400">Total</th>
                         </tr>
                       </thead>
                       <tbody>
                         {demographicsData?.ageDistribution && Object.entries(demographicsData.ageDistribution).map(([ageGroup, data]) => (
-                          <tr key={ageGroup} className="border-b border-gray-100">
-                            <td className="py-3 text-sm font-medium text-gray-900">{ageGroup} tahun</td>
-                            <td className="py-3 text-sm text-center text-blue-600">{data.male}</td>
-                            <td className="py-3 text-sm text-center text-pink-600">{data.female}</td>
-                            <td className="py-3 text-sm text-center font-medium text-gray-900">{data.total}</td>
+                          <tr key={ageGroup} className="border-b border-gray-100 dark:border-gray-700">
+                            <td className="py-3 text-sm font-medium text-gray-900 dark:text-white">{ageGroup} tahun</td>
+                            <td className="py-3 text-sm text-center text-blue-600 dark:text-blue-400">{data.male}</td>
+                            <td className="py-3 text-sm text-center text-pink-600 dark:text-pink-400">{data.female}</td>
+                            <td className="py-3 text-sm text-center font-medium text-gray-900 dark:text-white">{data.total}</td>
                           </tr>
                         ))}
                       </tbody>
@@ -485,17 +485,17 @@ export default function LaporanPage() {
                 </div>
 
                 {/* Education Distribution */}
-                <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
-                  <h3 className="text-lg font-semibold text-gray-900 mb-4">
+                <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-6 transition-colors duration-300">
+                  <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
                     Distribusi Pendidikan
                   </h3>
                   <div className="space-y-3">
                     {demographicsData?.education?.map((item, index) => (
-                      <div key={index} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-                        <span className="text-sm font-medium text-gray-900">{item.label}</span>
+                      <div key={index} className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-700 rounded-lg transition-colors duration-300">
+                        <span className="text-sm font-medium text-gray-900 dark:text-white">{item.label}</span>
                         <div className="flex items-center space-x-3">
-                          <span className="text-sm text-gray-600">{item.count} orang</span>
-                          <span className="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded-full">
+                          <span className="text-sm text-gray-600 dark:text-gray-300">{item.count} orang</span>
+                          <span className="text-xs bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-300 px-2 py-1 rounded-full transition-colors duration-300">
                             {item.percentage}%
                           </span>
                         </div>
@@ -505,17 +505,17 @@ export default function LaporanPage() {
                 </div>
 
                 {/* Top Jobs */}
-                <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
-                  <h3 className="text-lg font-semibold text-gray-900 mb-4">
+                <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-6 transition-colors duration-300">
+                  <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
                     Pekerjaan Teratas
                   </h3>
                   <div className="space-y-3">
                     {demographicsData?.jobs?.slice(0, 10).map((item, index) => (
-                      <div key={index} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-                        <span className="text-sm font-medium text-gray-900">{item.label}</span>
+                      <div key={index} className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-700 rounded-lg transition-colors duration-300">
+                        <span className="text-sm font-medium text-gray-900 dark:text-white">{item.label}</span>
                         <div className="flex items-center space-x-3">
-                          <span className="text-sm text-gray-600">{item.count} orang</span>
-                          <span className="text-xs bg-green-100 text-green-800 px-2 py-1 rounded-full">
+                          <span className="text-sm text-gray-600 dark:text-gray-300">{item.count} orang</span>
+                          <span className="text-xs bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-300 px-2 py-1 rounded-full transition-colors duration-300">
                             {item.percentage}%
                           </span>
                         </div>

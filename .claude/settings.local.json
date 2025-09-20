@@ -60,7 +60,8 @@
       "Bash(npm uninstall:*)",
       "Bash(cd:*)",
       "Bash(npm run build:*)",
-      "Bash(echo \"\"ESLint errors found\"\")"
+      "Bash(echo \"\"ESLint errors found\"\")",
+      "Bash(npx tailwindcss:*)"
     ],
     "deny": [],
     "ask": []

@@ -30,7 +30,7 @@ function PageHeader({
   className = "",
 }) {
   return (
-    <div className={`bg-white border-b border-gray-200 ${className}`}>
+    <div className={`bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 transition-colors duration-200 ${className}`}>
       <div className="max-w-7xl mx-2 px-6 py-6">
         {/* Breadcrumb */}
         {breadcrumb && (
@@ -40,7 +40,7 @@ function PageHeader({
                 <li key={index} className="inline-flex items-center">
                   {index > 0 && (
                     <svg
-                      className="w-6 h-6 text-gray-400"
+                      className="w-6 h-6 text-gray-400 dark:text-gray-500"
                       fill="currentColor"
                       viewBox="0 0 20 20"
                     >
@@ -54,12 +54,12 @@ function PageHeader({
                   {item.href ? (
                     <a
                       href={item.href}
-                      className="ml-1 text-sm font-medium text-gray-700 hover:text-blue-600 md:ml-2"
+                      className="ml-1 text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors duration-200 md:ml-2"
                     >
                       {item.label}
                     </a>
                   ) : (
-                    <span className="ml-1 text-sm font-medium text-gray-500 md:ml-2">
+                    <span className="ml-1 text-sm font-medium text-gray-500 dark:text-gray-400 md:ml-2">
                       {item.label}
                     </span>
                   )}
@@ -72,11 +72,11 @@ function PageHeader({
         {/* Header Content */}
         <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between">
           <div className="flex-1 min-w-0">
-            <h1 className="text-2xl font-bold leading-7 text-gray-900 sm:text-3xl sm:truncate">
+            <h1 className="text-2xl font-bold leading-7 text-gray-900 dark:text-gray-100 transition-colors duration-200 sm:text-3xl sm:truncate">
               {title}
             </h1>
             {description && (
-              <p className="mt-1 text-sm text-gray-500">{description}</p>
+              <p className="mt-1 text-sm text-gray-500 dark:text-gray-400 transition-colors duration-200">{description}</p>
             )}
           </div>
 
@@ -105,26 +105,26 @@ function PageHeader({
           <div className="mt-6">
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
               {stats.map((stat, index) => (
-                <div key={index} className="bg-gray-50 rounded-lg p-4">
+                <div key={index} className="bg-gray-50 dark:bg-gray-700 rounded-lg p-4 transition-colors duration-200">
                   <div className="flex items-center">
                     {stat.icon && (
                       <div
                         className={`flex-shrink-0 p-2 rounded-lg ${
-                          stat.iconBg || "bg-blue-100"
+                          stat.iconBg || "bg-blue-100 dark:bg-blue-900"
                         }`}
                       >
                         <stat.icon
                           className={`w-5 h-5 ${
-                            stat.iconColor || "text-blue-600"
+                            stat.iconColor || "text-blue-600 dark:text-blue-400"
                           }`}
                         />
                       </div>
                     )}
                     <div className="ml-4">
-                      <p className="text-sm font-medium text-gray-500">
+                      <p className="text-sm font-medium text-gray-500 dark:text-gray-400 transition-colors duration-200">
                         {stat.label}
                       </p>
-                      <p className="text-lg font-semibold text-gray-900">
+                      <p className="text-lg font-semibold text-gray-900 dark:text-gray-100 transition-colors duration-200">
                         {stat.value}
                       </p>
                       {stat.change && (
@@ -378,7 +378,7 @@ export default function ListGrid({
   };
 
   return (
-    <div className={`space-y-6 p-4 ${className}`}>
+    <div className={`space-y-6 p-4 transition-colors duration-200 ${className}`}>
       {/* Integrated Page Header */}
       {(title ||
         description ||
@@ -402,11 +402,11 @@ export default function ListGrid({
               {/* Search */}
               {searchable && (
                 <div className="relative flex-1 max-w-md">
-                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 dark:text-gray-500 h-4 w-4" />
                   <input
                     type="text"
                     placeholder={searchPlaceholder}
-                    className="pl-10 pr-4 py-2 w-full border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    className="pl-10 pr-4 py-2 w-full border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400 focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 focus:border-transparent transition-colors duration-200"
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
                   />
@@ -416,9 +416,9 @@ export default function ListGrid({
               {/* Filters */}
               {filters.map((filter, index) => (
                 <div key={index} className="flex items-center gap-2">
-                  <Filter className="h-4 w-4 text-gray-400" />
+                  <Filter className="h-4 w-4 text-gray-400 dark:text-gray-500" />
                   <select
-                    className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    className="px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 focus:border-transparent transition-colors duration-200"
                     value={selectedFilters[filter.key] || "all"}
                     onChange={(e) =>
                       handleFilterChange(filter.key, e.target.value)
@@ -435,23 +435,23 @@ export default function ListGrid({
               ))}
 
               {/* View Mode Toggle */}
-              <div className="flex bg-gray-100 rounded-lg p-1">
+              <div className="flex bg-gray-100 dark:bg-gray-700 rounded-lg p-1 transition-colors duration-200">
                 <button
                   onClick={() => setViewMode("table")}
-                  className={`px-3 py-1 rounded text-sm ${
+                  className={`px-3 py-1 rounded text-sm transition-colors duration-200 ${
                     viewMode === "table"
-                      ? "bg-white shadow text-blue-600"
-                      : "text-gray-600 hover:text-gray-800"
+                      ? "bg-white dark:bg-gray-800 shadow text-blue-600 dark:text-blue-400"
+                      : "text-gray-600 dark:text-gray-300 hover:text-gray-800 dark:hover:text-gray-100"
                   }`}
                 >
                   Tabel
                 </button>
                 <button
                   onClick={() => setViewMode("grid")}
-                  className={`px-3 py-1 rounded text-sm ${
+                  className={`px-3 py-1 rounded text-sm transition-colors duration-200 ${
                     viewMode === "grid"
-                      ? "bg-white shadow text-blue-600"
-                      : "text-gray-600 hover:text-gray-800"
+                      ? "bg-white dark:bg-gray-800 shadow text-blue-600 dark:text-blue-400"
+                      : "text-gray-600 dark:text-gray-300 hover:text-gray-800 dark:hover:text-gray-100"
                   }`}
                 >
                   Grid
@@ -476,17 +476,17 @@ export default function ListGrid({
               <div className="overflow-x-auto">
                 <table className="w-full table-auto">
                   <thead>
-                    <tr className="border-b">
+                    <tr className="border-b border-gray-200 dark:border-gray-700">
                       {columns.map((column, index) => (
                         <th
                           key={index}
-                          className="text-left p-4 font-medium text-gray-600"
+                          className="text-left p-4 font-medium text-gray-600 dark:text-gray-300 transition-colors duration-200"
                         >
                           {column.label}
                         </th>
                       ))}
                       {allRowActions.length > 0 && (
-                        <th className="text-left p-4 font-medium text-gray-600">
+                        <th className="text-left p-4 font-medium text-gray-600 dark:text-gray-300 transition-colors duration-200">
                           Aksi
                         </th>
                       )}
@@ -510,28 +510,28 @@ export default function ListGrid({
             <div className="overflow-x-auto">
               <table className="w-full table-auto">
                 <thead>
-                  <tr className="border-b">
+                  <tr className="border-b border-gray-200 dark:border-gray-700">
                     {columns.map((column, index) => (
                       <th
                         key={index}
-                        className="text-left p-4 font-medium text-gray-600 cursor-pointer hover:bg-gray-50 select-none"
+                        className="text-left p-4 font-medium text-gray-600 dark:text-gray-300 cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700 select-none transition-colors duration-200"
                         onClick={() => handleSort(column.key)}
                       >
                         <div className="flex items-center gap-2">
                           {column.label}
                           <div className="flex flex-col">
                             <ChevronUp
-                              className={`h-3 w-3 ${
+                              className={`h-3 w-3 transition-colors duration-200 ${
                                 sortConfig.key === column.key && sortConfig.direction === "asc"
-                                  ? "text-blue-600"
-                                  : "text-gray-300"
+                                  ? "text-blue-600 dark:text-blue-400"
+                                  : "text-gray-300 dark:text-gray-600"
                               }`}
                             />
                             <ChevronDown
-                              className={`h-3 w-3 -mt-1 ${
+                              className={`h-3 w-3 -mt-1 transition-colors duration-200 ${
                                 sortConfig.key === column.key && sortConfig.direction === "desc"
-                                  ? "text-blue-600"
-                                  : "text-gray-300"
+                                  ? "text-blue-600 dark:text-blue-400"
+                                  : "text-gray-300 dark:text-gray-600"
                               }`}
                             />
                           </div>
@@ -547,9 +547,9 @@ export default function ListGrid({
                 </thead>
                 <tbody>
                   {paginatedData.map((item, index) => (
-                    <tr key={index} className="border-b hover:bg-gray-50">
+                    <tr key={index} className="border-b border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors duration-200">
                       {columns.map((column, colIndex) => (
-                        <td key={colIndex} className="p-4">
+                        <td key={colIndex} className="p-4 text-gray-900 dark:text-gray-100 transition-colors duration-200">
                           {renderCellContent(item, column)}
                         </td>
                       ))}
@@ -572,14 +572,14 @@ export default function ListGrid({
             /* Grid View */
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               {paginatedData.map((item, index) => (
-                <Card key={index} className="hover:shadow-md transition-shadow">
+                <Card key={index} className="hover:shadow-md transition-shadow duration-200 bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700">
                   <CardContent className="p-4">
                     {columns.slice(0, 4).map((column, colIndex) => (
                       <div key={colIndex} className="mb-2">
-                        <span className="text-sm font-medium text-gray-500">
+                        <span className="text-sm font-medium text-gray-500 dark:text-gray-400 transition-colors duration-200">
                           {column.label}:
                         </span>
-                        <div className="text-sm">
+                        <div className="text-sm text-gray-900 dark:text-gray-100 transition-colors duration-200">
                           {renderCellContent(item, column)}
                         </div>
                       </div>
@@ -601,7 +601,7 @@ export default function ListGrid({
           )}
 
           {!isLoading && paginatedData.length === 0 && (
-            <div className="text-center py-8 text-gray-500">
+            <div className="text-center py-8 text-gray-500 dark:text-gray-400 transition-colors duration-200">
               Tidak ada data yang ditemukan
             </div>
           )}
@@ -609,7 +609,7 @@ export default function ListGrid({
           {/* Pagination */}
           {!isLoading && totalPages > 1 && (
             <div className="flex items-center justify-between mt-6">
-              <div className="text-sm text-gray-700">
+              <div className="text-sm text-gray-700 dark:text-gray-300 transition-colors duration-200">
                 Menampilkan {startIndex + 1} hingga{" "}
                 {Math.min(startIndex + itemsPerPage, sortedData.length)} dari{" "}
                 {sortedData.length} data

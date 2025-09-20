@@ -16,10 +16,10 @@ export default function AutoCompleteInput({
   error: externalError,
 }) {
   const inputId = useId();
-  
+
   // Try to get form context, but handle case where it doesn't exist
   const formContext = useFormContext();
-  
+
   const [apiOptions, setApiOptions] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [filteredOptions, setFilteredOptions] = useState([]);
@@ -31,7 +31,7 @@ export default function AutoCompleteInput({
   // Only use useController if form context exists
   let field = null;
   let error = externalError;
-  
+
   if (formContext) {
     const { control } = formContext;
     const controllerResult = useController({ name, control });
@@ -43,7 +43,8 @@ export default function AutoCompleteInput({
   useEffect(() => {
     if (apiEndpoint) {
       setIsLoading(true);
-      axios.get(apiEndpoint)
+      axios
+        .get(apiEndpoint)
         .then((response) => {
           const data = response.data;
           if (data.success && Array.isArray(data.data)) {
@@ -106,7 +107,7 @@ export default function AutoCompleteInput({
     );
 
     const valueToSet = exactMatch ? exactMatch.value : newValue;
-    
+
     if (field) {
       field.onChange(valueToSet);
     } else if (onChange) {
@@ -117,13 +118,13 @@ export default function AutoCompleteInput({
   // Handle option selection
   const handleOptionSelect = (option) => {
     setInputValue(option.label || option.value);
-    
+
     if (field) {
       field.onChange(option.value);
     } else if (onChange) {
       onChange(option.value);
     }
-    
+
     setShowDropdown(false);
     inputRef.current?.blur();
   };
@@ -155,13 +156,13 @@ export default function AutoCompleteInput({
   // Clear input
   const handleClear = () => {
     setInputValue("");
-    
+
     if (field) {
       field.onChange("");
     } else if (onChange) {
       onChange("");
     }
-    
+
     setShowDropdown(false);
     inputRef.current?.focus();
   };

@@ -24,6 +24,7 @@ function Button({
   className,
   variant = "default",
   size = "default",
+  href,
   children,
   ...props
 }) {
@@ -31,14 +32,28 @@ function Button({
     buttonVariants.variant[variant] || buttonVariants.variant.default;
   const sizeClass = buttonVariants.size[size] || buttonVariants.size.default;
 
+  const baseClassName = cn(
+    "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50",
+    variantClass,
+    sizeClass,
+    className
+  );
+
+  if (href) {
+    return (
+      <a
+        href={href}
+        className={baseClassName}
+        {...props}
+      >
+        {children}
+      </a>
+    );
+  }
+
   return (
     <button
-      className={cn(
-        "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50",
-        variantClass,
-        sizeClass,
-        className
-      )}
+      className={baseClassName}
       {...props}
     >
       {children}

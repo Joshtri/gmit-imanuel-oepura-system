@@ -1,18 +1,24 @@
-import { useState, useEffect } from "react";
-import { useRouter } from "next/router";
-import { useForm } from "react-hook-form";
 import { useMutation, useQuery } from "@tanstack/react-query";
+import { useRouter } from "next/router";
+import { useEffect, useState } from "react";
+import { FormProvider, useForm } from "react-hook-form";
 
-import jemaatService from "@/services/jemaatService";
-import masterService from "@/services/masterService";
-import { showToast } from "@/utils/showToast";
+import { Card } from "@/components/ui/Card";
+import AutoCompleteInput from "@/components/ui/inputs/AutoCompleteInput";
+import DatePicker from "@/components/ui/inputs/DatePicker";
+import TextInput from "@/components/ui/inputs/TextInput";
+import PageHeader from "@/components/ui/PageHeader";
+import SkeletonInput from "@/components/ui/skeletons/SkeletonInput";
 import Stepper, {
   StepContent,
   StepperNavigation,
 } from "@/components/ui/Stepper";
-import { Card } from "@/components/ui/Card";
-import DatePicker from "@/components/ui/inputs/DatePicker";
-import PageHeader from "@/components/ui/PageHeader";
+import { GOLONGAN_DARAH_OPTIONS } from "@/constants/golonganDarah";
+import { JENIS_KELAMIN_OPTIONS } from "@/constants/jenisKelamin";
+import { USER_ROLE_OPTIONS } from "@/constants/userRoles";
+import jemaatService from "@/services/jemaatService";
+import masterService from "@/services/masterService";
+import { showToast } from "@/utils/showToast";
 
 const steps = [
   {
@@ -86,78 +92,158 @@ export default function CreateJemaat() {
     },
   });
 
-  // Fetch master data
-  const { data: statusDalamKeluarga } = useQuery({
-    queryKey: ["status-dalam-keluarga"],
-    queryFn: () => masterService.getStatusDalamKeluarga(),
-  });
+  // Fetch master data with loading states
+  const { data: statusDalamKeluarga, isLoading: isLoadingStatusDalamKeluarga } =
+    useQuery({
+      queryKey: ["status-dalam-keluarga"],
+      queryFn: () => masterService.getStatusDalamKeluarga(),
+    });
 
-  const { data: keluargaList } = useQuery({
+  const { data: keluargaList, isLoading: isLoadingKeluargaList } = useQuery({
     queryKey: ["keluarga-list"],
     queryFn: () => masterService.getKeluarga(),
   });
 
-  const { data: suku } = useQuery({
+  const { data: suku, isLoading: isLoadingSuku } = useQuery({
     queryKey: ["suku"],
     queryFn: () => masterService.getSuku(),
   });
 
-  const { data: pendidikan } = useQuery({
+  const { data: pendidikan, isLoading: isLoadingPendidikan } = useQuery({
     queryKey: ["pendidikan"],
     queryFn: () => masterService.getPendidikan(),
   });
 
-  const { data: pekerjaan } = useQuery({
+  const { data: pekerjaan, isLoading: isLoadingPekerjaan } = useQuery({
     queryKey: ["pekerjaan"],
     queryFn: () => masterService.getPekerjaan(),
   });
 
-  const { data: pendapatan } = useQuery({
+  const { data: pendapatan, isLoading: isLoadingPendapatan } = useQuery({
     queryKey: ["pendapatan"],
     queryFn: () => masterService.getPendapatan(),
   });
 
-  const { data: jaminanKesehatan } = useQuery({
-    queryKey: ["jaminan-kesehatan"],
-    queryFn: () => masterService.getJaminanKesehatan(),
-  });
+  const { data: jaminanKesehatan, isLoading: isLoadingJaminanKesehatan } =
+    useQuery({
+      queryKey: ["jaminan-kesehatan"],
+      queryFn: () => masterService.getJaminanKesehatan(),
+    });
 
-  const { data: statusKeluarga } = useQuery({
-    queryKey: ["status-keluarga"],
-    queryFn: () => masterService.getStatusKeluarga(),
-    enabled: createKeluarga,
-  });
+  const { data: statusKeluarga, isLoading: isLoadingStatusKeluarga } = useQuery(
+    {
+      queryKey: ["status-keluarga"],
+      queryFn: () => masterService.getStatusKeluarga(),
+      enabled: createKeluarga,
+    }
+  );
 
-  const { data: statusKepemilikanRumah } = useQuery({
+  const {
+    data: statusKepemilikanRumah,
+    isLoading: isLoadingStatusKepemilikanRumah,
+  } = useQuery({
     queryKey: ["status-kepemilikan-rumah"],
     queryFn: () => masterService.getStatusKepemilikanRumah(),
     enabled: createKeluarga,
   });
 
-  const { data: keadaanRumah } = useQuery({
+  const { data: keadaanRumah, isLoading: isLoadingKeadaanRumah } = useQuery({
     queryKey: ["keadaan-rumah"],
     queryFn: () => masterService.getKeadaanRumah(),
     enabled: createKeluarga,
   });
 
-  const { data: rayon } = useQuery({
+  const { data: rayon, isLoading: isLoadingRayon } = useQuery({
     queryKey: ["rayon"],
     queryFn: () => masterService.getRayon(),
     enabled: createKeluarga,
   });
 
-  const { data: kelurahan } = useQuery({
+  const { data: kelurahan, isLoading: isLoadingKelurahan } = useQuery({
     queryKey: ["kelurahan"],
     queryFn: () => masterService.getKelurahan(),
     enabled: createKeluarga,
   });
+
+  // Transform data for AutoCompleteInput
+  const statusDalamKeluargaOptions =
+    statusDalamKeluarga?.data?.items?.map((item) => ({
+      value: item.id,
+      label: item.status,
+    })) || [];
+
+  const keluargaListOptions =
+    keluargaList?.data?.items?.map((item) => ({
+      value: item.id,
+      label: `${item.rayon?.namaRayon} - ${item.noBagungan}`,
+    })) || [];
+
+  const sukuOptions =
+    suku?.data?.items?.map((item) => ({
+      value: item.id,
+      label: item.namaSuku,
+    })) || [];
+
+  const pendidikanOptions =
+    pendidikan?.data?.items?.map((item) => ({
+      value: item.id,
+      label: item.jenjang,
+    })) || [];
+
+  const pekerjaanOptions =
+    pekerjaan?.data?.items?.map((item) => ({
+      value: item.id,
+      label: item.namaPekerjaan,
+    })) || [];
+
+  const pendapatanOptions =
+    pendapatan?.data?.items?.map((item) => ({
+      value: item.id,
+      label: item.label,
+    })) || [];
+
+  const jaminanKesehatanOptions =
+    jaminanKesehatan?.data?.items?.map((item) => ({
+      value: item.id,
+      label: item.jenisJaminan,
+    })) || [];
+
+  const statusKeluargaOptions =
+    statusKeluarga?.data?.items?.map((item) => ({
+      value: item.id,
+      label: item.status,
+    })) || [];
+
+  const statusKepemilikanRumahOptions =
+    statusKepemilikanRumah?.data?.items?.map((item) => ({
+      value: item.id,
+      label: item.status,
+    })) || [];
+
+  const keadaanRumahOptions =
+    keadaanRumah?.data?.items?.map((item) => ({
+      value: item.id,
+      label: item.keadaan,
+    })) || [];
+
+  const rayonOptions =
+    rayon?.data?.items?.map((item) => ({
+      value: item.id,
+      label: item.namaRayon,
+    })) || [];
+
+  const kelurahanOptions =
+    kelurahan?.data?.items?.map((item) => ({
+      value: item.id,
+      label: `${item.nama} - ${item.kodepos}`,
+    })) || [];
 
   // Watch status dalam keluarga to determine if user is kepala keluarga
   const watchStatusDalamKeluarga = form.watch("idStatusDalamKeluarga");
 
   // Handle URL parameters for pre-filled keluarga
   useEffect(() => {
-    if (keluargaId && isKepalaKeluargaParam === 'true') {
+    if (keluargaId && isKepalaKeluargaParam === "true") {
       form.setValue("idKeluarga", keluargaId);
       setPreSelectedKeluarga(keluargaId);
 
@@ -166,6 +252,7 @@ export default function CreateJemaat() {
         const kepalaKeluargaStatus = statusDalamKeluarga.data.items.find(
           (status) => status.status.toLowerCase().includes("kepala")
         );
+
         if (kepalaKeluargaStatus) {
           form.setValue("idStatusDalamKeluarga", kepalaKeluargaStatus.id);
           setIsKepalaKeluarga(true);
@@ -292,6 +379,7 @@ export default function CreateJemaat() {
   const getMaxStep = () => {
     if (!createUserAccount) return 1;
     if (!createKeluarga) return 2;
+
     // Alamat is always required when creating keluarga
     return 4;
   };
@@ -321,6 +409,21 @@ export default function CreateJemaat() {
     const values = form.getValues();
 
     if (currentStep === 1) {
+      // Check if required data is still loading
+      const isDataLoaded =
+        !isLoadingStatusDalamKeluarga &&
+        !isLoadingSuku &&
+        !isLoadingPendidikan &&
+        !isLoadingPekerjaan &&
+        !isLoadingPendapatan &&
+        !isLoadingJaminanKesehatan;
+
+      if (!isKepalaKeluarga && !preSelectedKeluarga && isLoadingKeluargaList) {
+        return false;
+      }
+
+      if (!isDataLoaded) return false;
+
       return (
         values.nama &&
         values.tanggalLahir &&
@@ -339,6 +442,15 @@ export default function CreateJemaat() {
     }
 
     if (currentStep === 3 && createKeluarga) {
+      // Check if keluarga data is still loading
+      const isKeluargaDataLoaded =
+        !isLoadingStatusKeluarga &&
+        !isLoadingStatusKepemilikanRumah &&
+        !isLoadingKeadaanRumah &&
+        !isLoadingRayon;
+
+      if (!isKeluargaDataLoaded) return false;
+
       return (
         values.idStatusKeluarga &&
         values.idStatusKepemilikanRumah &&
@@ -349,12 +461,9 @@ export default function CreateJemaat() {
     }
 
     if (currentStep === 4 && createKeluarga) {
-      return (
-        values.idKelurahan &&
-        values.rt &&
-        values.rw &&
-        values.jalan
-      );
+      if (isLoadingKelurahan) return false;
+
+      return values.idKelurahan && values.rt && values.rw && values.jalan;
     }
 
     return true;
@@ -382,31 +491,27 @@ export default function CreateJemaat() {
   };
 
   return (
-    <div className="max-w-4xl mx-auto p-6">
-      {/* <div className="mb-6">
-        <h1 className="text-2xl font-bold text-gray-900 mb-2">
-          Tambah Jemaat Baru
-        </h1>
-        <p className="text-gray-600">
-          Lengkapi data jemaat dengan mengikuti langkah-langkah berikut
-        </p>
-      </div> */}
-
+    <div className="max-w-7xl mx-auto p-6">
       <PageHeader
-        title={preSelectedKeluarga ? "Tambah Kepala Keluarga" : "Tambah Jemaat Baru"}
         breadcrumb={[
           { label: "Dashboard", href: "/admin/dashboard" },
-          ...(preSelectedKeluarga ? [
-            { label: "Keluarga", href: "/admin/keluarga" },
-            { label: "Tambah Kepala Keluarga" },
-          ] : [
-            { label: "Jemaat", href: "/admin/jemaat" },
-            { label: "Tambah Jemaat" },
-          ]),
+          ...(preSelectedKeluarga
+            ? [
+                { label: "Keluarga", href: "/admin/keluarga" },
+                { label: "Tambah Kepala Keluarga" },
+              ]
+            : [
+                { label: "Jemaat", href: "/admin/jemaat" },
+                { label: "Tambah Jemaat" },
+              ]),
         ]}
-        description={preSelectedKeluarga
-          ? 'Lengkapi data kepala keluarga untuk keluarga yang baru dibuat'
-          : 'Lengkapi data jemaat dengan mengikuti langkah-langkah berikut'
+        description={
+          preSelectedKeluarga
+            ? "Lengkapi data kepala keluarga untuk keluarga yang baru dibuat"
+            : "Lengkapi data jemaat dengan mengikuti langkah-langkah berikut"
+        }
+        title={
+          preSelectedKeluarga ? "Tambah Kepala Keluarga" : "Tambah Jemaat Baru"
         }
       />
 
@@ -416,477 +521,386 @@ export default function CreateJemaat() {
           steps={steps.slice(0, getMaxStep())}
         />
 
-        <form onSubmit={form.handleSubmit(handleSubmit)}>
-          {/* Step 1: Data Jemaat */}
-          {currentStep === 1 && (
-            <StepContent>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Nama Lengkap *
-                  </label>
-                  <input
-                    type="text"
-                    {...form.register("nama", { required: true })}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    placeholder="Masukkan nama lengkap"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Jenis Kelamin *
-                  </label>
-                  <select
-                    {...form.register("jenisKelamin", { required: true })}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  >
-                    <option value={true}>Laki-laki</option>
-                    <option value={false}>Perempuan</option>
-                  </select>
-                </div>
-
-                <div>
-                  <DatePicker
-                    label="Tanggal Lahir"
-                    required={true}
-                    value={form.watch("tanggalLahir")}
-                    onChange={(value) => form.setValue("tanggalLahir", value)}
-                    placeholder="Pilih tanggal lahir"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Golongan Darah
-                  </label>
-                  <select
-                    {...form.register("golonganDarah")}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  >
-                    <option value="">Pilih golongan darah</option>
-                    <option value="A">A</option>
-                    <option value="B">B</option>
-                    <option value="AB">AB</option>
-                    <option value="O">O</option>
-                  </select>
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Status Dalam Keluarga *
-                  </label>
-                  <select
-                    {...form.register("idStatusDalamKeluarga", {
-                      required: true,
-                    })}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  >
-                    <option value="">Pilih status</option>
-                    {statusDalamKeluarga?.data?.items?.map((item) => (
-                      <option key={item.id} value={item.id}>
-                        {item.status}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-
-                {!isKepalaKeluarga && !preSelectedKeluarga && (
+        <FormProvider {...form}>
+          <form onSubmit={form.handleSubmit(handleSubmit)}>
+            {/* Step 1: Data Jemaat */}
+            {currentStep === 1 && (
+              <StepContent>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Keluarga *
-                    </label>
-                    <select
-                      {...form.register("idKeluarga", {
-                        required: !isKepalaKeluarga && !preSelectedKeluarga,
-                      })}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    >
-                      <option value="">Pilih keluarga</option>
-                      {keluargaList?.data?.items?.map((item) => (
-                        <option key={item.id} value={item.id}>
-                          {item.rayon?.namaRayon} - {item.noBagungan}
-                        </option>
-                      ))}
-                    </select>
+                    <TextInput
+                      required
+                      label="Nama Lengkap"
+                      name="nama"
+                      placeholder="Masukkan nama lengkap"
+                    />
                   </div>
-                )}
 
-                {preSelectedKeluarga && (
                   <div>
-                    <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-                      <p className="text-sm text-blue-700">
-                        <strong>Kepala Keluarga</strong> - Jemaat ini akan menjadi kepala keluarga yang baru dibuat.
-                      </p>
+                    <AutoCompleteInput
+                      required
+                      label="Jenis Kelamin"
+                      name="jenisKelamin"
+                      options={JENIS_KELAMIN_OPTIONS}
+                      placeholder="Pilih jenis kelamin"
+                    />
+                  </div>
+
+                  <div>
+                    <DatePicker
+                      label="Tanggal Lahir"
+                      name="tanggalLahir"
+                      placeholder="Pilih tanggal lahir"
+                      required={true}
+                    />
+                  </div>
+
+                  <div>
+                    <AutoCompleteInput
+                      label="Golongan Darah"
+                      name="golonganDarah"
+                      options={GOLONGAN_DARAH_OPTIONS}
+                      placeholder="Pilih golongan darah"
+                    />
+                  </div>
+
+                  <div>
+                    {isLoadingStatusDalamKeluarga ? (
+                      <SkeletonInput />
+                    ) : (
+                      <AutoCompleteInput
+                        required
+                        label="Status Dalam Keluarga"
+                        name="idStatusDalamKeluarga"
+                        options={statusDalamKeluargaOptions}
+                        placeholder="Pilih status"
+                      />
+                    )}
+                  </div>
+
+                  {!isKepalaKeluarga && !preSelectedKeluarga && (
+                    <div>
+                      {isLoadingKeluargaList ? (
+                        <SkeletonInput />
+                      ) : (
+                        <AutoCompleteInput
+                          label="Keluarga"
+                          name="idKeluarga"
+                          options={keluargaListOptions}
+                          placeholder="Pilih keluarga"
+                          required={!isKepalaKeluarga && !preSelectedKeluarga}
+                        />
+                      )}
+                    </div>
+                  )}
+
+                  {preSelectedKeluarga && (
+                    <div>
+                      <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                        <p className="text-sm text-blue-700">
+                          <strong>Kepala Keluarga</strong> - Jemaat ini akan
+                          menjadi kepala keluarga yang baru dibuat.
+                        </p>
+                      </div>
+                    </div>
+                  )}
+
+                  <div>
+                    {isLoadingSuku ? (
+                      <SkeletonInput />
+                    ) : (
+                      <AutoCompleteInput
+                        required
+                        label="Suku"
+                        name="idSuku"
+                        options={sukuOptions}
+                        placeholder="Pilih suku"
+                      />
+                    )}
+                  </div>
+
+                  <div>
+                    {isLoadingPendidikan ? (
+                      <SkeletonInput />
+                    ) : (
+                      <AutoCompleteInput
+                        required
+                        label="Pendidikan"
+                        name="idPendidikan"
+                        options={pendidikanOptions}
+                        placeholder="Pilih pendidikan"
+                      />
+                    )}
+                  </div>
+
+                  <div>
+                    {isLoadingPekerjaan ? (
+                      <SkeletonInput />
+                    ) : (
+                      <AutoCompleteInput
+                        required
+                        label="Pekerjaan"
+                        name="idPekerjaan"
+                        options={pekerjaanOptions}
+                        placeholder="Pilih pekerjaan"
+                      />
+                    )}
+                  </div>
+
+                  <div>
+                    {isLoadingPendapatan ? (
+                      <SkeletonInput />
+                    ) : (
+                      <AutoCompleteInput
+                        required
+                        label="Pendapatan"
+                        name="idPendapatan"
+                        options={pendapatanOptions}
+                        placeholder="Pilih pendapatan"
+                      />
+                    )}
+                  </div>
+
+                  <div>
+                    {isLoadingJaminanKesehatan ? (
+                      <SkeletonInput />
+                    ) : (
+                      <AutoCompleteInput
+                        required
+                        label="Jaminan Kesehatan"
+                        name="idJaminanKesehatan"
+                        options={jaminanKesehatanOptions}
+                        placeholder="Pilih jaminan kesehatan"
+                      />
+                    )}
+                  </div>
+                </div>
+              </StepContent>
+            )}
+
+            {/* Step 2: User Account */}
+            {currentStep === 2 && (
+              <StepContent>
+                <div className="mb-6">
+                  <label className="flex items-center">
+                    <input
+                      checked={createUserAccount}
+                      className="mr-2"
+                      type="checkbox"
+                      onChange={(e) => setCreateUserAccount(e.target.checked)}
+                    />
+                    <span className="text-sm font-medium text-gray-700">
+                      Buatkan akun user untuk jemaat ini
+                    </span>
+                  </label>
+                </div>
+
+                {createUserAccount && (
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                      <TextInput
+                        label="Email"
+                        name="email"
+                        placeholder="contoh@email.com"
+                        required={createUserAccount}
+                        type="email"
+                      />
+                    </div>
+
+                    <div>
+                      <AutoCompleteInput
+                        label="Role"
+                        name="role"
+                        options={USER_ROLE_OPTIONS}
+                        placeholder="Pilih role"
+                      />
+                    </div>
+
+                    <div>
+                      <TextInput
+                        label="Password"
+                        name="password"
+                        placeholder="Minimal 8 karakter"
+                        required={createUserAccount}
+                        type="password"
+                      />
+                    </div>
+
+                    <div>
+                      <TextInput
+                        label="Konfirmasi Password"
+                        name="confirmPassword"
+                        placeholder="Ulangi password"
+                        required={createUserAccount}
+                        type="password"
+                      />
                     </div>
                   </div>
                 )}
+              </StepContent>
+            )}
 
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Suku *
-                  </label>
-                  <select
-                    {...form.register("idSuku", { required: true })}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  >
-                    <option value="">Pilih suku</option>
-                    {suku?.data?.items?.map((item) => (
-                      <option key={item.id} value={item.id}>
-                        {item.namaSuku}
-                      </option>
-                    ))}
-                  </select>
+            {/* Step 3: Keluarga Data */}
+            {currentStep === 3 && createKeluarga && (
+              <StepContent>
+                <div className="mb-6">
+                  <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                    <p className="text-sm text-blue-700">
+                      Jemaat ini adalah kepala keluarga. Silakan lengkapi data
+                      keluarga.
+                    </p>
+                  </div>
                 </div>
 
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Pendidikan *
-                  </label>
-                  <select
-                    {...form.register("idPendidikan", { required: true })}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  >
-                    <option value="">Pilih pendidikan</option>
-                    {pendidikan?.data?.items?.map((item) => (
-                      <option key={item.id} value={item.id}>
-                        {item.jenjang}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Pekerjaan *
-                  </label>
-                  <select
-                    {...form.register("idPekerjaan", { required: true })}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  >
-                    <option value="">Pilih pekerjaan</option>
-                    {pekerjaan?.data?.items?.map((item) => (
-                      <option key={item.id} value={item.id}>
-                        {item.namaPekerjaan}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Pendapatan *
-                  </label>
-                  <select
-                    {...form.register("idPendapatan", { required: true })}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  >
-                    <option value="">Pilih pendapatan</option>
-                    {pendapatan?.data?.items?.map((item) => (
-                      <option key={item.id} value={item.id}>
-                        {item.label}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Jaminan Kesehatan *
-                  </label>
-                  <select
-                    {...form.register("idJaminanKesehatan", {
-                      required: true,
-                    })}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  >
-                    <option value="">Pilih jaminan kesehatan</option>
-                    {jaminanKesehatan?.data?.items?.map((item) => (
-                      <option key={item.id} value={item.id}>
-                        {item.jenisJaminan}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-              </div>
-            </StepContent>
-          )}
-
-          {/* Step 2: User Account */}
-          {currentStep === 2 && (
-            <StepContent>
-              <div className="mb-6">
-                <label className="flex items-center">
-                  <input
-                    checked={createUserAccount}
-                    className="mr-2"
-                    type="checkbox"
-                    onChange={(e) => setCreateUserAccount(e.target.checked)}
-                  />
-                  <span className="text-sm font-medium text-gray-700">
-                    Buatkan akun user untuk jemaat ini
-                  </span>
-                </label>
-              </div>
-
-              {createUserAccount && (
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Email *
-                    </label>
-                    <input
-                      type="email"
-                      {...form.register("email", {
-                        required: createUserAccount,
-                      })}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                      placeholder="contoh@email.com"
+                    {isLoadingStatusKeluarga ? (
+                      <SkeletonInput />
+                    ) : (
+                      <AutoCompleteInput
+                        label="Status Keluarga"
+                        name="idStatusKeluarga"
+                        options={statusKeluargaOptions}
+                        placeholder="Pilih status keluarga"
+                        required={createKeluarga}
+                      />
+                    )}
+                  </div>
+
+                  <div>
+                    {isLoadingStatusKepemilikanRumah ? (
+                      <SkeletonInput />
+                    ) : (
+                      <AutoCompleteInput
+                        label="Status Kepemilikan Rumah"
+                        name="idStatusKepemilikanRumah"
+                        options={statusKepemilikanRumahOptions}
+                        placeholder="Pilih status kepemilikan"
+                        required={createKeluarga}
+                      />
+                    )}
+                  </div>
+
+                  <div>
+                    {isLoadingKeadaanRumah ? (
+                      <SkeletonInput />
+                    ) : (
+                      <AutoCompleteInput
+                        label="Keadaan Rumah"
+                        name="idKeadaanRumah"
+                        options={keadaanRumahOptions}
+                        placeholder="Pilih keadaan rumah"
+                        required={createKeluarga}
+                      />
+                    )}
+                  </div>
+
+                  <div>
+                    {isLoadingRayon ? (
+                      <SkeletonInput />
+                    ) : (
+                      <AutoCompleteInput
+                        label="Rayon"
+                        name="idRayon"
+                        options={rayonOptions}
+                        placeholder="Pilih rayon"
+                        required={createKeluarga}
+                      />
+                    )}
+                  </div>
+
+                  <div>
+                    <TextInput
+                      label="No. Bagungan"
+                      name="noBagungan"
+                      placeholder="Masukkan nomor bagungan"
+                      required={createKeluarga}
+                      type="number"
+                    />
+                  </div>
+                </div>
+
+                <div className="mt-6">
+                  <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+                    <p className="text-sm text-yellow-700">
+                      Alamat akan otomatis dibuat untuk keluarga baru ini.
+                    </p>
+                  </div>
+                </div>
+              </StepContent>
+            )}
+
+            {/* Step 4: Alamat */}
+            {currentStep === 4 && createKeluarga && (
+              <StepContent>
+                <div className="mb-6">
+                  <div className="bg-green-50 border border-green-200 rounded-lg p-4">
+                    <p className="text-sm text-green-700">
+                      Lengkapi alamat untuk keluarga baru ini.
+                    </p>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div>
+                    {isLoadingKelurahan ? (
+                      <SkeletonInput />
+                    ) : (
+                      <AutoCompleteInput
+                        label="Kelurahan"
+                        name="idKelurahan"
+                        options={kelurahanOptions}
+                        placeholder="Pilih kelurahan"
+                        required={createKeluarga}
+                      />
+                    )}
+                  </div>
+
+                  <div>
+                    <TextInput
+                      label="Jalan"
+                      name="jalan"
+                      placeholder="Nama jalan / kampung"
+                      required={createKeluarga}
                     />
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Role
-                    </label>
-                    <select
-                      {...form.register("role")}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    >
-                      <option value="JEMAAT">Jemaat</option>
-                      <option value="MAJELIS">Majelis</option>
-                      <option value="EMPLOYEE">Employee</option>
-                    </select>
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Password *
-                    </label>
-                    <input
-                      type="password"
-                      {...form.register("password", {
-                        required: createUserAccount,
-                      })}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                      placeholder="Minimal 8 karakter"
+                    <TextInput
+                      label="RT"
+                      name="rt"
+                      placeholder="001"
+                      required={createKeluarga}
+                      type="number"
                     />
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Konfirmasi Password *
-                    </label>
-                    <input
-                      type="password"
-                      {...form.register("confirmPassword", {
-                        required: createUserAccount,
-                      })}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                      placeholder="Ulangi password"
+                    <TextInput
+                      label="RW"
+                      name="rw"
+                      placeholder="001"
+                      required={createKeluarga}
+                      type="number"
                     />
                   </div>
                 </div>
-              )}
-            </StepContent>
-          )}
+              </StepContent>
+            )}
 
-          {/* Step 3: Keluarga Data */}
-          {currentStep === 3 && createKeluarga && (
-            <StepContent>
-              <div className="mb-6">
-                <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-                  <p className="text-sm text-blue-700">
-                    Jemaat ini adalah kepala keluarga. Silakan lengkapi data
-                    keluarga.
-                  </p>
-                </div>
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Status Keluarga *
-                  </label>
-                  <select
-                    {...form.register("idStatusKeluarga", {
-                      required: createKeluarga,
-                    })}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  >
-                    <option value="">Pilih status keluarga</option>
-                    {statusKeluarga?.data?.items?.map((item) => (
-                      <option key={item.id} value={item.id}>
-                        {item.status}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Status Kepemilikan Rumah *
-                  </label>
-                  <select
-                    {...form.register("idStatusKepemilikanRumah", {
-                      required: createKeluarga,
-                    })}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  >
-                    <option value="">Pilih status kepemilikan</option>
-                    {statusKepemilikanRumah?.data?.items?.map((item) => (
-                      <option key={item.id} value={item.id}>
-                        {item.status}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Keadaan Rumah *
-                  </label>
-                  <select
-                    {...form.register("idKeadaanRumah", {
-                      required: createKeluarga,
-                    })}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  >
-                    <option value="">Pilih keadaan rumah</option>
-                    {keadaanRumah?.data?.items?.map((item) => (
-                      <option key={item.id} value={item.id}>
-                        {item.keadaan}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Rayon *
-                  </label>
-                  <select
-                    {...form.register("idRayon", {
-                      required: createKeluarga,
-                    })}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  >
-                    <option value="">Pilih rayon</option>
-                    {rayon?.data?.items?.map((item) => (
-                      <option key={item.id} value={item.id}>
-                        {item.namaRayon}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    No. Bagungan *
-                  </label>
-                  <input
-                    type="number"
-                    {...form.register("noBagungan", {
-                      required: createKeluarga,
-                    })}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    placeholder="Masukkan nomor bagungan"
-                  />
-                </div>
-              </div>
-
-              <div className="mt-6">
-                <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
-                  <p className="text-sm text-yellow-700">
-                    Alamat akan otomatis dibuat untuk keluarga baru ini.
-                  </p>
-                </div>
-              </div>
-            </StepContent>
-          )}
-
-          {/* Step 4: Alamat */}
-          {currentStep === 4 && createKeluarga && (
-            <StepContent>
-              <div className="mb-6">
-                <div className="bg-green-50 border border-green-200 rounded-lg p-4">
-                  <p className="text-sm text-green-700">
-                    Lengkapi alamat untuk keluarga baru ini.
-                  </p>
-                </div>
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Kelurahan *
-                  </label>
-                  <select
-                    {...form.register("idKelurahan", {
-                      required: createKeluarga,
-                    })}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  >
-                    <option value="">Pilih kelurahan</option>
-                    {kelurahan?.data?.items?.map((item) => (
-                      <option key={item.id} value={item.id}>
-                        {item.nama} - {item.kodepos}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Jalan *
-                  </label>
-                  <input
-                    type="text"
-                    {...form.register("jalan", { required: createKeluarga })}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    placeholder="Nama jalan / kampung"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    RT *
-                  </label>
-                  <input
-                    type="number"
-                    {...form.register("rt", { required: createKeluarga })}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    placeholder="001"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    RW *
-                  </label>
-                  <input
-                    type="number"
-                    {...form.register("rw", { required: createKeluarga })}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    placeholder="001"
-                  />
-                </div>
-              </div>
-            </StepContent>
-          )}
-
-          <StepperNavigation
-            canGoNext={canGoNext()}
-            currentStep={currentStep}
-            isLoading={createJemaatMutation.isPending}
-            nextButtonText="Lanjut"
-            submitButtonText="Simpan Jemaat"
-            totalSteps={getMaxStep()}
-            onNext={handleNext}
-            onPrevious={handlePrevious}
-            onSubmit={handleSubmit}
-          />
-        </form>
+            <StepperNavigation
+              canGoNext={canGoNext()}
+              currentStep={currentStep}
+              isLoading={createJemaatMutation.isPending}
+              nextButtonText="Lanjut"
+              submitButtonText="Simpan Jemaat"
+              totalSteps={getMaxStep()}
+              onNext={handleNext}
+              onPrevious={handlePrevious}
+              onSubmit={handleSubmit}
+            />
+          </form>
+        </FormProvider>
       </Card>
     </div>
   );

@@ -2,12 +2,23 @@
 import { useId } from "react";
 import { useController, useFormContext } from "react-hook-form";
 
-export default function TextInput({ name, label, placeholder, type = "text", value, onChange, error: externalError, ...props }) {
+export default function TextInput({
+  name,
+  label,
+  placeholder,
+  type = "text",
+  required = false,
+  value,
+  onChange,
+  error: externalError,
+  className = "",
+  ...props
+}) {
   const inputId = useId();
-  
+
   // Try to get form context, but handle case where it doesn't exist
   const formContext = useFormContext();
-  
+
   // If we have form context, use react-hook-form
   if (formContext) {
     const { control } = formContext;
@@ -17,28 +28,27 @@ export default function TextInput({ name, label, placeholder, type = "text", val
     } = useController({ name, control });
 
     return (
-      <div style={{ marginBottom: "1rem" }}>
-        <label
-          htmlFor={inputId}
-          style={{ display: "block", fontWeight: "bold", marginBottom: "0.5rem" }}
-        >
-          {label}
-        </label>
+      <div className="form-control w-full mb-4">
+        {label && (
+          <label
+            htmlFor={inputId}
+            className="block text-sm font-medium text-gray-700 mb-2"
+          >
+            {label} {required && <span className="text-red-500">*</span>}
+          </label>
+        )}
         <input
           id={inputId}
           type={type}
           {...field}
           placeholder={placeholder}
-          style={{
-            width: "100%",
-            padding: "0.5rem",
-            borderRadius: "4px",
-            border: "1px solid #ccc",
-          }}
+          className={`w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
+            error ? "border-red-300 focus:ring-red-500 focus:border-red-500" : ""
+          } ${className}`}
           {...props}
         />
         {error && (
-          <p style={{ color: "red", marginTop: "0.5rem" }}>{error.message}</p>
+          <p className="mt-1 text-sm text-red-600">{error.message}</p>
         )}
       </div>
     );
@@ -46,13 +56,15 @@ export default function TextInput({ name, label, placeholder, type = "text", val
 
   // Fallback to regular input when no form context
   return (
-    <div style={{ marginBottom: "1rem" }}>
-      <label
-        htmlFor={inputId}
-        style={{ display: "block", fontWeight: "bold", marginBottom: "0.5rem" }}
-      >
-        {label}
-      </label>
+    <div className="form-control w-full mb-4">
+      {label && (
+        <label
+          htmlFor={inputId}
+          className="block text-sm font-medium text-gray-700 mb-2"
+        >
+          {label} {required && <span className="text-red-500">*</span>}
+        </label>
+      )}
       <input
         id={inputId}
         type={type}
@@ -60,16 +72,13 @@ export default function TextInput({ name, label, placeholder, type = "text", val
         value={value || ""}
         onChange={(e) => onChange?.(e.target.value)}
         placeholder={placeholder}
-        style={{
-          width: "100%",
-          padding: "0.5rem",
-          borderRadius: "4px",
-          border: "1px solid #ccc",
-        }}
+        className={`w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
+          externalError ? "border-red-300 focus:ring-red-500 focus:border-red-500" : ""
+        } ${className}`}
         {...props}
       />
       {externalError && (
-        <p style={{ color: "red", marginTop: "0.5rem" }}>{externalError}</p>
+        <p className="mt-1 text-sm text-red-600">{externalError}</p>
       )}
     </div>
   );

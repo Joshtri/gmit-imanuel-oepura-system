@@ -87,6 +87,7 @@ function PageHeader({
                   size={action.size || "default"}
                   className={action.className}
                   onClick={action.onClick}
+                  href={action.href}
                 >
                   {action.icon && <action.icon className="w-4 h-4 mr-2" />}
                   {action.label}

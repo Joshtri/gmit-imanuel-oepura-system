@@ -567,21 +567,15 @@ const masterService = {
   },
 
   createKategoriPengumuman: async (data) => {
-    const res = await axios.post("/kategori-pengumuman", data);
-
-    return res.data;
+    return handleApiCall(() => axios.post("/kategori-pengumuman", data));
   },
 
   updateKategoriPengumuman: async (id, data) => {
-    const res = await axios.patch(`/kategori-pengumuman/${id}`, data);
-
-    return res.data;
+    return handleApiCall(() => axios.patch(`/kategori-pengumuman/${id}`, data));
   },
 
   deleteKategoriPengumuman: async (id) => {
-    const res = await axios.delete(`/kategori-pengumuman/${id}`);
-
-    return res.data;
+    return handleApiCall(() => axios.delete(`/kategori-pengumuman/${id}`));
   },
 
   // =================== JENIS PENGUMUMAN ===================

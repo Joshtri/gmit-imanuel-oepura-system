@@ -1,28 +1,27 @@
-import React, { useState, useEffect } from "react";
-import { useRouter } from "next/router";
-import { useMutation } from "@tanstack/react-query";
-import { useForm, FormProvider } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import * as z from "zod";
+import { useMutation } from "@tanstack/react-query";
 import axios from "axios";
-import { showToast } from "@/utils/showToast";
-import PageTitle from "@/components/ui/PageTitle";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/Card";
-import { Button } from "@/components/ui/Button";
-import TextInput from "@/components/ui/inputs/TextInput";
-import SelectInput from "@/components/ui/inputs/SelectInput";
-import DatePicker from "@/components/ui/inputs/DatePicker";
-import AutoCompleteInput from "@/components/ui/inputs/AutoCompleteInput";
 import {
-  User,
-  Calendar,
-  Users,
-  MapPin,
-  Shield,
-  Clock,
-  CheckCircle,
   AlertCircle,
+  CheckCircle,
+  Clock,
+  Shield,
+  User,
+  Users,
 } from "lucide-react";
+import { useRouter } from "next/router";
+import { useEffect, useState } from "react";
+import { FormProvider, useForm } from "react-hook-form";
+import * as z from "zod";
+
+import { Button } from "@/components/ui/Button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/Card";
+import AutoCompleteInput from "@/components/ui/inputs/AutoCompleteInput";
+import DatePicker from "@/components/ui/inputs/DatePicker";
+import SelectInput from "@/components/ui/inputs/SelectInput";
+import TextInput from "@/components/ui/inputs/TextInput";
+import PageTitle from "@/components/ui/PageTitle";
+import { showToast } from "@/utils/showToast";
 
 const validationSchema = z.object({
   nama: z.string().min(1, "Nama lengkap harus diisi"),
@@ -30,6 +29,7 @@ const validationSchema = z.object({
     if (typeof val === "string") {
       return val === "true";
     }
+
     return val;
   }),
   tanggalLahir: z
@@ -146,6 +146,7 @@ export default function OnboardingPage() {
         token,
         jemaatData: jemaatData,
       });
+
       return response.data;
     },
     onSuccess: () => {
@@ -168,7 +169,7 @@ export default function OnboardingPage() {
   });
 
   const onSubmit = (data) => {
-    onboardingMutation.mutate(data);
+  onboardingMutation.mutate(data);
   };
 
   if (!token) {
@@ -242,8 +243,8 @@ export default function OnboardingPage() {
   return (
     <>
       <PageTitle
-        title="Lengkapi Profil - GMIT Imanuel Oepura"
         description="Lengkapi profil jemaat GMIT Imanuel Oepura"
+        title="Lengkapi Profil - GMIT Imanuel Oepura"
       />
 
       <div className="min-h-screen bg-gray-50 py-8">
@@ -305,93 +306,93 @@ export default function OnboardingPage() {
             </CardHeader>
             <CardContent>
               <FormProvider {...methods}>
-                <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+                <form className="space-y-6" onSubmit={handleSubmit(onSubmit)}>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div className="md:col-span-2">
                       <TextInput
-                        name="nama"
-                        label="Nama Lengkap"
-                        placeholder="Masukkan nama lengkap"
                         required
+                        label="Nama Lengkap"
+                        name="nama"
+                        placeholder="Masukkan nama lengkap"
                       />
                     </div>
 
                     <SelectInput
-                      name="jenisKelamin"
+                      required
                       label="Jenis Kelamin"
+                      name="jenisKelamin"
                       options={jenisKelaminOptions}
                       placeholder="Pilih jenis kelamin"
-                      required
                     />
 
                     <DatePicker
-                      name="tanggalLahir"
+                      required
                       label="Tanggal Lahir"
+                      name="tanggalLahir"
                       placeholder="Pilih tanggal lahir"
-                      required
                     />
 
                     <AutoCompleteInput
-                      name="idStatusDalamKeluarga"
-                      label="Status dalam Keluarga"
+                      required
                       apiEndpoint="/api/status-dalam-keluarga/options"
+                      label="Status dalam Keluarga"
+                      name="idStatusDalamKeluarga"
                       placeholder="Pilih status dalam keluarga"
-                      required
                     />
 
                     <AutoCompleteInput
-                      name="idSuku"
-                      label="Suku"
+                      required
                       apiEndpoint="/api/suku/options"
+                      label="Suku"
+                      name="idSuku"
                       placeholder="Pilih suku"
-                      required
                     />
 
                     <AutoCompleteInput
-                      name="idPendidikan"
-                      label="Pendidikan"
+                      required
                       apiEndpoint="/api/pendidikan/options"
+                      label="Pendidikan"
+                      name="idPendidikan"
                       placeholder="Pilih pendidikan terakhir"
-                      required
                     />
 
                     <AutoCompleteInput
-                      name="idPekerjaan"
-                      label="Pekerjaan"
+                      required
                       apiEndpoint="/api/pekerjaan/options"
+                      label="Pekerjaan"
+                      name="idPekerjaan"
                       placeholder="Pilih pekerjaan"
-                      required
                     />
 
                     <AutoCompleteInput
-                      name="idPendapatan"
-                      label="Kategori Pendapatan"
+                      required
                       apiEndpoint="/api/pendapatan/options"
+                      label="Kategori Pendapatan"
+                      name="idPendapatan"
                       placeholder="Pilih kategori pendapatan"
-                      required
                     />
 
                     <AutoCompleteInput
-                      name="idJaminanKesehatan"
-                      label="Jaminan Kesehatan"
-                      apiEndpoint="/api/jaminan-kesehatan/options"
-                      placeholder="Pilih jaminan kesehatan"
                       required
+                      apiEndpoint="/api/jaminan-kesehatan/options"
+                      label="Jaminan Kesehatan"
+                      name="idJaminanKesehatan"
+                      placeholder="Pilih jaminan kesehatan"
                     />
 
                     <div className="md:col-span-2">
                       <AutoCompleteInput
-                        name="idKeluarga"
-                        label="Kepala Keluarga"
-                        apiEndpoint="/api/keluarga/options"
-                        placeholder="Pilih kepala keluarga Anda"
                         required
+                        apiEndpoint="/api/keluarga/options"
+                        label="Kepala Keluarga"
+                        name="idKeluarga"
+                        placeholder="Pilih kepala keluarga Anda"
                       />
                     </div>
 
                     <SelectInput
-                      name="golonganDarah"
                       label="Golongan Darah"
+                      name="golonganDarah"
                       options={golonganDarahOptions}
                       placeholder="Pilih golongan darah (opsional)"
                     />
@@ -408,9 +409,9 @@ export default function OnboardingPage() {
                     </Button>
 
                     <Button
-                      type="submit"
-                      disabled={!isValid || onboardingMutation.isLoading}
                       className="min-w-[120px]"
+                      disabled={!isValid || onboardingMutation.isLoading}
+                      type="submit"
                     >
                       {onboardingMutation.isLoading ? (
                         <Clock className="h-4 w-4 mr-2 animate-spin" />

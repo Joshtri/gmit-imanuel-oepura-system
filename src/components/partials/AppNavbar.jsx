@@ -354,7 +354,7 @@ export default function AppNavbar({
       {/* Sidebar */}
       <aside
         className={`
-        fixed top-0 left-0 z-40 ${isCollapsed ? "w-16" : "w-64"} h-screen ${isCollapsed ? "pt-16" : "pt-2"} transition-all duration-300 bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 shadow-lg
+        fixed top-0 left-0 z-40 ${isCollapsed ? "w-16" : "w-64"} h-screen pt-2 transition-all duration-300 bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 shadow-lg
         ${sidebarOpen ? "translate-x-0" : "-translate-x-full"}
         lg:translate-x-0
       `}

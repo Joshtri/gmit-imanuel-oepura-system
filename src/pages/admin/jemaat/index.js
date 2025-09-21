@@ -1,6 +1,3 @@
-import ListGrid from "@/components/ui/ListGrid";
-import jemaatService from "@/services/jemaatService";
-import { showToast } from "@/utils/showToast";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   Edit,
@@ -9,10 +6,14 @@ import {
   Trash2,
   UserCheck,
   UserPlus,
-  Users
+  Users,
 } from "lucide-react";
 import { useRouter } from "next/router";
 import { useState } from "react";
+
+import ListGrid from "@/components/ui/ListGrid";
+import jemaatService from "@/services/jemaatService";
+import { showToast } from "@/utils/showToast";
 
 export default function MembersManagement() {
   const router = useRouter();
@@ -109,6 +110,7 @@ export default function MembersManagement() {
           inactive: "Tidak Aktif",
           pending: "Menunggu",
         };
+
         return labels[value] || value;
       },
     },
@@ -239,7 +241,7 @@ export default function MembersManagement() {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-600 mx-auto"></div>
+          <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-600 mx-auto" />
           <p className="mt-4 text-gray-600">Memuat data jemaat...</p>
         </div>
       </div>
@@ -254,8 +256,8 @@ export default function MembersManagement() {
             Terjadi kesalahan saat memuat data jemaat
           </p>
           <button
-            onClick={() => queryClient.invalidateQueries(["jemaat"])}
             className="mt-4 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+            onClick={() => queryClient.invalidateQueries(["jemaat"])}
           >
             Coba Lagi
           </button>
@@ -265,36 +267,37 @@ export default function MembersManagement() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    // <div className="min-h-screen bg-gray-50">
+    <>
       <ListGrid
         // Page Header Props
-        title="Manajemen Jemaat"
-        description="Kelola data anggota jemaat GMIT Imanuel Oepura dengan mudah dan efisien"
         breadcrumb={[
           { label: "Dashboard", href: "/admin/dashboard" },
           { label: "Jemaat", href: "/admin/members" },
           { label: "Daftar Jemaat" },
         ]}
-        stats={stats}
+        description="Kelola data anggota jemaat GMIT Imanuel Oepura dengan mudah dan efisien"
         headerActions={headerActions}
-        isLoading={isLoading}
-        // Data Props
-        data={members}
+        rowActionType="horizontal" // "vertical" | "horizontal"
+        searchable={true}
+        stats={stats}
+        title="Manajemen Jemaat"
         columns={columns}
         // Row Actions Props - Now using ButtonActions
         rowActions={rowActions}
-        rowActionType="horizontal" // "vertical" | "horizontal"
-        maxVisibleActions={2} // Show 2 actions, rest in dropdown
-        // Filter & Search Props
-        filters={filters}
-        searchable={true}
-        searchPlaceholder="Cari nama, email, atau ID jemaat..."
-        // Export Props
-        exportable={true}
         exportFilename="jemaat"
         // Pagination Props
         itemsPerPage={10}
+        isLoading={isLoading}
+        // Data Props
+        data={members}
+        maxVisibleActions={2} // Show 2 actions, rest in dropdown
+        // Filter & Search Props
+        filters={filters}
+        searchPlaceholder="Cari nama, email, atau ID jemaat..."
+        // Export Props
+        exportable={true}
       />
-    </div>
+    </>
   );
 }

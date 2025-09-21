@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useRouter } from "next/router";
 import { useForm } from "react-hook-form";
+import { useQueryClient } from "@tanstack/react-query";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
   User,
@@ -47,6 +48,7 @@ const steps = [
 
 export default function CreateMajelisPage() {
   const router = useRouter();
+  const queryClient = useQueryClient();
   const [currentStep, setCurrentStep] = useState(1);
   const [isLoading, setIsLoading] = useState(false);
 
@@ -159,6 +161,9 @@ export default function CreateMajelisPage() {
           description: "Majelis dan akun berhasil dibuat",
           color: "success",
         });
+
+        // Invalidate majelis query to refresh the list
+        queryClient.invalidateQueries({ queryKey: ["majelis"] });
 
         router.push("/admin/majelis");
       } else {

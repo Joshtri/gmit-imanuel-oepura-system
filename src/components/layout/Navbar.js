@@ -1,8 +1,8 @@
-import Link from "next/link";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/lib/supabaseClient";
+import Link from "next/link";
 
-export default function Navbar({ menuItems }) {
+export default function Navbar({ menuItems, uppItems = [], uppLoading = false }) {
   const authContext = useAuth();
   const { user, logout } = authContext || {};
 
@@ -10,7 +10,10 @@ export default function Navbar({ menuItems }) {
     <div className="hidden flex-none lg:block">
       <ul className="menu menu-horizontal items-center">
         {menuItems.map((item) => (
-          <li key={item.name} className="flex items-center">
+          <li
+            key={item.name}
+            className="flex items-center"
+          >
             <a
               href={item.path}
               className="flex items-center text-white hover:text-blue-200 dark:hover:text-blue-300 transition-colors duration-200"
@@ -26,22 +29,24 @@ export default function Navbar({ menuItems }) {
               UPP
             </summary>
             <ul className="bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 rounded-t-none p-2 dropdown-content right-0 mt-3 w-40 shadow-lg border border-gray-200 dark:border-gray-700 transition-colors duration-300">
-              <li>
-                <Link
-                  href="/upp/anak"
-                  className="hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-blue-600 dark:hover:text-blue-400 transition-colors duration-200"
-                >
-                  Anak
-                </Link>
-              </li>
-              <li>
-                <Link
-                  href="/upp/pemuda"
-                  className="hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-blue-600 dark:hover:text-blue-400 transition-colors duration-200"
-                >
-                  Pemuda
-                </Link>
-              </li>
+              {uppLoading ? (
+                <li className="text-center py-2">
+                  <span className="loading loading-spinner loading-sm"></span>
+                </li>
+              ) : uppItems.length > 0 ? (
+                uppItems.map((item) => (
+                  <li key={item.id}>
+                    <Link
+                      href={`/upp/${item.nama.toLowerCase().replace(/\s+/g, "-")}`}
+                      className="hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-blue-600 dark:hover:text-blue-400 transition-colors duration-200"
+                    >
+                      {item.nama}
+                    </Link>
+                  </li>
+                ))
+              ) : (
+                <li className="text-center py-2 text-gray-500 dark:text-gray-400">No items available</li>
+              )}
             </ul>
           </details>
         </li>

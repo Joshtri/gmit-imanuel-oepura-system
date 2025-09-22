@@ -1,7 +1,8 @@
+import ThemeToggle from "@/components/ui/ThemeToggle";
+import useJenisPengumuman from "@/hooks/useJenisPengumuman";
 import { Menu } from "lucide-react";
 import Navbar from "./Navbar";
 import Sidebar from "./Sidebar";
-import ThemeToggle from "@/components/ui/ThemeToggle";
 
 export default function Navigation({ children }) {
   const menuItems = [
@@ -9,6 +10,9 @@ export default function Navigation({ children }) {
     { name: "Gallery", path: "/gallery" },
     { name: "About", path: "/about" },
   ];
+
+  // Fetch jenis pengumuman data for UPP dropdown
+  const { jenisOptions: uppItems, loading: uppLoading } = useJenisPengumuman();
 
   return (
     <>
@@ -36,13 +40,21 @@ export default function Navigation({ children }) {
             </div>
             <div className="flex items-center gap-4">
               <ThemeToggle />
-              <Navbar menuItems={menuItems} />
+              <Navbar
+                menuItems={menuItems}
+                uppItems={uppItems}
+                uppLoading={uppLoading}
+              />
             </div>
           </div>
           {/* Page content here */}
           <main>{children}</main>
         </div>
-        <Sidebar menuItems={menuItems} />
+        <Sidebar
+          menuItems={menuItems}
+          uppItems={uppItems}
+          uppLoading={uppLoading}
+        />
       </div>
     </>
   );

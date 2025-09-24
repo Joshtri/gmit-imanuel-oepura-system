@@ -63,7 +63,9 @@ const masterService = {
   // =================== SUKU ===================
 
   getSuku: async (params = {}) => {
-    const res = await axios.get("/suku", { params });
+    // Remove pagination params for simple master data display
+    const { page, limit, ...otherParams } = params;
+    const res = await axios.get("/suku", { params: otherParams });
 
     return res.data;
   },
@@ -81,13 +83,13 @@ const masterService = {
   },
 
   updateSuku: async (id, data) => {
-    const res = await axios.patch(`/suku/${id}`, data);
+    const res = await axios.put("/suku", { id, ...data });
 
     return res.data;
   },
 
   deleteSuku: async (id) => {
-    const res = await axios.delete(`/suku/${id}`);
+    const res = await axios.delete("/suku", { data: { id } });
 
     return res.data;
   },

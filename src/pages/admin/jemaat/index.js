@@ -12,25 +12,23 @@ import { useRouter } from "next/router";
 import { useState } from "react";
 
 import ListGrid from "@/components/ui/ListGrid";
+import ConfirmDialog from "@/components/ui/ConfirmDialog";
+import useConfirm from "@/hooks/useConfirm";
 import jemaatService from "@/services/jemaatService";
 import { showToast } from "@/utils/showToast";
 
 export default function MembersManagement() {
   const router = useRouter();
   const queryClient = useQueryClient();
-  const [pagination, setPagination] = useState({
-    page: 1,
-    limit: 10,
-  });
-
-  // Fetch jemaat data from API
+  const confirm = useConfirm();
+  // Fetch all jemaat data for filtering (no pagination on client-side)
   const {
     data: jemaatData,
     isLoading,
     error,
   } = useQuery({
-    queryKey: ["jemaat", pagination],
-    queryFn: () => jemaatService.getAll(pagination),
+    queryKey: ["jemaat-all"],
+    queryFn: () => jemaatService.getAll({ limit: 1000 }), // Load more data for filtering
     keepPreviousData: true,
   });
 
@@ -43,19 +41,44 @@ export default function MembersManagement() {
         description: "Data jemaat berhasil dihapus",
         color: "success",
       });
-      queryClient.invalidateQueries(["jemaat"]);
+      queryClient.invalidateQueries(["jemaat-all"]);
     },
     onError: (error) => {
+      const errorMessage =
+        error.response?.data?.errors ||
+        error.response?.data?.message ||
+        "Gagal menghapus data";
+
       showToast({
         title: "Gagal",
-        description: error.response?.data?.message || "Gagal menghapus data",
+        description: errorMessage,
         color: "error",
       });
     },
   });
 
-  // Extract members from API response
-  const members = jemaatData?.data?.items || [];
+  // Extract and preprocess members from API response for filtering
+  const members = (jemaatData?.data?.items || []).map((member) => ({
+    ...member,
+    // Add computed properties for easier filtering
+    hasUserAccount: member.User ? "hasAccount" : "noAccount",
+    statusKeluarga: member.statusDalamKeluarga?.status || "Tidak Diketahui",
+    rayonName: member.keluarga?.rayon?.namaRayon || "Tidak Ada Rayon",
+  }));
+
+  // Handle delete with confirmation dialog
+  const handleDelete = (item) => {
+    confirm.showConfirm({
+      title: "Hapus Jemaat",
+      message: `Apakah Anda yakin ingin menghapus jemaat "${item.nama}"? Data yang sudah dihapus tidak dapat dikembalikan.`,
+      confirmText: "Ya, Hapus",
+      cancelText: "Batal",
+      variant: "danger",
+      onConfirm: () => {
+        deleteMutation.mutate(item.id);
+      },
+    });
+  };
 
   const columns = [
     {
@@ -128,7 +151,7 @@ export default function MembersManagement() {
     {
       label: "Edit Data",
       icon: Edit,
-      onClick: (item) => router.push(`/admin/jemaat/${item.id}/edit`),
+      onClick: (item) => router.push(`/admin/jemaat/edit/${item.id}`),
       variant: "outline",
       tooltip: "Edit informasi jemaat",
     },
@@ -143,25 +166,37 @@ export default function MembersManagement() {
     {
       label: "Hapus",
       icon: Trash2,
-      onClick: (item) => {
-        if (confirm(`Apakah Anda yakin ingin menghapus ${item.nama}?`)) {
-          deleteMutation.mutate(item.id);
-        }
-      },
+      onClick: handleDelete,
       variant: "destructive",
       tooltip: "Hapus data jemaat",
     },
   ];
 
+  // Get unique values for dynamic filters
+  const uniqueRayons = [
+    ...new Set(
+      members
+        .map((member) => member.rayonName)
+        .filter((rayon) => rayon !== "Tidak Ada Rayon")
+    ),
+  ];
+
+  const uniqueStatusKeluarga = [
+    ...new Set(
+      members
+        .map((member) => member.statusKeluarga)
+        .filter((status) => status !== "Tidak Diketahui")
+    ),
+  ];
+
   // Filters configuration
   const filters = [
     {
-      key: "status",
-      label: "Semua Status",
+      key: "hasUserAccount",
+      label: "Status Akun",
       options: [
-        { value: "active", label: "Aktif" },
-        { value: "inactive", label: "Tidak Aktif" },
-        { value: "pending", label: "Menunggu" },
+        { value: "hasAccount", label: "Memiliki Akun" },
+        { value: "noAccount", label: "Tidak Ada Akun" },
       ],
     },
     {
@@ -173,13 +208,20 @@ export default function MembersManagement() {
       ],
     },
     {
-      key: "statusDalamKeluarga.status",
+      key: "statusKeluarga",
       label: "Status Keluarga",
-      options: [
-        { value: "Ayah", label: "Ayah" },
-        { value: "Ibu", label: "Ibu" },
-        { value: "Anak", label: "Anak" },
-      ],
+      options: uniqueStatusKeluarga.map((status) => ({
+        value: status,
+        label: status,
+      })),
+    },
+    {
+      key: "rayonName",
+      label: "Rayon",
+      options: uniqueRayons.map((rayon) => ({
+        value: rayon,
+        label: rayon,
+      })),
     },
   ];
 
@@ -257,7 +299,7 @@ export default function MembersManagement() {
           </p>
           <button
             className="mt-4 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
-            onClick={() => queryClient.invalidateQueries(["jemaat"])}
+            onClick={() => queryClient.invalidateQueries(["jemaat-all"])}
           >
             Coba Lagi
           </button>
@@ -297,6 +339,17 @@ export default function MembersManagement() {
         searchPlaceholder="Cari nama, email, atau ID jemaat..."
         // Export Props
         exportable={true}
+      />
+
+      <ConfirmDialog
+        isOpen={confirm.isOpen}
+        onClose={confirm.hideConfirm}
+        onConfirm={confirm.handleConfirm}
+        title={confirm.config.title}
+        message={confirm.config.message}
+        confirmText={confirm.config.confirmText}
+        cancelText={confirm.config.cancelText}
+        variant={confirm.config.variant}
       />
     </>
   );

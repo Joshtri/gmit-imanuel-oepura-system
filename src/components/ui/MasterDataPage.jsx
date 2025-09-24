@@ -32,22 +32,25 @@ export default function MasterDataPage({
   const [editItem, setEditItem] = useState(null);
   const [showCreate, setShowCreate] = useState(false);
 
+  // Load all available data without pagination
   const { data, isLoading } = useQuery({
-    queryKey: [queryKey],
-    queryFn: () => service.get(),
+    queryKey: [queryKey, "all-data"],
+    queryFn: () => service.get(), // Get all data without pagination parameters
     staleTime: 5 * 60 * 1000,
   });
 
   const deleteMutation = useMutation({
     mutationFn: async (id) => {
       const result = await service.delete(id);
+
       if (!result.success) {
         throw new Error(result.message);
       }
+
       return result;
     },
     onSuccess: (result) => {
-      queryClient.invalidateQueries({ queryKey: [queryKey] });
+      queryClient.invalidateQueries({ queryKey: [queryKey, "all-data"] });
       toast.success(result.message || `${title} berhasil dihapus`);
       setDeleteItem(null);
     },
@@ -59,13 +62,15 @@ export default function MasterDataPage({
   const updateMutation = useMutation({
     mutationFn: async ({ id, data }) => {
       const result = await service.update(id, data);
+
       if (!result.success) {
         throw new Error(result.message);
       }
+
       return result;
     },
     onSuccess: (result) => {
-      queryClient.invalidateQueries({ queryKey: [queryKey] });
+      queryClient.invalidateQueries({ queryKey: [queryKey, "all-data"] });
       toast.success(result.message || `${title} berhasil diperbarui`);
       setEditItem(null);
     },
@@ -77,13 +82,15 @@ export default function MasterDataPage({
   const createMutation = useMutation({
     mutationFn: async (data) => {
       const result = await service.create(data);
+
       if (!result.success) {
         throw new Error(result.message);
       }
+
       return result;
     },
     onSuccess: (result) => {
-      queryClient.invalidateQueries({ queryKey: [queryKey] });
+      queryClient.invalidateQueries({ queryKey: [queryKey, "all-data"] });
       toast.success(result.message || `${title} berhasil ditambahkan`);
       setShowCreate(false);
     },
@@ -97,9 +104,13 @@ export default function MasterDataPage({
       <ListGrid
         breadcrumb={breadcrumb}
         columns={columns}
-        data={data?.data?.items || []}
+        data={Array.isArray(data?.data) ? data.data : data?.data?.items || []}
         description={description}
+        exportFilename={title?.toLowerCase().replace(/\s+/g, "-")}
+        exportable={exportable}
+        filters={filterFields}
         isLoading={isLoading}
+        itemsPerPage={8}
         rowActionType="horizontal"
         rowActions={[
           {
@@ -121,12 +132,10 @@ export default function MasterDataPage({
             tooltip: "Hapus data",
           },
         ]}
+        searchPlaceholder={`Cari ${title.toLowerCase()}...`}
+        searchable={searchFields.length > 0}
         title={title}
         onAdd={() => setShowCreate(true)}
-        exportable={exportable}
-        exportFilename={title?.toLowerCase().replace(/\s+/g, '-')}
-        filters={filterFields}
-        searchFields={searchFields}
       />
 
       <ConfirmDialog

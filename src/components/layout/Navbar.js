@@ -1,22 +1,34 @@
+import { Home, LogOut, User } from "lucide-react";
+import Link from "next/link";
+import { useRouter } from "next/router";
+
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/lib/supabaseClient";
-import Link from "next/link";
 
-export default function Navbar({ menuItems, uppItems = [], uppLoading = false }) {
+export default function Navbar({
+  menuItems,
+  uppItems = [],
+  uppLoading = false,
+}) {
   const authContext = useAuth();
   const { user, logout } = authContext || {};
+  const router = useRouter();
+
+  // Check if current route is a role-based dashboard page
+  const isInDashboard =
+    router.pathname.startsWith("/admin") ||
+    router.pathname.startsWith("/jemaat") ||
+    router.pathname.startsWith("/majelis") ||
+    router.pathname.startsWith("/employee");
 
   return (
     <div className="hidden flex-none lg:block">
       <ul className="menu menu-horizontal items-center">
         {menuItems.map((item) => (
-          <li
-            key={item.name}
-            className="flex items-center"
-          >
+          <li key={item.name} className="flex items-center">
             <a
-              href={item.path}
               className="flex items-center text-white hover:text-blue-200 dark:hover:text-blue-300 transition-colors duration-200"
+              href={item.path}
             >
               {item.name}
             </a>
@@ -31,49 +43,72 @@ export default function Navbar({ menuItems, uppItems = [], uppLoading = false })
             <ul className="bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 rounded-t-none p-2 dropdown-content right-0 mt-3 w-40 shadow-lg border border-gray-200 dark:border-gray-700 transition-colors duration-300">
               {uppLoading ? (
                 <li className="text-center py-2">
-                  <span className="loading loading-spinner loading-sm"></span>
+                  <span className="loading loading-spinner loading-sm" />
                 </li>
               ) : uppItems.length > 0 ? (
                 uppItems.map((item) => (
                   <li key={item.id}>
                     <Link
-                      href={`/upp/${item.nama.toLowerCase().replace(/\s+/g, "-")}`}
                       className="hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-blue-600 dark:hover:text-blue-400 transition-colors duration-200"
+                      href={`/upp/${item.nama.toLowerCase().replace(/\s+/g, "-")}`}
                     >
                       {item.nama}
                     </Link>
                   </li>
                 ))
               ) : (
-                <li className="text-center py-2 text-gray-500 dark:text-gray-400">No items available</li>
+                <li className="text-center py-2 text-gray-500 dark:text-gray-400">
+                  No items available
+                </li>
               )}
             </ul>
           </details>
         </li>
         {/* Profile Dropdown */}
+        {/* Profile Dropdown */}
         <li className="flex items-center">
           {user ? (
-            <details className="flex items-center">
-              <summary className="btn btn-ghost btn-circle avatar flex items-center hover:bg-white/10 dark:hover:bg-white/20 transition-colors duration-200">
-                <div className="w-10 rounded-full">
-                  <img
-                    alt="Profile"
-                    src="https://img.daisyui.com/images/stock/photo-1534528741775-53994a69daeb.webp"
-                  />
+            <details className="relative">
+              <summary className="btn btn-ghost btn-circle avatar flex items-center p-0 border-0">
+                <div className="w-10 h- rounded-full overflow-hidden bg-gray-300 dark:bg-gray-600 flex items-center justify-center">
+                  {user.avatar_url ? (
+                    <img
+                      alt="Profile"
+                      className="w-full h-full object-cover"
+                      src={user.avatar_url}
+                    />
+                  ) : (
+                    <User className="w-5 h-5 text-white" />
+                  )}
                 </div>
               </summary>
-              <ul className="bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 rounded-t-none p-2 dropdown-content right-0 mt-3 w-52 shadow-lg border border-gray-200 dark:border-gray-700 transition-colors duration-300">
+
+              <ul className="menu menu-sm absolute right-0 mt-3 z-[1000] w-60 md:w-64 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700">
+                {!isInDashboard && (
+                  <li>
+                    <Link
+                      className="flex items-center hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-blue-600 dark:hover:text-blue-400 transition-colors duration-200"
+                      href={`/${user?.role?.toLowerCase() || "admin"}/dashboard`}
+                    >
+                      <Home className="w-4 h-4 mr-2" />
+                      Kembali ke Dashboard
+                    </Link>
+                  </li>
+                )}
+
                 <li>
                   <Link
-                    className="justify-between hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-blue-600 dark:hover:text-blue-400 transition-colors duration-200"
-                    href="/user"
+                    className="flex items-center hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-blue-600 dark:hover:text-blue-400 transition-colors duration-200"
+                    href={`/${user?.role?.toLowerCase() || "admin"}/profile`}
                   >
-                    Profile
+                    <User className="w-4 h-4 mr-2" />
+                    Profil
                   </Link>
                 </li>
+
                 <li>
                   <a
-                    className="hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-red-600 dark:hover:text-red-400 transition-colors duration-200"
+                    className="flex items-center hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-red-600 dark:hover:text-red-400 transition-colors duration-200 cursor-pointer"
                     onClick={async () => {
                       if (logout) {
                         await logout();
@@ -82,7 +117,8 @@ export default function Navbar({ menuItems, uppItems = [], uppLoading = false })
                       }
                     }}
                   >
-                    Logout
+                    <LogOut className="w-4 h-4 mr-2" />
+                    Keluar
                   </a>
                 </li>
               </ul>

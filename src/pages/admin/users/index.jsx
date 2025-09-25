@@ -18,8 +18,8 @@ import ConfirmDialog from "@/components/ui/ConfirmDialog";
 import CreateModal from "@/components/ui/CreateModal";
 import EditModal from "@/components/ui/EditModal";
 import ListGrid from "@/components/ui/ListGrid";
-import ViewModal from "@/components/ui/ViewModal";
 import PhoneInput from "@/components/ui/PhoneInput";
+import ViewModal from "@/components/ui/ViewModal";
 import axios from "@/lib/axios";
 import jemaatService from "@/services/jemaatService";
 import keluargaService from "@/services/keluargaService";
@@ -65,10 +65,18 @@ export default function UsersPage() {
         // Fetch keluarga options
         const keluargaResponse = await keluargaService.getAll({ limit: 1000 });
         const keluargaOptions =
-          keluargaResponse.data?.items?.map((keluarga) => ({
-            value: keluarga.id,
-            label: `Bangunan ${keluarga.noBagungan} - ${keluarga.rayon?.namaRayon || "Rayon"}`,
-          })) || [];
+          keluargaResponse.data?.items?.map((keluarga) => {
+            const kepalaKeluarga = keluarga.jemaats?.find(
+              (j) => j.statusDalamKeluarga?.status === "Kepala Keluarga"
+            );
+            const displayName =
+              kepalaKeluarga?.nama || `Bangunan ${keluarga.noBagungan}`;
+
+            return {
+              value: keluarga.id,
+              label: `${displayName} - ${keluarga.rayon?.namaRayon || "Rayon"}`,
+            };
+          }) || [];
 
         setKeluargaOptions(keluargaOptions);
       } catch (error) {

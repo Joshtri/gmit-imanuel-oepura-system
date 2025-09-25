@@ -240,14 +240,19 @@ export const roleConfigs = {
     navigation: [
       { href: "/majelis/dashboard", label: "Dashboard", icon: Home },
       {
-        href: "/majelis/jadwal-ibadah",
-        label: "Jadwal Ibadah",
-        icon: Calendar,
+        href: "/majelis/jemaat",
+        label: "Data Jemaat",
+        icon: Users,
       },
       {
         href: "/majelis/keluarga",
         label: "Data Keluarga",
         icon: UsersRound,
+      },
+      {
+        href: "/majelis/jadwal-ibadah",
+        label: "Jadwal Ibadah",
+        icon: Calendar,
       },
       {
         href: "/majelis/pengumuman",

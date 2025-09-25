@@ -269,7 +269,25 @@ function MajelisDashboard() {
                       Data Keluarga
                     </p>
                     <p className="text-xs text-gray-500 dark:text-gray-400">
-                      Lihat data keluarga di rayon
+                      Kelola data keluarga di rayon
+                    </p>
+                  </div>
+                </button>
+              </div>
+
+              {/* Second row of quick actions */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+                <button
+                  className="flex items-center p-4 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 hover:border-indigo-300 dark:hover:border-indigo-500 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                  onClick={() => handleNavigateTo("/majelis/jemaat")}
+                >
+                  <Users className="h-6 w-6 text-indigo-600 dark:text-indigo-400 mr-3" />
+                  <div className="text-left">
+                    <p className="text-sm font-medium text-gray-900 dark:text-white">
+                      Data Jemaat
+                    </p>
+                    <p className="text-xs text-gray-500 dark:text-gray-400">
+                      Kelola data jemaat di rayon
                     </p>
                   </div>
                 </button>

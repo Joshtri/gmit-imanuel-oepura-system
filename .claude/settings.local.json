@@ -61,7 +61,10 @@
       "Bash(cd:*)",
       "Bash(npm run build:*)",
       "Bash(echo \"\"ESLint errors found\"\")",
-      "Bash(npx tailwindcss:*)"
+      "Bash(npx tailwindcss:*)",
+      "Bash(git remote add:*)",
+      "Bash(git fetch:*)",
+      "Bash(git pull:*)"
     ],
     "deny": [],
     "ask": []

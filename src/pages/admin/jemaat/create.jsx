@@ -173,13 +173,19 @@ export default function CreateJemaat() {
     })) || [];
 
   const keluargaListOptions =
-    keluargaList?.data?.items?.map((item) => ({
-      value: item.id,
-      label: `${item.rayon?.namaRayon} - ${item.noBagungan}`,
-    })) || [];
+    keluargaList?.data?.items?.map((item) => {
+      const kepalaKeluarga = item.jemaats?.find(j =>
+        j.statusDalamKeluarga?.status?.toLowerCase().includes('kepala')
+      );
+      const kepalaName = kepalaKeluarga?.nama || 'Belum ada kepala keluarga';
+      return {
+        value: item.id,
+        label: `${kepalaName} - No. ${item.noBagungan} (${item.rayon?.namaRayon})`,
+      };
+    }) || [];
 
   const sukuOptions =
-    suku?.data?.items?.map((item) => ({
+    suku?.data?.map((item) => ({
       value: item.id,
       label: item.namaSuku,
     })) || [];

@@ -453,6 +453,17 @@ const masterService = {
     return res.data;
   },
 
+  getKeluargaByRayon: async (rayonId, params = {}) => {
+    const res = await axios.get("/keluarga", {
+      params: {
+        ...params,
+        idRayon: rayonId
+      }
+    });
+
+    return res.data;
+  },
+
   // =================== RAYON ===================
   getRayon: async (params = {}) => {
     const res = await axios.get("/rayon", { params });
@@ -616,6 +627,32 @@ const masterService = {
     const res = await axios.delete(`/jenis-pengumuman/${id}`);
 
     return res.data;
+  },
+
+  // =================== PERNIKAHAN ===================
+
+  getPernikahan: async (params = {}) => {
+    const res = await axios.get("/pernikahan", { params });
+
+    return res.data;
+  },
+
+  getPernikahanById: async (id) => {
+    const res = await axios.get(`/pernikahan/${id}`);
+
+    return res.data;
+  },
+
+  createPernikahan: async (data) => {
+    return handleApiCall(() => axios.post("/pernikahan", data));
+  },
+
+  updatePernikahan: async (id, data) => {
+    return handleApiCall(() => axios.patch(`/pernikahan/${id}`, data));
+  },
+
+  deletePernikahan: async (id) => {
+    return handleApiCall(() => axios.delete(`/pernikahan/${id}`));
   },
 };
 

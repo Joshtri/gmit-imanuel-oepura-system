@@ -1,9 +1,10 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/router";
-import { useAuth } from "@/contexts/AuthContext";
-import authService from "@/services/authService";
 import { Eye, EyeOff, User, Lock, LogIn } from "lucide-react";
 import { toast } from "sonner";
+
+import { useAuth } from "@/contexts/AuthContext";
+import authService from "@/services/authService";
 
 export default function LoginPage() {
   const [showPassword, setShowPassword] = useState(false);
@@ -20,12 +21,14 @@ export default function LoginPage() {
   useEffect(() => {
     if (isAuthenticated && user) {
       const redirectUrl = authService.getRoleRedirectUrl(user.role);
+
       router.push(redirectUrl);
     }
   }, [isAuthenticated, user, router]);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
+
     setFormData((prev) => ({
       ...prev,
       [name]: value,
@@ -37,6 +40,7 @@ export default function LoginPage() {
 
     if (!formData.identifier.trim() || !formData.password.trim()) {
       toast.error("Email/Username dan password wajib diisi");
+
       return;
     }
 
@@ -64,7 +68,9 @@ export default function LoginPage() {
           <h2 className="text-3xl font-bold text-gray-900 dark:text-gray-100">
             GMIT Imanuel Oepura
           </h2>
-          <p className="mt-2 text-sm text-gray-600 dark:text-gray-400">Masuk ke akun Anda</p>
+          <p className="mt-2 text-sm text-gray-600 dark:text-gray-400">
+            Masuk ke akun Anda
+          </p>
         </div>
 
         {/* Login Form */}
@@ -73,8 +79,8 @@ export default function LoginPage() {
             {/* Email/Username Input */}
             <div>
               <label
-                htmlFor="identifier"
                 className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
+                htmlFor="identifier"
               >
                 Email atau Username
               </label>
@@ -83,16 +89,16 @@ export default function LoginPage() {
                   <User className="h-5 w-5 text-gray-400 dark:text-gray-500" />
                 </div>
                 <input
+                  required
+                  autoComplete="username"
+                  className="appearance-none relative block w-full pl-10 pr-3 py-3 border border-gray-300 dark:border-gray-600 placeholder-gray-500 dark:placeholder-gray-400 text-gray-900 dark:text-gray-100 bg-white dark:bg-gray-800 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm transition-colors"
+                  disabled={isLoading}
                   id="identifier"
                   name="identifier"
+                  placeholder="Masukkan email atau username"
                   type="text"
-                  autoComplete="username"
-                  required
                   value={formData.identifier}
                   onChange={handleInputChange}
-                  className="appearance-none relative block w-full pl-10 pr-3 py-3 border border-gray-300 dark:border-gray-600 placeholder-gray-500 dark:placeholder-gray-400 text-gray-900 dark:text-gray-100 bg-white dark:bg-gray-800 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm transition-colors"
-                  placeholder="Masukkan email atau username"
-                  disabled={isLoading}
                 />
               </div>
             </div>
@@ -100,8 +106,8 @@ export default function LoginPage() {
             {/* Password Input */}
             <div>
               <label
-                htmlFor="password"
                 className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
+                htmlFor="password"
               >
                 Password
               </label>
@@ -110,23 +116,25 @@ export default function LoginPage() {
                   <Lock className="h-5 w-5 text-gray-400 dark:text-gray-500" />
                 </div>
                 <input
+                  required
+                  autoComplete="current-password"
+                  className="appearance-none relative block w-full pl-10 pr-12 py-3 border border-gray-300 dark:border-gray-600 placeholder-gray-500 dark:placeholder-gray-400 text-gray-900 dark:text-gray-100 bg-white dark:bg-gray-800 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm transition-colors"
+                  disabled={isLoading}
                   id="password"
                   name="password"
+                  placeholder="Masukkan password"
                   type={showPassword ? "text" : "password"}
-                  autoComplete="current-password"
-                  required
                   value={formData.password}
                   onChange={handleInputChange}
-                  className="appearance-none relative block w-full pl-10 pr-12 py-3 border border-gray-300 dark:border-gray-600 placeholder-gray-500 dark:placeholder-gray-400 text-gray-900 dark:text-gray-100 bg-white dark:bg-gray-800 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm transition-colors"
-                  placeholder="Masukkan password"
-                  disabled={isLoading}
                 />
                 <button
-                  type="button"
+                  aria-label={
+                    showPassword ? "Sembunyikan password" : "Tampilkan password"
+                  }
                   className="absolute inset-y-0 right-0 pr-2 flex items-center hover:bg-gray-100 dark:hover:bg-gray-700 rounded-r-md transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-inset"
-                  onClick={togglePasswordVisibility}
                   disabled={isLoading}
-                  aria-label={showPassword ? "Sembunyikan password" : "Tampilkan password"}
+                  type="button"
+                  onClick={togglePasswordVisibility}
                 >
                   <div className="p-1">
                     {showPassword ? (
@@ -142,13 +150,13 @@ export default function LoginPage() {
             {/* Submit Button */}
             <div>
               <button
-                type="submit"
-                disabled={isLoading}
                 className="group relative w-full flex justify-center py-3 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-200"
+                disabled={isLoading}
+                type="submit"
               >
                 {isLoading ? (
                   <>
-                    <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2"></div>
+                    <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2" />
                     Memproses...
                   </>
                 ) : (

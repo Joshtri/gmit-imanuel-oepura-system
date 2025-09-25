@@ -1,12 +1,10 @@
-import WeeklySummary from "@/components/home/cta/weeklySummary";
 import JoinUs from "@/components/home/cta/joinUs";
-import ScheduleRow from "@/components/home/schedule/scheduleRow";
-import OurLocation from "@/components/home/ourLocation";
-import ChurchStatistics from "@/components/home/statistics/churchStatistics";
-
-import { ctaTexts, schedules } from "@/json/dummyHome";
-import ChurchStatisticsHorizontal from "@/components/home/statistics/churchStatisticsHorizontal";
+import WeeklySummary from "@/components/home/cta/weeklySummary";
 import NewsRow from "@/components/home/newsRow";
+import OurLocation from "@/components/home/ourLocation";
+import ScheduleRow from "@/components/home/schedule/scheduleRow";
+import ChurchStatistics from "@/components/home/statistics/churchStatistics";
+import ChurchStatisticsHorizontal from "@/components/home/statistics/churchStatisticsHorizontal";
 
 export default function Home() {
   return (
@@ -16,9 +14,9 @@ export default function Home() {
         {/* Hero Section */}
         <div className="relative flex justify-start items-center h-screen">
           <img
-            src="/header/home.jpg"
             alt="Home Head"
             className="object-cover w-full h-full"
+            src="/header/home.jpg"
           />
           <div className="absolute flex flex-col p-8">
             <p className="text-white text-2xl font-bold">Welcome to</p>
@@ -45,25 +43,22 @@ export default function Home() {
 
         <div className="relative min-h-fit">
           <img
-            src="/header/home.jpg"
             alt="Home Head"
             className="absolute inset-0 object-cover w-full h-full"
+            src="/header/home.jpg"
           />
           <div className="relative z-10 flex flex-col w-full p-4">
-            <ScheduleRow 
-              jenisIbadah="Cell Group/Kelompok Kecil" 
-              title="Jadwal Cell Group" 
-              limit={4} 
+            <ScheduleRow
+              jenisIbadah="Cell Group/Kelompok Kecil"
+              limit={4}
+              title="Jadwal Cell Group"
             />
-            <ScheduleRow 
-              kategori="Keluarga" 
-              title="Jadwal Ibadah Keluarga" 
-              limit={6} 
+            <ScheduleRow
+              kategori="Keluarga"
+              limit={6}
+              title="Jadwal Ibadah Keluarga"
             />
-            <ScheduleRow 
-              title="Semua Jadwal Ibadah" 
-              limit={4} 
-            />
+            <ScheduleRow limit={4} title="Semua Jadwal Ibadah" />
           </div>
         </div>
 
@@ -82,9 +77,9 @@ export default function Home() {
           {/* Hero */}
           <div className="relative flex justify-start items-center h-screen">
             <img
-              src="/header/home.jpg"
               alt="Home Head"
               className="object-cover w-full h-full"
+              src="/header/home.jpg"
             />
             <div className="absolute flex flex-col p-16">
               <p className="text-white text-4xl font-bold">Welcome to</p>
@@ -112,25 +107,22 @@ export default function Home() {
           {/* Schedule */}
           <div className="relative min-h-fit">
             <img
-              src="/header/home.jpg"
               alt="Home Head"
               className="absolute inset-0 object-cover w-full h-full"
+              src="/header/home.jpg"
             />
             <div className="relative z-10 flex flex-col w-full p-8">
-              <ScheduleRow 
-                jenisIbadah="Cell Group/Kelompok Kecil" 
-                title="Jadwal Cell Group" 
-                limit={4} 
+              <ScheduleRow
+                jenisIbadah="Cell Group/Kelompok Kecil"
+                limit={4}
+                title="Jadwal Cell Group"
               />
-              <ScheduleRow 
-                kategori="Keluarga" 
-                title="Jadwal Ibadah Keluarga" 
-                limit={6} 
+              <ScheduleRow
+                kategori="Keluarga"
+                limit={6}
+                title="Jadwal Ibadah Keluarga"
               />
-              <ScheduleRow 
-                title="Semua Jadwal Ibadah" 
-                limit={4} 
-              />
+              <ScheduleRow limit={4} title="Semua Jadwal Ibadah" />
             </div>
           </div>
 

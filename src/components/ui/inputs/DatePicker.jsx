@@ -38,7 +38,7 @@ const DatePicker = forwardRef(function DatePicker(
     const { control } = formContext;
     const {
       field,
-    fieldState: { error },
+      fieldState: { error },
     } = useController({ name, control });
 
     const handleChange = (e) => {

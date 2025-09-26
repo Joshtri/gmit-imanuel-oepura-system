@@ -62,6 +62,16 @@ export default function Document() {
         <link color="#5bbad5" href="/safari-pinned-tab.svg" rel="mask-icon" />
         <link href="/favicon.ico" rel="shortcut icon" />
 
+        {/* Preload critical resources for better LCP */}
+        <link rel="preload" href="/header/f92411b3.webp" as="image" type="image/webp" />
+        <link rel="preload" href="/logo-GMIT.png" as="image" type="image/png" />
+
+        {/* DNS prefetch for external domains */}
+        <link rel="dns-prefetch" href="//beta.ourmanna.com" />
+
+        {/* Preconnect to external origins */}
+        <link rel="preconnect" href="https://beta.ourmanna.com" />
+
         <meta content="summary" name="twitter:card" />
         <meta content="https://www.gmitjio-oepura.org" name="twitter:url" />
         <meta content="GMIT Imanuel Oepura" name="twitter:title" />

@@ -728,3 +728,12 @@ enum StatusTransaksi {
 //   @@unique([periodeId, itemKeuanganId, tahun, bulan], name: "unique_rekap")
 //   @@map("rekap_keuangan")
 // }
+
+//generally useful for storing document metadata
+// model Documents{
+//   id        String   @id @default(dbgenerated("concat('doc_', gen_random_uuid())")) @db.VarChar(80)
+//   title     String   @db.VarChar(255)
+//   content   String   @db.Text
+//   createdAt DateTime @default(now()) @map("created_at")
+//   updatedAt DateTime @updatedAt @map("updated_at")
+// }

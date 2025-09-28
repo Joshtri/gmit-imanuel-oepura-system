@@ -73,6 +73,11 @@ export const roleConfigs = {
         icon: Heart,
       },
       { href: "/admin/keuangan", label: "Keuangan", icon: DollarSign },
+      {
+        href: "/admin/keuangan/realisasi",
+        label: "Realisasi Keuangan ",
+        icon: List,
+      },
       { href: "/admin/laporan", label: "Laporan", icon: FileText },
       {
         href: "/admin/data-master",
@@ -235,7 +240,8 @@ export const roleConfigs = {
   majelis: {
     roleTitle: "Majelis",
     fullTitle: "JIO | Majelis",
-    description: "Sistem manajemen untuk majelis gereja dalam mengawasi dan mengelola kegiatan pelayanan.",
+    description:
+      "Sistem manajemen untuk majelis gereja dalam mengawasi dan mengelola kegiatan pelayanan.",
     baseRoute: "/majelis",
     dashboardRoute: "/majelis/dashboard",
     logoIcon: Building2,
@@ -288,7 +294,8 @@ export const roleConfigs = {
   employee: {
     roleTitle: "Pegawai",
     fullTitle: "JIO | Pegawai",
-    description: "Sistem untuk pegawai gereja dalam mengelola tugas harian dan koordinasi pelayanan.",
+    description:
+      "Sistem untuk pegawai gereja dalam mengelola tugas harian dan koordinasi pelayanan.",
     baseRoute: "/employee",
     dashboardRoute: "/employee/dashboard",
     logoIcon: UserPlus,

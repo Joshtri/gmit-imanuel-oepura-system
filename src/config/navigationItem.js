@@ -180,7 +180,7 @@ export const roleConfigs = {
           },
           {
             href: "/admin/data-master/keuangan/item",
-            label: "Item Keuangan",
+            label: "Rancangan Item Keuangan",
             icon: List,
           },
           {

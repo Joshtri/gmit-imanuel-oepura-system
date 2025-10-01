@@ -1,15 +1,81 @@
-import { Briefcase, Calendar, Clock, FileText, User } from "lucide-react";
+import { Briefcase, Calendar, FileText, Loader2, User } from "lucide-react";
 import { useRouter } from "next/router";
+import { useEffect, useState } from "react";
 
 import ProtectedRoute from "@/components/auth/ProtectedRoute";
-import { useAuth } from "@/contexts/AuthContext";
-import { getRoleConfig } from "@/config/navigationItem";
 import DailyVerse from "@/components/dashboard/DailyVerse";
+import { getRoleConfig } from "@/config/navigationItem";
+import { useAuth } from "@/contexts/AuthContext";
+import axios from "@/lib/axios";
 
 function EmployeeDashboard() {
   const { user } = useAuth();
   const router = useRouter();
-  const employeeConfig = getRoleConfig('employee');
+  const employeeConfig = getRoleConfig("employee");
+
+  const [dashboardData, setDashboardData] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    const fetchDashboardData = async () => {
+      try {
+        setLoading(true);
+        const response = await axios.get("/dashboard/employee");
+
+        if (response.data.success) {
+          setDashboardData(response.data.data);
+        } else {
+          setError(response.data.message || "Gagal mengambil data dashboard");
+        }
+      } catch (err) {
+        console.error("Error fetching dashboard data:", err);
+        setError(
+          err.response?.data?.message ||
+            "Terjadi kesalahan saat mengambil data dashboard"
+        );
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchDashboardData();
+  }, []);
+
+  if (loading) {
+    return (
+      <ProtectedRoute allowedRoles="EMPLOYEE">
+        <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex items-center justify-center">
+          <div className="flex items-center space-x-3">
+            <Loader2 className="h-6 w-6 animate-spin text-orange-600 dark:text-orange-400" />
+            <span className="text-gray-700 dark:text-gray-300">
+              Memuat data dashboard...
+            </span>
+          </div>
+        </div>
+      </ProtectedRoute>
+    );
+  }
+
+  if (error) {
+    return (
+      <ProtectedRoute allowedRoles="EMPLOYEE">
+        <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex items-center justify-center">
+          <div className="text-center p-6 bg-white dark:bg-gray-800 rounded-lg shadow">
+            <p className="text-red-600 dark:text-red-400 mb-4">{error}</p>
+            <button
+              className="px-4 py-2 bg-orange-600 text-white rounded hover:bg-orange-700 transition-colors"
+              onClick={() => window.location.reload()}
+            >
+              Coba Lagi
+            </button>
+          </div>
+        </div>
+      </ProtectedRoute>
+    );
+  }
+
+  const { statistics } = dashboardData;
 
   return (
     <ProtectedRoute allowedRoles="EMPLOYEE">
@@ -143,7 +209,7 @@ function EmployeeDashboard() {
                         Data Baptis
                       </dt>
                       <dd className="text-lg font-medium text-gray-900 dark:text-white">
-                        45
+                        {statistics?.totalBaptis || 0}
                       </dd>
                     </dl>
                   </div>
@@ -163,7 +229,7 @@ function EmployeeDashboard() {
                         Data Sidi
                       </dt>
                       <dd className="text-lg font-medium text-gray-900 dark:text-white">
-                        23
+                        {statistics?.totalSidi || 0}
                       </dd>
                     </dl>
                   </div>
@@ -183,7 +249,7 @@ function EmployeeDashboard() {
                         Data Pernikahan
                       </dt>
                       <dd className="text-lg font-medium text-gray-900 dark:text-white">
-                        12
+                        {statistics?.totalPernikahan || 0}
                       </dd>
                     </dl>
                   </div>
@@ -203,7 +269,7 @@ function EmployeeDashboard() {
                         Data Atestasi
                       </dt>
                       <dd className="text-lg font-medium text-gray-900 dark:text-white">
-                        8
+                        {statistics?.totalAtestasi || 0}
                       </dd>
                     </dl>
                   </div>
@@ -225,10 +291,14 @@ function EmployeeDashboard() {
               </h3>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 {employeeConfig.navigation
-                  .filter(item => !item.children && item.href !== '/employee/dashboard')
+                  .filter(
+                    (item) =>
+                      !item.children && item.href !== "/employee/dashboard"
+                  )
                   .slice(0, 3)
                   .map((item) => {
                     const IconComponent = item.icon;
+
                     return (
                       <button
                         key={item.href}

@@ -1,22 +1,26 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
+  Download,
   Edit,
   Eye,
+  FileSpreadsheet,
   Mail,
   MessageCircle,
   Phone,
   Send,
   Trash2,
+  Upload,
   User,
   UserCheck,
   UserX,
 } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { toast } from "sonner";
 
 import ConfirmDialog from "@/components/ui/ConfirmDialog";
 import CreateModal from "@/components/ui/CreateModal";
 import EditModal from "@/components/ui/EditModal";
+import AutoCompleteInput from "@/components/ui/inputs/AutoCompleteInput";
 import ListGrid from "@/components/ui/ListGrid";
 import PhoneInput from "@/components/ui/PhoneInput";
 import ViewModal from "@/components/ui/ViewModal";
@@ -42,6 +46,12 @@ export default function UsersPage() {
   const [selectedUserForAccountData, setSelectedUserForAccountData] =
     useState(null);
   const [pageSize, setPageSize] = useState(10);
+  const [showImportModal, setShowImportModal] = useState(false);
+  const [importFile, setImportFile] = useState(null);
+  const [importResults, setImportResults] = useState(null);
+  const fileInputRef = useRef(null);
+  // const [showAssignRayonModal, setShowAssignRayonModal] = useState(false);
+  // const [selectedUserForRayon, setSelectedUserForRayon] = useState(null);
 
   // Fetch users data
   const { data, isLoading, error } = useQuery({
@@ -84,7 +94,7 @@ export default function UsersPage() {
         setKeluargaOptions(keluargaOptions);
 
         // Fetch rayon options
-        const rayonResponse = await rayonService.getAll({ limit: 1000 });
+        const rayonResponse = await rayonService.getRayon({ limit: 1000 });
         const rayonOptions =
           rayonResponse.data?.items?.map((rayon) => ({
             value: rayon.id,
@@ -177,6 +187,33 @@ export default function UsersPage() {
       render: (value) => value?.nama || "-",
     },
     {
+      key: "rayon",
+      label: "Rayon",
+      type: "text",
+      render: (value, row) => {
+        const rayonName = row.rayon?.namaRayon;
+
+        // Hanya tampilkan badge "Belum di-assign" untuk role JEMAAT
+        if (!rayonName) {
+          if (row.role === "JEMAAT") {
+            return (
+              <span className="px-2 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800">
+                Belum di-assign
+              </span>
+            );
+          }
+
+          return <span className="text-sm text-gray-500">-</span>;
+        }
+
+        return (
+          <span className="text-sm text-gray-700 dark:text-gray-100">
+            {rayonName}
+          </span>
+        );
+      },
+    },
+    {
       key: "jenisKelamin",
       label: "Jenis Kelamin",
       type: "text",
@@ -256,56 +293,72 @@ export default function UsersPage() {
     },
   ];
 
-  const formFields = [
-    {
-      key: "username",
-      label: "Username",
-      type: "text",
-      required: true,
-      placeholder: "Masukkan username (unik)",
-    },
-    {
-      key: "email",
-      label: "Email",
-      type: "email",
-      required: true,
-      placeholder: "Masukkan email user",
-    },
-    {
-      key: "noWhatsapp",
-      label: "No. WhatsApp",
-      type: "tel",
-      required: false,
-      placeholder: "Masukkan nomor WhatsApp (opsional)",
-    },
-    {
-      key: "password",
-      label: "Password",
-      type: "password",
-      required: true,
-      placeholder: "Masukkan password",
-    },
-    {
-      key: "role",
-      label: "Role",
-      type: "select",
-      required: true,
-      options: [
-        { value: "ADMIN", label: "Admin" },
-        { value: "JEMAAT", label: "Jemaat" },
-        { value: "MAJELIS", label: "Majelis" },
-        { value: "PENDETA", label: "Pendeta" },
-        { value: "EMPLOYEE", label: "Pegawai" },
-      ],
-    },
-    {
-      key: "idJemaat",
-      label: "Pilih Jemaat (Opsional)",
-      type: "select",
-      options: jemaatOptions,
-      placeholder: "Pilih jemaat jika role = JEMAAT",
-    },
-  ];
+  const formFields = useMemo(
+    () => [
+      {
+        key: "username",
+        label: "Username",
+        type: "text",
+        required: true,
+        placeholder: "Masukkan username (unik)",
+      },
+      {
+        key: "email",
+        label: "Email",
+        type: "email",
+        required: true,
+        placeholder: "Masukkan email user",
+      },
+      {
+        key: "noWhatsapp",
+        label: "No. WhatsApp",
+        type: "tel",
+        required: false,
+        placeholder: "Masukkan nomor WhatsApp (opsional)",
+      },
+      {
+        key: "password",
+        label: "Password",
+        type: "password",
+        required: true,
+        placeholder: "Default: oepura78",
+        defaultValue: "oepura78",
+        description:
+          "Default password: oepura78. User dapat mengubahnya setelah login.",
+      },
+      {
+        key: "role",
+        label: "Role",
+        type: "select",
+        required: true,
+        options: [
+          { value: "ADMIN", label: "Admin" },
+          { value: "JEMAAT", label: "Jemaat" },
+          { value: "MAJELIS", label: "Majelis" },
+          { value: "PENDETA", label: "Pendeta" },
+          { value: "EMPLOYEE", label: "Pegawai" },
+        ],
+      },
+      {
+        key: "idJemaat",
+        label: "Pilih Jemaat (Opsional)",
+        type: "select",
+        options: jemaatOptions,
+        placeholder: "Pilih jemaat jika role = JEMAAT",
+      },
+      {
+        key: "idRayon",
+        label: "Pilih Rayon",
+        type: "select",
+        required: false,
+        options: rayonOptions,
+        placeholder: "Pilih rayon untuk user ini (opsional)",
+        condition: (formData) =>
+          formData.role === "JEMAAT" || formData.role === "MAJELIS",
+      },
+    ],
+    [jemaatOptions, rayonOptions]
+  );
 
   // Format nomor WhatsApp dengan prefix +62
   const formatWhatsAppNumber = (number) => {
@@ -482,6 +535,140 @@ export default function UsersPage() {
     setShowAccountDataModal(true);
   };
 
+  const [showAssignRayonModal, setShowAssignRayonModal] = useState(false);
+  const [selectedUserForRayon, setSelectedUserForRayon] = useState(null);
+
+  // const assignRayonMutation = useMutation({
+  //   mutationFn: async ({ userId, idRayon }) => {
+  //     const response = await axios.patch(`/users/${userId}/rayon`, {
+  //       idRayon,
+  //     });
+
+  //     return response.data;
+  //   },
+  //   onSuccess: () => {
+  //     queryClient.invalidateQueries({ queryKey: ["users"] });
+  //     toast.success("Rayon berhasil ditetapkan!");
+  //     setShowAssignRayonModal(false);
+  //     setSelectedUserForRayon(null);
+  //   },
+  //   onError: (error) => {
+  //     console.error("Assign rayon error:", error);
+  //     toast.error(error?.response?.data?.message || "Gagal menetapkan rayon");
+  //   },
+  // });
+
+  // const handleAssignRayon = (user) => {
+  //   setSelectedUserForRayon(user);
+  //   setShowAssignRayonModal(true);
+  // };
+
+  // Assign rayon mutation
+  const assignRayonMutation = useMutation({
+    mutationFn: async ({ userId, idRayon }) => {
+      const response = await axios.post("/users/assign-rayon", {
+        userId,
+        idRayon,
+      });
+
+      return response.data;
+    },
+    onSuccess: (data) => {
+      queryClient.invalidateQueries({ queryKey: ["users"] });
+      toast.success(data.message || "Berhasil assign rayon ke user");
+      setShowAssignRayonModal(false);
+      setSelectedUserForRayon(null);
+    },
+    onError: (error) => {
+      console.error("Assign rayon error:", error);
+      toast.error(error?.response?.data?.message || "Gagal assign rayon");
+    },
+  });
+
+  const handleAssignRayon = (user) => {
+    setSelectedUserForRayon(user);
+    setShowAssignRayonModal(true);
+  };
+
+  // Handle template download
+  const handleDownloadTemplate = async () => {
+    try {
+      const response = await axios.get("/users/template", {
+        responseType: "blob",
+      });
+
+      const url = window.URL.createObjectURL(new Blob([response.data]));
+      const link = document.createElement("a");
+
+      link.href = url;
+      link.setAttribute("download", "template_import_users.xlsx");
+      document.body.appendChild(link);
+      link.click();
+      link.parentNode.removeChild(link);
+      window.URL.revokeObjectURL(url);
+
+      toast.success("Template berhasil diunduh");
+    } catch (error) {
+      console.error("Download template error:", error);
+      toast.error("Gagal mengunduh template");
+    }
+  };
+
+  // Handle import file selection
+  const handleFileSelect = (event) => {
+    const file = event.target.files[0];
+
+    if (file) {
+      setImportFile(file);
+    }
+  };
+
+  // Import mutation with 60 second timeout
+  const importMutation = useMutation({
+    mutationFn: async (file) => {
+      const formData = new FormData();
+
+      formData.append("file", file);
+
+      const response = await axios.post("/users/import", formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+        timeout: 60000, // 60 seconds timeout
+      });
+
+      return response.data;
+    },
+    onSuccess: (data) => {
+      queryClient.invalidateQueries({ queryKey: ["users"] });
+      setImportResults(data.data);
+      setShowImportModal(false);
+      setImportFile(null);
+
+      if (data.data.summary.failed === 0) {
+        toast.success(`Berhasil import ${data.data.summary.success} user`);
+      } else {
+        toast.warning(
+          `Import selesai: ${data.data.summary.success} berhasil, ${data.data.summary.failed} gagal`
+        );
+      }
+    },
+    onError: (error) => {
+      console.error("Import error:", error);
+      toast.error(error?.response?.data?.message || "Gagal import data user");
+    },
+  });
+
+  const handleImportSubmit = () => {
+    if (!importFile) {
+      toast.error("Pilih file Excel terlebih dahulu");
+
+      return;
+    }
+
+    importMutation.mutate(importFile);
+  };
+
   // Enhanced search function
   const enhancedSearch = (item, searchTerm) => {
     if (!searchTerm) return true;
@@ -495,49 +682,53 @@ export default function UsersPage() {
       (item.noWhatsapp || "").toLowerCase().includes(searchLower) ||
       (item.jemaat?.nama || "").toLowerCase().includes(searchLower) ||
       (item.role || "").toLowerCase().includes(searchLower) ||
-      (item.jemaat?.keluarga?.rayon?.namaRayon || "").toLowerCase().includes(searchLower)
+      (item.rayon?.namaRayon || "").toLowerCase().includes(searchLower)
     );
   };
 
   // Create filter options based on available data
-  const userFilters = [
-    {
-      key: "role",
-      label: "Semua Role",
-      options: [
-        { value: "ADMIN", label: "Admin" },
-        { value: "JEMAAT", label: "Jemaat" },
-        { value: "MAJELIS", label: "Majelis" },
-        { value: "PENDETA", label: "Pendeta" },
-        { value: "EMPLOYEE", label: "Pegawai" },
-      ],
-    },
-    {
-      key: "hasJemaat",
-      label: "Status Profil",
-      options: [
-        { value: "true", label: "Profil Lengkap" },
-        { value: "false", label: "Belum Lengkap" },
-      ],
-    },
-    {
-      key: "hasWhatsapp",
-      label: "Status WhatsApp",
-      options: [
-        { value: "true", label: "Ada WhatsApp" },
-        { value: "false", label: "Belum Ada WhatsApp" },
-      ],
-    },
-  ];
+  const userFilters = useMemo(() => {
+    const filters = [
+      {
+        key: "role",
+        label: "Semua Role",
+        options: [
+          { value: "ADMIN", label: "Admin" },
+          { value: "JEMAAT", label: "Jemaat" },
+          { value: "MAJELIS", label: "Majelis" },
+          { value: "PENDETA", label: "Pendeta" },
+          { value: "EMPLOYEE", label: "Pegawai" },
+        ],
+      },
+      {
+        key: "hasJemaat",
+        label: "Status Profil",
+        options: [
+          { value: "true", label: "Profil Lengkap" },
+          { value: "false", label: "Belum Lengkap" },
+        ],
+      },
+      {
+        key: "hasWhatsapp",
+        label: "Status WhatsApp",
+        options: [
+          { value: "true", label: "Ada WhatsApp" },
+          { value: "false", label: "Belum Ada WhatsApp" },
+        ],
+      },
+    ];
 
-  // Add rayon filter if rayon options are available
-  if (rayonOptions.length > 0) {
-    userFilters.push({
-      key: "rayonId",
-      label: "Semua Rayon",
-      options: rayonOptions,
-    });
-  }
+    // Add rayon filter if rayon options are available
+    if (rayonOptions.length > 0) {
+      filters.push({
+        key: "rayonId",
+        label: "Semua Rayon",
+        options: rayonOptions,
+      });
+    }
+
+    return filters;
+  }, [rayonOptions]);
 
   // Custom filter function
   const customFilterFunction = (item, filters) => {
@@ -549,12 +740,14 @@ export default function UsersPage() {
           return item.role === filterValue;
         case "hasJemaat":
           const hasJemaat = !!item.idJemaat;
+
           return hasJemaat.toString() === filterValue;
         case "hasWhatsapp":
           const hasWhatsapp = !!item.noWhatsapp;
+
           return hasWhatsapp.toString() === filterValue;
         case "rayonId":
-          return item.jemaat?.keluarga?.rayon?.id === filterValue;
+          return item.idRayon === filterValue;
         default:
           return item[filterKey] === filterValue;
       }
@@ -626,6 +819,20 @@ export default function UsersPage() {
         exportFilename="users"
         exportable={true}
         filters={userFilters}
+        headerActions={[
+          {
+            label: "Download Template",
+            icon: Download,
+            onClick: handleDownloadTemplate,
+            variant: "outline",
+          },
+          {
+            label: "Import Users",
+            icon: Upload,
+            onClick: () => setShowImportModal(true),
+            variant: "default",
+          },
+        ]}
         isLoading={isLoading}
         itemsPerPage={pageSize}
         pageSizeOptions={[10, 25, 50, 100]}
@@ -644,21 +851,29 @@ export default function UsersPage() {
             tooltip: "Edit user",
           },
           {
-            label: "Kirim Undangan WA",
+            label: "Kirim Self Onboarding",
             icon: MessageCircle,
             onClick: (item) => handleSendInvitation(item),
             variant: "outline",
-            tooltip: "Kirim Undangan WhatsApp",
+            tooltip: "Kirim Link Self Onboarding",
             condition: (item) =>
               item.role === "JEMAAT" && !item.idJemaat && item.noWhatsapp,
           },
           {
-            label: "Kirim Data Akun WA",
+            label: "Kirim Info Akun WA",
             icon: Send,
             onClick: (item) => handleSendAccountData(item),
             variant: "outline",
-            tooltip: "Kirim Data Akun via WhatsApp",
+            tooltip: "Kirim Info Akun via WhatsApp",
             condition: (item) => item.noWhatsapp,
+          },
+          {
+            label: "Atur Rayon",
+            icon: User,
+            onClick: (item) => handleAssignRayon(item),
+            variant: "outline",
+            tooltip: "Atur Rayon untuk User",
+            condition: (item) => item.role === "JEMAAT",
           },
           {
             label: "Hapus",
@@ -724,7 +939,7 @@ export default function UsersPage() {
 
       {/* Invitation Modal */}
       <CreateModal
-        description="Undangan akan dikirim melalui WhatsApp dengan link onboarding yang berlaku selama 7 hari."
+        description="Link self onboarding akan dikirim melalui WhatsApp yang berlaku selama 7 hari."
         fields={[
           {
             key: "userInfo",
@@ -746,15 +961,17 @@ export default function UsersPage() {
             key: "keluargaId",
             label: "Pilih Keluarga",
             type: "select",
-            required: true,
+            required: false,
             options: keluargaOptions,
-            placeholder: "Pilih keluarga untuk user ini",
+            placeholder: "Pilih keluarga untuk user ini (opsional)",
+            description:
+              "Kosongkan jika jemaat akan mencari sendiri dengan No. KK saat onboarding",
           },
         ]}
         isLoading={invitationMutation.isPending}
         isOpen={showInvitationModal}
-        submitLabel="Kirim Undangan"
-        title="Kirim Undangan WhatsApp"
+        submitLabel="Kirim Link"
+        title="Kirim Self Onboarding via WhatsApp"
         onClose={() => {
           setShowInvitationModal(false);
           setSelectedUserForInvitation(null);
@@ -771,11 +988,7 @@ export default function UsersPage() {
 
       {/* Account Data Modal */}
       <CreateModal
-        description={
-          selectedUserForAccountData?.role === "JEMAAT"
-            ? "Data akun akan dikirim bersama informasi kepala keluarga. User akan diminta memilih kepala keluarga saat pertama login dan melengkapi profil."
-            : "Data akun (username, email, password, role) akan dikirim melalui WhatsApp. Pastikan user segera mengganti password setelah login pertama."
-        }
+        description="Info akun (username, email) dan password default akan dikirim melalui WhatsApp. User dapat login dan segera mengganti password sesuai keinginan."
         fields={[
           {
             key: "userInfo",
@@ -794,28 +1007,11 @@ export default function UsersPage() {
             placeholder: "Masukkan nomor WhatsApp jika kosong",
             required: false,
           },
-          {
-            key: "tempPassword",
-            label: "Password Sementara",
-            type: "text",
-            placeholder: "Kosongkan untuk menggunakan 'Password123'",
-            description:
-              "Password yang akan dikirim ke user (default: Password123)",
-          },
-          {
-            key: "keluargaId",
-            label: "Pilih Kepala Keluarga",
-            type: "select",
-            required: selectedUserForAccountData?.role === "JEMAAT",
-            options: keluargaOptions,
-            placeholder: "Pilih kepala keluarga untuk jemaat ini",
-            condition: selectedUserForAccountData?.role === "JEMAAT",
-          },
         ]}
         isLoading={accountDataMutation.isPending}
         isOpen={showAccountDataModal}
-        submitLabel="Kirim Data Akun"
-        title="Kirim Data Akun via WhatsApp"
+        submitLabel="Kirim Info Akun"
+        title="Kirim Info Akun via WhatsApp"
         onClose={() => {
           setShowAccountDataModal(false);
           setSelectedUserForAccountData(null);
@@ -825,8 +1021,167 @@ export default function UsersPage() {
             userId: selectedUserForAccountData?.id,
             whatsappNumber:
               selectedUserForAccountData?.noWhatsapp || formData.whatsappNumber,
-            tempPassword: formData.tempPassword,
-            keluargaId: formData.keluargaId,
+          })
+        }
+      />
+
+      {/* Import Modal */}
+      <CreateModal
+        description="Upload file Excel untuk import data user. Download template terlebih dahulu untuk format yang benar."
+        fields={[
+          {
+            key: "fileInfo",
+            label: "File Excel",
+            type: "custom",
+            component: ({ value, onChange }) => (
+              <div className="space-y-4">
+                <div className="flex items-center gap-4">
+                  <input
+                    ref={fileInputRef}
+                    accept=".xlsx,.xls"
+                    className="hidden"
+                    type="file"
+                    onChange={handleFileSelect}
+                  />
+                  <button
+                    className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                    type="button"
+                    onClick={() => fileInputRef.current?.click()}
+                  >
+                    <FileSpreadsheet className="w-4 h-4" />
+                    Pilih File Excel
+                  </button>
+                  {importFile && (
+                    <span className="text-sm text-gray-600">
+                      {importFile.name}
+                    </span>
+                  )}
+                </div>
+                <div className="p-4 bg-blue-50 border border-blue-200 rounded-md">
+                  <p className="text-sm text-blue-800">
+                    <strong>Format Excel yang diperlukan:</strong>
+                  </p>
+                  <ul className="mt-2 text-sm text-blue-700 list-disc list-inside">
+                    <li>username - Username unik untuk login (wajib)</li>
+                    <li>email - Email unik untuk user (wajib)</li>
+                    <li>password - Password untuk user (wajib)</li>
+                    <li>noWhatsapp - Nomor WhatsApp (opsional)</li>
+                    <li>
+                      role - Role user: ADMIN, JEMAAT, MAJELIS, EMPLOYEE,
+                      PENDETA (wajib)
+                    </li>
+                  </ul>
+                </div>
+              </div>
+            ),
+          },
+        ]}
+        isLoading={importMutation.isPending}
+        isOpen={showImportModal}
+        submitLabel="Import Data"
+        title="Import Users dari Excel"
+        onClose={() => {
+          setShowImportModal(false);
+          setImportFile(null);
+        }}
+        onSubmit={handleImportSubmit}
+      />
+
+      {/* Import Results Modal */}
+      {importResults && (
+        <CreateModal
+          description={`Total: ${importResults.summary.total} | Berhasil: ${importResults.summary.success} | Gagal: ${importResults.summary.failed}`}
+          fields={[
+            {
+              key: "results",
+              label: "Hasil Import",
+              type: "custom",
+              component: () => (
+                <div className="space-y-4 max-h-96 overflow-y-auto">
+                  {importResults.summary.success > 0 && (
+                    <div className="p-4 bg-green-50 border border-green-200 rounded-md">
+                      <h4 className="font-medium text-green-800 mb-2">
+                        ✓ Berhasil ({importResults.summary.success})
+                      </h4>
+                      <div className="space-y-2">
+                        {importResults.successDetails.map((item, idx) => (
+                          <div
+                            key={idx}
+                            className="text-sm text-green-700 pl-4"
+                          >
+                            Baris {item.row}: {item.user.username} (
+                            {item.user.email})
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {importResults.summary.failed > 0 && (
+                    <div className="p-4 bg-red-50 border border-red-200 rounded-md">
+                      <h4 className="font-medium text-red-800 mb-2">
+                        ✗ Gagal ({importResults.summary.failed})
+                      </h4>
+                      <div className="space-y-2">
+                        {importResults.failedDetails.map((item, idx) => (
+                          <div key={idx} className="text-sm text-red-700 pl-4">
+                            <div className="font-medium">Baris {item.row}:</div>
+                            <div className="pl-4">
+                              Error: {item.error}
+                              <br />
+                              Data: {JSON.stringify(item.data)}
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              ),
+            },
+          ]}
+          isOpen={!!importResults}
+          submitLabel="Tutup"
+          title="Hasil Import Users"
+          onClose={() => setImportResults(null)}
+          onSubmit={() => setImportResults(null)}
+        />
+      )}
+
+      {/* Assign Rayon Modal */}
+      <CreateModal
+        description="Pilih rayon untuk mengaitkan user dengan rayon tertentu. Ini akan memudahkan dalam pengelolaan data berdasarkan wilayah."
+        fields={[
+          {
+            key: "userInfo",
+            label: "Informasi User",
+            type: "display",
+            value: selectedUserForRayon
+              ? `${selectedUserForRayon.username} (${selectedUserForRayon.email}) - ${selectedUserForRayon.role}`
+              : "-",
+          },
+          {
+            key: "idRayon",
+            label: "Pilih Rayon",
+            type: "custom",
+            component: AutoCompleteInput,
+            apiEndpoint: "/rayon/options",
+            required: true,
+            placeholder: "Ketik untuk mencari rayon...",
+          },
+        ]}
+        isLoading={assignRayonMutation.isPending}
+        isOpen={!!showAssignRayonModal}
+        submitLabel="Atur Rayon"
+        title="Atur Rayon untuk User"
+        onClose={() => {
+          setShowAssignRayonModal(false);
+          setSelectedUserForRayon(null);
+        }}
+        onSubmit={(formData) =>
+          assignRayonMutation.mutate({
+            userId: selectedUserForRayon?.id,
+            idRayon: formData.idRayon,
           })
         }
       />

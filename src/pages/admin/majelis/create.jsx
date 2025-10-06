@@ -211,11 +211,15 @@ export default function CreateMajelisPage() {
     try {
       setIsLoading(true);
 
-      // Format WhatsApp number if provided
-      const formattedData = {
-        ...data,
-        noWhatsapp: formatWhatsAppNumber(data.noWhatsapp),
-      };
+      // Clean up the data before sending
+      const formattedData = { ...data };
+
+      // Format WhatsApp number with +62 prefix
+      if (formattedData.noWhatsapp && formattedData.noWhatsapp !== "") {
+        formattedData.noWhatsapp = formatWhatsAppNumber(formattedData.noWhatsapp);
+      } else {
+        formattedData.noWhatsapp = null;
+      }
 
       // Clean up empty optional fields
       if (!formattedData.selesai) {
@@ -327,12 +331,13 @@ export default function CreateMajelisPage() {
                     Informasi Permission
                   </h3>
                   <p className="text-sm text-blue-700 dark:text-blue-200">
-                    <strong>Majelis Utama:</strong> Full akses (CRUD + kelola rayon) |
-                    <strong> Koordinator Rayon:</strong> View + kelola rayon |
-                    <strong> Majelis Biasa:</strong> View only
+                    <strong>Majelis Utama:</strong> Full akses (CRUD + kelola
+                    rayon) |<strong> Koordinator Rayon:</strong> View + kelola
+                    rayon |<strong> Majelis Biasa:</strong> View only
                   </p>
                   <p className="text-xs text-blue-600 dark:text-blue-300 mt-1">
-                    * Hanya boleh 1 Majelis Utama per rayon. Step ini opsional, bisa dilewati.
+                    * Hanya boleh 1 Majelis Utama per rayon. Step ini opsional,
+                    bisa dilewati.
                   </p>
                 </div>
               </div>
@@ -346,8 +351,8 @@ export default function CreateMajelisPage() {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <label className="flex items-center space-x-3 cursor-pointer p-3 border rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700">
                     <input
-                      type="checkbox"
                       className="w-4 h-4"
+                      type="checkbox"
                       {...methods.register("isUtama")}
                       onChange={(e) => {
                         methods.setValue("isUtama", e.target.checked);
@@ -369,9 +374,9 @@ export default function CreateMajelisPage() {
 
                   <label className="flex items-center space-x-3 cursor-pointer p-3 border rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700">
                     <input
-                      type="checkbox"
                       className="w-4 h-4"
                       disabled={watchedValues.isUtama}
+                      type="checkbox"
                       {...methods.register("canView")}
                     />
                     <div>
@@ -382,9 +387,9 @@ export default function CreateMajelisPage() {
 
                   <label className="flex items-center space-x-3 cursor-pointer p-3 border rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700">
                     <input
-                      type="checkbox"
                       className="w-4 h-4"
                       disabled={watchedValues.isUtama}
+                      type="checkbox"
                       {...methods.register("canEdit")}
                     />
                     <div>
@@ -395,9 +400,9 @@ export default function CreateMajelisPage() {
 
                   <label className="flex items-center space-x-3 cursor-pointer p-3 border rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700">
                     <input
-                      type="checkbox"
                       className="w-4 h-4"
                       disabled={watchedValues.isUtama}
+                      type="checkbox"
                       {...methods.register("canCreate")}
                     />
                     <div>
@@ -408,9 +413,9 @@ export default function CreateMajelisPage() {
 
                   <label className="flex items-center space-x-3 cursor-pointer p-3 border rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700">
                     <input
-                      type="checkbox"
                       className="w-4 h-4"
                       disabled={watchedValues.isUtama}
+                      type="checkbox"
                       {...methods.register("canDelete")}
                     />
                     <div>
@@ -421,9 +426,9 @@ export default function CreateMajelisPage() {
 
                   <label className="flex items-center space-x-3 cursor-pointer p-3 border rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700">
                     <input
-                      type="checkbox"
                       className="w-4 h-4"
                       disabled={watchedValues.isUtama}
+                      type="checkbox"
                       {...methods.register("canManageRayon")}
                     />
                     <div>
@@ -573,11 +578,31 @@ export default function CreateMajelisPage() {
                     )}
                     {!watchedValues.isUtama && (
                       <>
-                        {watchedValues.canView && <p className="text-sm text-gray-600 dark:text-gray-400">✓ View</p>}
-                        {watchedValues.canEdit && <p className="text-sm text-gray-600 dark:text-gray-400">✓ Edit</p>}
-                        {watchedValues.canCreate && <p className="text-sm text-gray-600 dark:text-gray-400">✓ Create</p>}
-                        {watchedValues.canDelete && <p className="text-sm text-gray-600 dark:text-gray-400">✓ Delete</p>}
-                        {watchedValues.canManageRayon && <p className="text-sm text-gray-600 dark:text-gray-400">✓ Kelola Rayon</p>}
+                        {watchedValues.canView && (
+                          <p className="text-sm text-gray-600 dark:text-gray-400">
+                            ✓ View
+                          </p>
+                        )}
+                        {watchedValues.canEdit && (
+                          <p className="text-sm text-gray-600 dark:text-gray-400">
+                            ✓ Edit
+                          </p>
+                        )}
+                        {watchedValues.canCreate && (
+                          <p className="text-sm text-gray-600 dark:text-gray-400">
+                            ✓ Create
+                          </p>
+                        )}
+                        {watchedValues.canDelete && (
+                          <p className="text-sm text-gray-600 dark:text-gray-400">
+                            ✓ Delete
+                          </p>
+                        )}
+                        {watchedValues.canManageRayon && (
+                          <p className="text-sm text-gray-600 dark:text-gray-400">
+                            ✓ Kelola Rayon
+                          </p>
+                        )}
                       </>
                     )}
                   </div>
@@ -621,7 +646,7 @@ export default function CreateMajelisPage() {
       />
 
       {/* Form */}
-      <HookForm methods={methods} onSubmit={handleSubmit(onSubmit)}>
+      <HookForm methods={methods} onSubmit={onSubmit}>
         <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-6 transition-colors duration-300">
           {renderStepContent()}
 
@@ -634,7 +659,6 @@ export default function CreateMajelisPage() {
             totalSteps={steps.length}
             onNext={handleNext}
             onPrevious={handlePrevious}
-            onSubmit={handleSubmit(onSubmit)}
           />
         </div>
       </HookForm>
